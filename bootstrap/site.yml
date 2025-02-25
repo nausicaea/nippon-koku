@@ -30,25 +30,6 @@
       ansible.builtin.debug:
         var: hostvars[inventory_hostname]
 
-- name: Install Ansible prerequisites
-  hosts: localhost
-  tags:
-    - prerequisites
-  tasks:
-    - name: Install all system prerequisites
-      ansible.builtin.package:
-        name:
-          - python3-pip
-          - sudo
-        state: present
-      
-    - name: Install Ansible Galaxy prerequisites
-      community.general.ansible_galaxy_install:
-        requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
-        type: collection
-        dest: "{{ nausicaea_bootstrap.ansible_home }}/collections"
-        # state: present  # The version of the collection 'community.general' installed in Debian 12.9 is too old
-
 - name: Provision the Ansible user
   hosts: localhost
   tags:
@@ -110,6 +91,11 @@
         group: "{{ nausicaea_bootstrap.ansible_group }}"
         mode: "0600"
       loop: "{{ ansible_home_files.files | map(attribute='path') }}"
+
+    - name: Install sudo
+      ansible.builtin.package:
+        name: sudo
+        state: present
 
     - name: Allow passwordless sudo for Ansible
       ansible.builtin.copy:

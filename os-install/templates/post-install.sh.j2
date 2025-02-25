@@ -4,7 +4,7 @@ set -e
 
 echo "START POST INSTALL"
 
-apt-get install -y ansible-core git curl
+apt-get install -qy ansible-core git curl
 
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
@@ -19,6 +19,10 @@ git checkout "$BOOTSTRAP_BRANCH"
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
+
+ansible --version
+
+ansible-galaxy collection install -r ansible-requirements.yml
 
 ansible-playbook -c local site.yml || \
     printf 'ERROR: Ansible run failed with status code %s\n' "$?"
