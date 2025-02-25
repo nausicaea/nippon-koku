@@ -9,7 +9,7 @@ IMAGE_TAG="nausicaea/debian-auto:latest"
 INSTALL_NONFREE_FIRMWARE="${INSTALL_NONFREE_FIRMWARE:-false}"
 ROOT_PASSWORD_CRYPTED="$ROOT_PASSWORD_CRYPTED"
 
-while getopts ':a:b:hH:nr:V:' 'opt'; do
+while getopts ':a:b:hH:nr:' 'opt'; do
     case ${opt} in
         a)
             ARCH="${OPTARG}"
