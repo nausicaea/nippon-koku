@@ -42,6 +42,7 @@
       community.general.ansible_galaxy_install:
         requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
         type: collection
+        dest: "{{ nausicaea_bootstra.ansible_home }}/collections"
         # state: present  # The version of the collection 'community.general' installed in Debian 12.9 is too old
 
 - name: Provision the Ansible user
