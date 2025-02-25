@@ -17,7 +17,7 @@
       vars:
         msg: |
           Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
-          Arch: {{ ansible_architecture }}, {{ ansible_machine }}
+          Arch: ansible_architecture={{ ansible_architecture }}, ansible_machine={{ ansible_machine }}
           OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
           OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
           Hostnames: ansible_host={{ ansible_host }}, ansible_hostname={{ ansible_hostname }}, ansible_fqdn={{ ansible_fqdn }}, ansible_nodename={{ ansible_nodename }}
@@ -42,7 +42,7 @@
       community.general.ansible_galaxy_install:
         requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
         type: collection
-        state: present
+        # state: present  # The version of the collection 'community.general' installed in Debian 12.9 is too old
 
 - name: Provision the Ansible user
   hosts: localhost
