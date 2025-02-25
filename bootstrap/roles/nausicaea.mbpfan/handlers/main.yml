@@ -1,0 +1,6 @@
+---
+- name: Restart mbpfan
+  ansible.builtin.service:
+    name: mbpfan
+    state: restarted
+  become: true

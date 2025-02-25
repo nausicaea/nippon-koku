@@ -1,0 +1,61 @@
+---
+- name: Install mbpfan and lm-sensors
+  ansible.builtin.package:
+    name:
+      - mbpfan
+      - lm-sensors
+    state: present
+  become: true
+
+- name: Ensure mbpfan is started
+  ansible.builtin.service:
+    name: mbpfan
+    enabled: true
+    state: started
+  become: true
+
+- name: Find minimum fan speeds of all Apple hardware fans
+  ansible.builtin.find:
+    paths: /sys/devices/platform/applesmc.768
+    use_regex: false
+    patterns: fan*_min
+  register: fan_min_matches
+
+- name: Get the file contents of the minimum fan speeds
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop_control:
+    label: "{{ item.path }}"
+  loop: "{{ fan_min_matches.files }}"
+  register: fan_min_values_b64
+
+- name: Find maximum fan speeds of all Apple hardware fans
+  ansible.builtin.find:
+    paths: /sys/devices/platform/applesmc.768
+    use_regex: false
+    patterns: fan*_max
+  register: fan_max_matches
+
+- name: Get the file contents of the maximum fan speeds
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop_control:
+    label: "{{ item.path }}"
+  loop: "{{ fan_max_matches.files }}"
+  register: fan_max_values_b64
+
+- name: Get the fan speed limits
+  ansible.builtin.set_fact:
+    fan_min: "{{ fan_min_values_b64.results | map(attribute='content') | map('b64decode') | map('trim') | min }}"
+    fan_max: "{{ fan_max_values_b64.results | map(attribute='content') | map('b64decode') | map('trim') | max }}"
+
+- name: Configure mbpfan
+  ansible.builtin.template:
+    src: mbpfan.conf.j2
+    dest: /etc/mbpfan.conf
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  become: true
+  notify: Restart mbpfan

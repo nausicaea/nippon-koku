@@ -1,0 +1,65 @@
+- name: Gather information about the host
+  hosts: localhost
+  tags:
+    - facts
+  tasks:
+    - name: Classify the host based on its OS distribution
+      ansible.builtin.group_by:
+        key: "os_{{ ansible_distribution | lower }}"
+      changed_when: false
+
+    - name: Classify the host based on its system vendor
+      ansible.builtin.group_by:
+        key: "sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
+      changed_when: false
+
+    - name: Show host distribution, release name, and version
+      vars:
+        msg: |
+          Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
+          Arch: {{ ansible_architecture }}, {{ ansible_machine }}
+          OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
+          OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
+          Hostnames: ansible_host={{ ansible_host }}, ansible_hostname={{ ansible_hostname }}, ansible_fqdn={{ ansible_fqdn }}, ansible_nodename={{ ansible_nodename }}
+          Ansible Inventory: {{ inventory_hostname }}, {{ inventory_hostname_short }}
+          Ansible Groups: {{ group_names }}
+      ansible.builtin.debug:
+        msg: "{{ msg.split('\n') }}"
+
+- name: Install Ansible prerequisites
+  hosts: localhost
+  tags:
+    - prerequisites
+  tasks:
+    - name: Install all system prerequisites
+      ansible.builtin.package:
+        name: []
+        state: present
+      
+    - name: Install Python prerequisites
+      ansible.builtin.pip:
+        requirements: "{{ playbook_dir }}/python-requirements.txt"
+        state: present
+
+    - name: Install Ansible Galaxy prerequisites
+      community.general.ansible_galaxy_install:
+        requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
+        type: collection
+        state: present
+
+- name: Apply OS and SSH hardening
+  hosts:
+    - os_ubuntu
+    - os_debian
+  tags:
+    - hardening
+  roles:
+    - devsec.hardening.os_hardening
+    - devsec.hardening.ssh_hardening
+
+- name: Install MbpFan
+  hosts: sys_apple
+  tags:
+    - mbpfan
+  roles:
+    - nausicaea.mbpfan
