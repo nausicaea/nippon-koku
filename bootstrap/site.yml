@@ -26,10 +26,6 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-    - name: Display all known host facts
-      ansible.builtin.debug:
-        var: hostvars[inventory_hostname]
-
 - name: Provision the Ansible user
   hosts: localhost
   tags:
@@ -127,4 +123,11 @@
   roles:
     - nausicaea.mbpfan
 
-# Also install tailscale
+- name: Install Tailscale
+  hosts: localhost
+  tags:
+    - tailscale
+  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
+  roles:
+    - nausicaea.tailscale
+

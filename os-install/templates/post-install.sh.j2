@@ -4,26 +4,26 @@ set -e
 
 echo "START POST INSTALL"
 
-apt-get install -qy ansible-core git curl
-
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
+
+echo "PI: Stage 1"
+apt-get install -qy ansible-core git curl
+
+echo "PI: Stage 2"
 STAGING_DIR=$(mktemp -d)
-
 git clone "$BOOTSTRAP_REPO" "$STAGING_DIR"
-
 cd "${STAGING_DIR}/bootstrap"
-
 git checkout "$BOOTSTRAP_BRANCH"
 
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-ansible --version
-
+echo "PI: Stage 3"
 ansible-galaxy collection install -r ansible-requirements.yml
 
+echo "PI: Stage 4"
 ansible-playbook -c local site.yml || \
     printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
