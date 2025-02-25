@@ -84,6 +84,8 @@
     - os_debian
   tags:
     - hardening
+  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
+  become: true
   tasks:
     - name: Include the hardening roles (this must be dynamic, because they might not have been installed yet)
       ansible.builtin.include_role:
@@ -96,6 +98,7 @@
   hosts: sys_apple
   tags:
     - mbpfan
+  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
   roles:
     - nausicaea.mbpfan
 
