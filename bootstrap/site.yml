@@ -67,6 +67,38 @@
         shell: /bin/bash
         state: present
 
+    - name: Find all directories already in the Ansible home directory
+      ansible.builtin.find:
+        paths:
+          - "{{ nausicaea_bootstrap.ansible_home }}"
+        file_type: directory
+        recurse: true
+      register: ansible_home_dirs
+
+    - name: Fix ownership on all directories under Ansible home
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        mode: "0700"
+      loop: "{{ ansible_home_dirs.files | map(attribute='path') }}"
+
+    - name: Find all files already in the Ansible home directory
+      ansible.builtin.find:
+        paths:
+          - "{{ nausicaea_bootstrap.ansible_home }}"
+        file_type: file
+        recurse: true
+      register: ansible_home_files
+
+    - name: Fix ownership on all files under Ansible home
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        mode: "0600"
+      loop: "{{ ansible_home_file.files | map(attribute='path') }}"
+
     - name: Allow passwordless sudo for Ansible
       ansible.builtin.copy:
         content: "ansible ALL=(ALL) NOPASSWD: ALL"
