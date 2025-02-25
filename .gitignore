@@ -1,5 +1,11 @@
-# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,linux
+# Custom additions
+.envrc
+.direnv/
+os-install/cache/
+os-install/artifacts/
+
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows
 
 ### Linux ###
 *~
@@ -75,4 +81,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows

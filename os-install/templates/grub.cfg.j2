@@ -1,0 +1,7 @@
+default=Install
+timeout=0
+menuentry 'Install' {
+    set background_color=black
+    linux    /install.{{ arch_short }}/vmlinuz --- quiet DEBIAN_FRONTEND=text
+    initrd   /install.{{ arch_short }}/initrd.gz
+}
