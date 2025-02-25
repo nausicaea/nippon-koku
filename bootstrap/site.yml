@@ -97,7 +97,7 @@
         owner: "{{ nausicaea_bootstrap.ansible_user }}"
         group: "{{ nausicaea_bootstrap.ansible_group }}"
         mode: "0600"
-      loop: "{{ ansible_home_file.files | map(attribute='path') }}"
+      loop: "{{ ansible_home_files.files | map(attribute='path') }}"
 
     - name: Allow passwordless sudo for Ansible
       ansible.builtin.copy:
