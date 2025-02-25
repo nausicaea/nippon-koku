@@ -1,0 +1,3 @@
+---
+nausicaea_tailscale:
+  enable_exit_node: false
