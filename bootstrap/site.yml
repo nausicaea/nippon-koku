@@ -33,7 +33,9 @@
   tasks:
     - name: Install all system prerequisites
       ansible.builtin.package:
-        name: []
+        name:
+          - python3-pip
+          - sudo
         state: present
       
     - name: Install Python prerequisites
@@ -47,6 +49,35 @@
         type: collection
         state: present
 
+- name: Provision the Ansible user
+  hosts: localhost
+  tags:
+    - ansible_user
+  tasks:
+    - name: Create the Ansible system group
+      ansible.builtin.group:
+        name: "{{ nausicaea_bootstrap.ansible_group }}"
+        system: true
+        state: present
+
+    - name: Create Ansible user
+      ansible.builtin.user:
+        name: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        comment: Ansible user
+        home: "{{ nausicaea_bootstrap.ansible_home }}"
+        create_home: true
+        password_lock: true
+        system: true
+        shell: /bin/bash
+        state: present
+
+    - name: Allow passwordless sudo for Ansible
+      ansible.builtin.copy:
+        content: "ansible ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/ansible
+        mode: "0600"
+
 - name: Apply OS and SSH hardening
   hosts:
     - os_ubuntu
@@ -54,7 +85,7 @@
   tags:
     - hardening
   tasks:
-    - name: Include the hardening roles (this must be dynamic, because they might not have been instaleld yet)
+    - name: Include the hardening roles (this must be dynamic, because they might not have been installed yet)
       ansible.builtin.include_role:
         name: "{{ item }}"
       loop:
@@ -67,3 +98,5 @@
     - mbpfan
   roles:
     - nausicaea.mbpfan
+
+# Also install tailscale
