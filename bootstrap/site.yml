@@ -53,9 +53,13 @@
     - os_debian
   tags:
     - hardening
-  roles:
-    - devsec.hardening.os_hardening
-    - devsec.hardening.ssh_hardening
+  tasks:
+    - name: Include the hardening roles (this must be dynamic, because they might not have been instaleld yet)
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop:
+        - devsec.hardening.os_hardening
+        - devsec.hardening.ssh_hardening
 
 - name: Install MbpFan
   hosts: sys_apple
