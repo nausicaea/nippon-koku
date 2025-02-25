@@ -26,6 +26,10 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
+    - name: Display all known host facts
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname]
+
 - name: Install Ansible prerequisites
   hosts: localhost
   tags:
