@@ -38,11 +38,6 @@
           - sudo
         state: present
       
-    - name: Install Python prerequisites
-      ansible.builtin.pip:
-        requirements: "{{ playbook_dir }}/python-requirements.txt"
-        state: present
-
     - name: Install Ansible Galaxy prerequisites
       community.general.ansible_galaxy_install:
         requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
