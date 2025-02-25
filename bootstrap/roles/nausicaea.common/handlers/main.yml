@@ -1,0 +1,17 @@
+---
+- name: Etckeeper commit
+  ansible.builtin.command:
+    cmd: etckeeper commit "ansible autocommit @ {{ ansible_date_time.iso8601 }}"
+  register: etckeeper_autocommit
+  changed_when: etckeeper_autocommit.rc == 0 or not "working tree clean" in etckeeper_autocommit.stdout
+  failed_when: etckeeper_autocommit.rc != 0 and not "working tree clean" in etckeeper_autocommit.stdout
+  become: true
+
+- name: Update ufw apps
+  ansible.builtin.command:
+    argv:
+      - ufw
+      - app
+      - update
+      - all
+  become: true

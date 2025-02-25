@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: common
+  namespace: nausicaea
+  author: Eleanor Young
+  description: Performs tasks and configurations common to all other roles
+  company: Nausicaea AS
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags: []
+dependencies: []

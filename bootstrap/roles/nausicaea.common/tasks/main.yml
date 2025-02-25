@@ -1,0 +1,66 @@
+---
+- name: Install the package etckeeper
+  ansible.builtin.package:
+    name: etckeeper
+    state: present
+  become: true
+  notify: Etckeeper commit
+
+- name: Install the ACL package
+  ansible.builtin.package:
+    name: acl
+    state: present
+  become: true
+  notify: Etckeeper commit
+
+- name: Install the package unattented-upgrades
+  ansible.builtin.package:
+    name: unattended-upgrades
+    state: present
+  become: true
+  notify: Etckeeper commit
+
+- name: Ensure that the kubernetes Python package is present
+  ansible.builtin.package:
+    name: python3-kubernetes
+    state: present
+  become: true
+  notify: Etckeeper commit
+
+- name: Set a default deny rule for incoming traffic
+  community.general.ufw:
+    default: deny
+    direction: incoming
+  become: true
+
+- name: Set a default accept rule for outgoing traffic
+  community.general.ufw:
+    default: allow
+    direction: outgoing
+  become: true
+
+- name: Allow any traffic on the loopback interface
+  community.general.ufw:
+    comment: Allow any traffic on the loopback interface
+    rule: allow
+    direction: in
+    interface: lo
+  become: true
+
+- name: Does the K3s kubeconfig exist?
+  ansible.builtin.stat:
+    path: /etc/rancher/k3s/k3s.yaml
+  register: k3s_kubeconfig
+  become: true
+
+- name: Does the K3s manifests directory exist?
+  ansible.builtin.stat:
+    path: /var/lib/rancher/k3s/server/manifests
+  register: k3s_manifests
+  become: true
+
+- name: Set facts for convenience
+  ansible.builtin.set_fact:
+    k3s_kubeconfig_exists: "{{ k3s_kubeconfig.stat.exists and k3s_kubeconfig.stat.isreg }}"
+    k3s_manifests_exists: "{{ k3s_manifests.stat.exists and k3s_manifests.stat.isdir }}"
+

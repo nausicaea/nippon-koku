@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: mbpfan
+  namespace: nausicaea
+  author: Eleanor Young
+  description: Installs and configures mbpfan, to regulate Apple hardware fan speeds
+  company: Nausicaea AS
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags: []
+dependencies: []
