@@ -20,7 +20,7 @@ if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-ansible-playbook -vv -c local site.yml || \
+ansible-playbook -c local site.yml || \
     printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
 if [ -e /dev/shm ]; then
