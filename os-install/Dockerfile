@@ -12,6 +12,7 @@ VOLUME ["/cache", "/artifacts"]
 ENV ARCH="amd64"
 ENV BOOT_DEVICE="/dev/nvme0n1"
 ENV BOOTSTRAP_REPO="https://github.com/nausicaea/nippon-koku"
+ENV BOOTSTRAP_BRANCH="main"
 ENV DEBIAN_MIRROR="debian.ethz.ch"
 ENV DEBIAN_VERSION="12.9.0"
 ENV DOMAIN=""

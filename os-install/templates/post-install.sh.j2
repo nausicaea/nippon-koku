@@ -7,10 +7,13 @@ echo "START POST INSTALL"
 apt-get install -y ansible-core git curl
 
 BOOTSTRAP_REPO="{{ repo }}"
+BOOTSTRAP_BRANCH="{{ branch }}"
 STAGING_DIR=$(mktemp -d)
 
 git clone "$BOOTSTRAP_REPO" "$STAGING_DIR"
 
 cd "${STAGING_DIR}/bootstrap"
 
-ansible-playbook -c local site.yml
+git checkout "$BOOTSTRAP_BRANCH"
+
+ansible-playbook -v -c local site.yml

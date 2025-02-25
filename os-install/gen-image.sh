@@ -4,18 +4,22 @@ set -e
 
 ARCH="${ARCH:-amd64}"
 BOOT_DEVICE="${BOOT_DEVICE:-/dev/sda}"
+BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
 HOSTNAME="${HOSTNAME:-debian}"
 IMAGE_TAG="nausicaea/debian-auto:latest"
 INSTALL_NONFREE_FIRMWARE="${INSTALL_NONFREE_FIRMWARE:-false}"
 ROOT_PASSWORD_CRYPTED="$ROOT_PASSWORD_CRYPTED"
 
-while getopts ':a:b:hH:nr:' 'opt'; do
+while getopts ':a:b:B:hH:nr:' 'opt'; do
     case ${opt} in
         a)
             ARCH="${OPTARG}"
             ;;
         b)
             BOOT_DEVICE="${OPTARG}"
+            ;;
+        B)
+            BOOTSTRAP_BRANCH="${OPTARG}"
             ;;
         h)
             printf \
@@ -36,6 +40,8 @@ OPTIONS:
                                 (available options are "amd64", "i386", and 
                                 "arm64").
   -b BOOT_DEVICE                Specify the boot device (e.g. "/dev/sda").
+  -B BOOTSTRAP_BRANCH           Specify the branch to check out during
+                                postinstall.
   -h                            Print this usage message and exit.
   -H                            Specify the target hostname.
   -n                            Install non-free firmware.
@@ -74,4 +80,5 @@ exec docker run --rm \
     -v ./cache:/cache -v ./artifacts:/artifacts \
     -e ARCH="$ARCH" -e INSTALL_NONFREE_FIRMWARE="$INSTALL_NONFREE_FIRMWARE" \
     -e BOOT_DEVICE="$BOOT_DEVICE" -e HOSTNAME="$HOSTNAME" \
+    -e BOOTSTRAP_BRANCH="$BOOTSTRAP_BRANCH" \
     "$IMAGE_TAG" "$ROOT_PASSWORD_CRYPTED"
