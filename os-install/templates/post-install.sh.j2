@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -x
 
 echo "START POST INSTALL"
 
@@ -16,4 +16,8 @@ cd "${STAGING_DIR}/bootstrap"
 
 git checkout "$BOOTSTRAP_BRANCH"
 
-ansible-playbook -v -c local site.yml
+ansible-playbook -vv -c local site.yml || \
+    ANSIBLE_STATUS="$?" \\
+    echo "ERROR: Ansible run failed with status code $ANSIBLE_STATUS"
+
+echo "END POST INSTALL"
