@@ -19,13 +19,14 @@ while getopts ':a:b:hH:nr:V:' 'opt'; do
             ;;
         h)
             printf \
-'debian-auto 0.1.0 (gen-image.sh)
+'nippon-koku 0.1.0 (gen-image.sh)
 Eleanor Young <developer@nausicaea.net>
 
-Generates a Debian ISO image with a preseed configuration. The images are saved
-to the ./artifacts/ directory. Requires Docker to work.
+Generates a Debian ISO image with a preseed configuration. The preseed images
+are saved to the ./artifacts/ directory, while the original unmodified images
+are saved to the ./cache/ directory. Requires Docker to work.
 
-Project home page: https://github.com/nausicaea/debian-auto
+Project home page: https://github.com/nausicaea/nippon-koku
 
 USAGE:
   gen-image.sh [OPTIONS]
