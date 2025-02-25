@@ -67,6 +67,13 @@
         shell: /bin/bash
         state: present
 
+    - name: Fix the ownership and permissions of the Ansible home directory
+      ansible.builtin.file:
+        path: "{{ nausicaea_bootstrap.ansible_home }}"
+        owner: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        mode: "0700"
+
     - name: Find all directories already in the Ansible home directory
       ansible.builtin.find:
         paths:
