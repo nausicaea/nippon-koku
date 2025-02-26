@@ -157,3 +157,37 @@
   roles:
     - nausicaea.tailscale
 
+- name: Install ansible-pull as a periodic service
+  hosts: all
+  tags:
+    - ansible_pull
+  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
+  handlers:
+    - name: Reload Systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      become: true
+  tasks:
+    - name: Configure the systemd units
+      ansible.builtin.template:
+        path: "{{ item.path }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+      notify: Reload Systemd
+      loop:
+        - path: ansible-pull.service.j2
+          dest: /etc/systemd/system/ansible-pull.service
+        - path: ansible-pull.timer.j2
+          dest: /etc/systemd/system/ansible-pull.timer
+
+    - name: Enable the timer manually (this needs to work even without systemd available)
+      ansible.builtin.file:
+        src: /etc/systemd/system/ansible-pull.timer
+        dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
+        state: link
+      become: true
+      notify: Reload Systemd
+

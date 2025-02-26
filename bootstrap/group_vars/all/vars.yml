@@ -2,3 +2,6 @@ nausicaea_bootstrap:
   ansible_user: &au ansible
   ansible_group: *au
   ansible_home: /var/lib/ansible
+  checkout_dir: /var/lib/ansible/nippon-koku
+  repo: https://github.com/nausicaea/nippon-koku
+  branch: feature/post-install
