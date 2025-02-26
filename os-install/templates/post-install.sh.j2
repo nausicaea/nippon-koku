@@ -11,11 +11,11 @@ BOOTSTRAP_DEST="{{ dest }}"
 echo "PI: Stage 1"
 apt-get install -qy ansible-core git curl
 
+echo "PI: Stage 2"
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-echo "PI: Stage 2"
 cat <<EOF > /tmp/ansible-requirements.yml
 ---
 collections:
@@ -35,8 +35,8 @@ ansible-galaxy collection install -r /tmp/ansible-requirements.yml
 echo "PI: Stage 3"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     -d "$BOOTSTRAP_DEST" \
-    -c local -i bootstrap/inventory.yml bootstrap/playbook.yml #\
-    #|| printf 'ERROR: Ansible run failed with status code %s\n' "$?"
+    -i bootstrap/inventory.yml bootstrap/playbook.yml \
+    || printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
 if [ -e /dev/shm ]; then
     rmdir -v /dev/shm
