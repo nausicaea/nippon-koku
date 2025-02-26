@@ -35,8 +35,8 @@ ansible-galaxy collection install -r /tmp/ansible-requirements.yml
 echo "PI: Stage 3"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     -d "$BOOTSTRAP_DEST" \
-    -c local -i bootstrap/inventory.yml bootstrap/playbook.yml || \
-    printf 'ERROR: Ansible run failed with status code %s\n' "$?"
+    -c local -i bootstrap/inventory.yml bootstrap/playbook.yml #\
+    #|| printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
 if [ -e /dev/shm ]; then
     rmdir -v /dev/shm
