@@ -1,7 +1,5 @@
 - name: Gather information about the host
-  hosts: 
-    - all
-    - localhost
+  hosts: all
   tags:
     - facts
   tasks:
