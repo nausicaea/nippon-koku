@@ -1,5 +1,7 @@
 - name: Gather information about the host
-  hosts: all
+  hosts: 
+    - all
+    - localhost
   tags:
     - facts
   tasks:
@@ -115,7 +117,7 @@
           - /etc/apt/sources.list.d
         type: file
         recurse: true
-      record: apt_repository_sources
+      register: apt_repository_sources
 
     - name: Comment out any cdrom repositories
       ansible.builtin.lineinfile:
