@@ -10,21 +10,31 @@ BOOTSTRAP_BRANCH="{{ branch }}"
 echo "PI: Stage 1"
 apt-get install -qy ansible-core git curl
 
-echo "PI: Stage 2"
-STAGING_DIR=$(mktemp -d)
-git clone "$BOOTSTRAP_REPO" "$STAGING_DIR"
-cd "${STAGING_DIR}/bootstrap"
-git checkout "$BOOTSTRAP_BRANCH"
-
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-echo "PI: Stage 3"
-ansible-galaxy collection install -r ansible-requirements.yml
+echo "PI: Stage 2"
+cat <<EOF > /tmp/ansible-requirements.yml
+---
+collections:
+  ansible.posix:
+    version: 2.0.0
+  community.crypto:
+    version: 2.24.0
+  community.general:
+    version: 10.3.0
+  devsec.hardening:
+    version: 10.2.0
+  kubernetes.core:
+    version: 5.1.0
+EOF
+ansible-galaxy collection install -r /tmp/ansible-requirements.yml
 
-echo "PI: Stage 4"
-ansible-playbook -c local site.yml || \
+echo "PI: Stage 3"
+ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
+    -d "/var/lib/ansible/nippon-koku" \
+    -c local -i bootstrap/inventory.yml bootstrap/playbook.yml || \
     printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
 if [ -e /dev/shm ]; then

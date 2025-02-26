@@ -1,5 +1,5 @@
 - name: Gather information about the host
-  hosts: localhost
+  hosts: all
   tags:
     - facts
   tasks:
@@ -27,7 +27,7 @@
         msg: "{{ msg.split('\n') }}"
 
 - name: Provision the Ansible user
-  hosts: localhost
+  hosts: all
   tags:
     - ansible_user
   tasks:
@@ -99,6 +99,32 @@
         dest: /etc/sudoers.d/ansible
         mode: "0600"
 
+- name: Disable the CDROM repository for APT
+  hosts:
+    - os_ubuntu
+    - os_debian
+  tags:
+    - apt_sources
+  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
+  become: true
+  tasks:
+    - name: Find all repo files
+      ansible.builtin.find:
+        paths:
+          - /etc/apt/sources.list
+          - /etc/apt/sources.list.d
+        type: file
+        recurse: true
+      record: apt_repository_sources
+
+    - name: Comment out any cdrom repositories
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        line: "#\\1"
+        regexp: "^deb cdrom:"
+        backrefs: true
+      loop: "{{ apt_repository_sources.files | map(attribute='path') }}"
+
 - name: Apply OS and SSH hardening
   hosts:
     - os_ubuntu
@@ -124,7 +150,7 @@
     - nausicaea.mbpfan
 
 - name: Install Tailscale
-  hosts: localhost
+  hosts: all
   tags:
     - tailscale
   remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
