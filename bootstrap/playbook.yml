@@ -130,17 +130,17 @@
         paths:
           - /etc/apt/sources.list
           - /etc/apt/sources.list.d
-        type: file
+        file_type: file
         recurse: true
       register: apt_repository_sources
 
-#     - name: Comment out any cdrom repositories
-#       ansible.builtin.lineinfile:
-#         path: "{{ item }}"
-#         line: "#\\1"
-#         regexp: "^deb cdrom:"
-#         backrefs: true
-#       loop: "{{ apt_repository_sources.files | map(attribute='path') }}"
+    - name: Comment out any cdrom repositories
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        line: "#\\1"
+        regexp: "^deb cdrom:"
+        backrefs: true
+      loop: "{{ apt_repository_sources.files | map(attribute='path') }}"
 
 # - name: Apply OS and SSH hardening
 #   hosts:
