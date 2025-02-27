@@ -168,6 +168,24 @@
         daemon_reload: true
       become: true
   tasks:
+    - name: Configure the ansible.cfg file
+      ansible.builtin.template:
+        src: ansible.cfg.j2
+        dest: /etc/ansible/ansible.cfg
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+
+    - name: Configure Ansible Galaxy requirements
+      ansible.builtin.template:
+        src: ansible-requirements.yml.j2
+        dest: /etc/ansible/ansible-requirements.yml
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+
     - name: Configure the systemd units
       ansible.builtin.template:
         path: "{{ item.path }}"

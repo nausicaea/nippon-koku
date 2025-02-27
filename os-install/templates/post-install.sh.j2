@@ -7,6 +7,10 @@ echo "START POST INSTALL"
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
 BOOTSTRAP_DEST="{{ dest }}"
+ANSIBLE_ETCDIR="/etc/ansible"
+ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
+ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
+export ANSIBLE_HOME=$(dirname "$BOOTSTRAP_DEST")
 
 echo "PI: Stage 1"
 apt-get install -qy ansible-core git curl
@@ -16,7 +20,17 @@ if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-cat <<EOF > /tmp/ansible-requirements.yml
+mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME"
+
+cat <<EOF > "$ANSIBLE_CFG"
+[defaults]
+home = $ANSIBLE_HOME
+interpreter_python = auto_silent
+nocolor = true
+hash_behaviour = merge
+EOF
+
+cat <<EOF > "$ANSIBLE_REQS"
 ---
 collections:
   ansible.posix:
@@ -30,12 +44,13 @@ collections:
   kubernetes.core:
     version: 5.1.0
 EOF
-ansible-galaxy collection install -r /tmp/ansible-requirements.yml
+ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
 echo "PI: Stage 3"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
-    -d "$BOOTSTRAP_DEST" \
-    -i bootstrap/inventory.yml bootstrap/playbook.yml \
+    -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
+    #bootstrap/playbook.yml \
+    --list-hosts \
     || printf 'ERROR: Ansible run failed with status code %s\n' "$?"
 
 if [ -e /dev/shm ]; then
