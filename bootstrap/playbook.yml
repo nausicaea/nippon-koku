@@ -98,7 +98,7 @@
 
     - name: Configure the systemd units
       ansible.builtin.template:
-        path: "{{ item.path }}"
+        src: "{{ item.path }}"
         dest: "{{ item.dest }}"
         owner: root
         group: root
