@@ -13,9 +13,6 @@ ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
 export ANSIBLE_HOME=$(dirname "$BOOTSTRAP_DEST")
 
 echo "PI: Stage 1"
-apt-get install -qy ansible-core git curl
-
-echo "PI: Stage 2"
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
@@ -46,7 +43,7 @@ collections:
 EOF
 ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
-echo "PI: Stage 3"
+echo "PI: Stage 2"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
     --list-hosts \
