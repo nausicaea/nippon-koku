@@ -117,23 +117,23 @@
         state: link
       notify: Reload Systemd
 
-# - name: Disable the CDROM repos for APT
-#   hosts:
-#     - os_ubuntu
-#     - os_debian
-#   tags:
-#     - apt_sources
-#   become: true
-#   tasks:
-#     - name: Find all repo files
-#       ansible.builtin.find:
-#         paths:
-#           - /etc/apt/sources.list
-#           - /etc/apt/sources.list.d
-#         type: file
-#         recurse: true
-#       register: apt_repository_sources
-# 
+- name: Disable the CDROM repos for APT
+  hosts:
+    - os_ubuntu
+    - os_debian
+  tags:
+    - apt_sources
+  become: true
+  tasks:
+    - name: Find all repo files
+      ansible.builtin.find:
+        paths:
+          - /etc/apt/sources.list
+          - /etc/apt/sources.list.d
+        type: file
+        recurse: true
+      register: apt_repository_sources
+
 #     - name: Comment out any cdrom repositories
 #       ansible.builtin.lineinfile:
 #         path: "{{ item }}"
