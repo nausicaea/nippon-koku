@@ -49,44 +49,17 @@
         shell: /bin/bash
         state: present
 
-    - name: Fix the ownership and permissions of the Ansible home directory
+    - name: Fix ownership on all files and directories in Ansible home
       ansible.builtin.file:
         path: "{{ nausicaea_bootstrap.ansible_home }}"
-        owner: "{{ nausicaea_bootstrap.ansible_user }}"
-        group: "{{ nausicaea_bootstrap.ansible_group }}"
-        mode: "0700"
-
-    - name: Find all directories already in the Ansible home directory
-      ansible.builtin.find:
-        paths:
-          - "{{ nausicaea_bootstrap.ansible_home }}"
-        file_type: directory
+        state: directory
         recurse: true
-      register: ansible_home_dirs
-
-    - name: Fix ownership on all directories under Ansible home
-      ansible.builtin.file:
-        path: "{{ item }}"
         owner: "{{ nausicaea_bootstrap.ansible_user }}"
         group: "{{ nausicaea_bootstrap.ansible_group }}"
-        mode: "0700"
-      loop: "{{ ansible_home_dirs.files | map(attribute='path') }}"
-
-    - name: Find all files already in the Ansible home directory
-      ansible.builtin.find:
-        paths:
-          - "{{ nausicaea_bootstrap.ansible_home }}"
-        file_type: file
-        recurse: true
-      register: ansible_home_files
-
-    - name: Fix ownership on all files under Ansible home
-      ansible.builtin.file:
-        path: "{{ item }}"
-        owner: "{{ nausicaea_bootstrap.ansible_user }}"
-        group: "{{ nausicaea_bootstrap.ansible_group }}"
-        mode: "0600"
-      loop: "{{ ansible_home_files.files | map(attribute='path') }}"
+        mode: '{{ item }}'
+      loop:
+        - '-x'
+        - 'u=rwX,g=rX,o=rX'
 
     - name: Install sudo
       ansible.builtin.package:
