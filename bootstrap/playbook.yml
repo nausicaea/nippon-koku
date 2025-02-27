@@ -30,6 +30,7 @@
   hosts: all
   tags:
     - ansible_user
+  become: true
   tasks:
     - name: Create the Ansible system group
       ansible.builtin.group:
@@ -56,10 +57,7 @@
         recurse: true
         owner: "{{ nausicaea_bootstrap.ansible_user }}"
         group: "{{ nausicaea_bootstrap.ansible_group }}"
-        mode: '{{ item }}'
-      loop:
-        - '-x'
-        - 'u=rwX,g=rX,o=rX'
+        mode: 'u=rwX,go='
 
     - name: Install sudo
       ansible.builtin.package:
@@ -72,74 +70,15 @@
         dest: /etc/sudoers.d/ansible
         mode: "0600"
 
-- name: Disable the CDROM repository for APT
-  hosts:
-    - os_ubuntu
-    - os_debian
-  tags:
-    - apt_sources
-  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
-  become: true
-  tasks:
-    - name: Find all repo files
-      ansible.builtin.find:
-        paths:
-          - /etc/apt/sources.list
-          - /etc/apt/sources.list.d
-        type: file
-        recurse: true
-      register: apt_repository_sources
-
-    - name: Comment out any cdrom repositories
-      ansible.builtin.lineinfile:
-        path: "{{ item }}"
-        line: "#\\1"
-        regexp: "^deb cdrom:"
-        backrefs: true
-      loop: "{{ apt_repository_sources.files | map(attribute='path') }}"
-
-- name: Apply OS and SSH hardening
-  hosts:
-    - os_ubuntu
-    - os_debian
-  tags:
-    - hardening
-  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
-  become: true
-  tasks:
-    - name: Include the hardening roles (this must be dynamic, because they might not have been installed yet)
-      ansible.builtin.include_role:
-        name: "{{ item }}"
-      loop:
-        - devsec.hardening.os_hardening
-        - devsec.hardening.ssh_hardening
-
-- name: Install MbpFan
-  hosts: sys_apple
-  tags:
-    - mbpfan
-  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
-  roles:
-    - nausicaea.mbpfan
-
-- name: Install Tailscale
-  hosts: all
-  tags:
-    - tailscale
-  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
-  roles:
-    - nausicaea.tailscale
-
 - name: Install ansible-pull as a periodic service
   hosts: all
   tags:
     - ansible_pull
-  remote_user: "{{ nausicaea_bootstrap.ansible_user }}"
+  become: true
   handlers:
     - name: Reload Systemd
       ansible.builtin.systemd_service:
         daemon_reload: true
-      become: true
   tasks:
     - name: Configure the ansible.cfg file
       ansible.builtin.template:
@@ -148,7 +87,6 @@
         owner: root
         group: root
         mode: "0644"
-      become: true
 
     - name: Configure Ansible Galaxy requirements
       ansible.builtin.template:
@@ -157,7 +95,6 @@
         owner: root
         group: root
         mode: "0644"
-      become: true
 
     - name: Configure the systemd units
       ansible.builtin.template:
@@ -166,7 +103,6 @@
         owner: root
         group: root
         mode: "0644"
-      become: true
       notify: Reload Systemd
       loop:
         - path: ansible-pull.service.j2
@@ -179,6 +115,59 @@
         src: /etc/systemd/system/ansible-pull.timer
         dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
         state: link
-      become: true
       notify: Reload Systemd
 
+# - name: Disable the CDROM repos for APT
+#   hosts:
+#     - os_ubuntu
+#     - os_debian
+#   tags:
+#     - apt_sources
+#   become: true
+#   tasks:
+#     - name: Find all repo files
+#       ansible.builtin.find:
+#         paths:
+#           - /etc/apt/sources.list
+#           - /etc/apt/sources.list.d
+#         type: file
+#         recurse: true
+#       register: apt_repository_sources
+# 
+#     - name: Comment out any cdrom repositories
+#       ansible.builtin.lineinfile:
+#         path: "{{ item }}"
+#         line: "#\\1"
+#         regexp: "^deb cdrom:"
+#         backrefs: true
+#       loop: "{{ apt_repository_sources.files | map(attribute='path') }}"
+
+# - name: Apply OS and SSH hardening
+#   hosts:
+#     - os_ubuntu
+#     - os_debian
+#   tags:
+#     - hardening
+#   become: true
+#   tasks:
+#     - name: Include the hardening roles (this must be dynamic, because they might not have been installed yet)
+#       ansible.builtin.include_role:
+#         name: "{{ item }}"
+#       loop:
+#         - devsec.hardening.os_hardening
+#         - devsec.hardening.ssh_hardening
+# 
+# - name: Install MbpFan
+#   hosts: sys_apple
+#   tags:
+#     - mbpfan
+#   roles:
+#     - nausicaea.mbpfan
+# 
+# - name: Install Tailscale
+#   hosts: all
+#   tags:
+#     - tailscale
+#   roles:
+#     - nausicaea.tailscale
+# 
