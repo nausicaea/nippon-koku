@@ -136,8 +136,8 @@
     - name: Comment out any cdrom repositories
       ansible.builtin.lineinfile:
         path: "{{ item }}"
-        line: "#\\1"
-        regexp: "^deb cdrom:"
+        line: '#\1'
+        regexp: '^(deb cdrom:.*)$'
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
