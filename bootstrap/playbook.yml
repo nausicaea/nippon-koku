@@ -26,10 +26,6 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-    - name: Show all known facts
-      ansible.builtin.debug:
-        var: ansible_facts
-
 - name: Provision the Ansible user
   hosts: all
   tags:
@@ -152,9 +148,20 @@
   tags:
     - hardening
   become: true
-  roles:
-    - devsec.hardening.os_hardening
-    - devsec.hardening.ssh_hardening
+  tasks:
+    - block:
+        - name: Apply OS hardening
+          ansible.builtin.include_role:
+            name: devsec.hardening.os_hardening
+      recover:
+        - name: Recover from a remount error on /dev/shm
+          ansible.builtin.debug:
+            var: ansible_failed_result
+          #when: "ansible_is_chroot and '/dev/shm: not mounted' in ansible_failed_result.stderr"
+          when: ansible_is_chroot
+    - name: Apply SSH hardening
+      ansible.builtin.import_role:
+        name: devsec.hardening.ssh_hardening
 
 # - name: Install MbpFan
 #   hosts: sys_apple
