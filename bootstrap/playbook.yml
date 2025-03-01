@@ -148,38 +148,21 @@
   tags:
     - hardening
   become: true
-  handlers:
-    - name: Remount filesystems
-      block:
-        - name: Remount filesystems (original handler)
-          ansible.posix.mount:
-            path: "{{ item }}"
-            state: remounted
-          loop: "{{ mountpoints_changed }}"
-      rescue:
-        - name: Recover from remounting errors
-          ansible.builtin.debug:
-            msg: "MARKER MARKER MARKER"
-          when: ansible_is_chroot
-  tasks:
-    - name: Apply OS hardening
-      ansible.builtin.include_role:
-        name: devsec.hardening.os_hardening
-    - name: Apply SSH hardening
-      ansible.builtin.include_role:
-        name: devsec.hardening.ssh_hardening
+  roles:
+    - devsec.hardening.os_hardening
+    - devsec.hardening.ssh_hardening
 
-# - name: Install MbpFan
-#   hosts: sys_apple
-#   tags:
-#     - mbpfan
-#   roles:
-#     - nausicaea.mbpfan
-# 
-# - name: Install Tailscale
-#   hosts: all
-#   tags:
-#     - tailscale
-#   roles:
-#     - nausicaea.tailscale
-# 
+- name: Install MbpFan
+  hosts: sys_apple
+  tags:
+    - mbpfan
+  roles:
+    - nausicaea.mbpfan
+
+- name: Install Tailscale
+  hosts: all
+  tags:
+    - tailscale
+  roles:
+    - nausicaea.tailscale
+ 
