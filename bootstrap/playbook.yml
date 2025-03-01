@@ -149,23 +149,10 @@
     - hardening
   become: true
   tasks:
-    - block:
-        - name: Apply OS hardening
-          ansible.builtin.include_role:
-            name: devsec.hardening.os_hardening
-          register: role_result
-        - ansible.builtin.meta: flush_handlers
-          register: handler_result
-      rescue:
-        - name: Recover from a remount error on /dev/shm
-          vars:
-            msg: |
-              "role_result={{ role_result }}"
-              "handler_result={{ handler_result }}"
-          ansible.builtin.debug:
-            msg: "{{ msg.split('\n') }}"
-          #when: "ansible_is_chroot and '/dev/shm: not mounted' in ansible_failed_result.stderr"
-          when: ansible_is_chroot
+    - name: Apply OS hardening
+      ansible.builtin.import_role:
+        name: devsec.hardening.os_hardening
+      ignore_errors: "{{ ansible_is_chroot }}"
     - name: Apply SSH hardening
       ansible.builtin.import_role:
         name: devsec.hardening.ssh_hardening
