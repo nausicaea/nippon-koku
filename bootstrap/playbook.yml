@@ -153,7 +153,7 @@
         - name: Apply OS hardening
           ansible.builtin.include_role:
             name: devsec.hardening.os_hardening
-      recover:
+      rescue:
         - name: Recover from a remount error on /dev/shm
           ansible.builtin.debug:
             var: ansible_failed_result
