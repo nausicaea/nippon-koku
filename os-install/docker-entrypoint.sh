@@ -12,9 +12,11 @@ set -e
 echo "Building Debian preseed image for $DEBIAN_VERSION and $ARCH"
 
 SLASH_ESCAPE='s/\//\\\//g'
+ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
 BOOT_DEVICE=$(echo "$BOOT_DEVICE" | sed "$SLASH_ESCAPE")
 BOOTSTRAP_REPO=$(echo "$BOOTSTRAP_REPO" | sed "$SLASH_ESCAPE")
 BOOTSTRAP_BRANCH=$(echo "$BOOTSTRAP_BRANCH" | sed "$SLASH_ESCAPE")
+BOOTSTRAP_DEST=$(echo "$BOOTSTRAP_DEST" | sed "$SLASH_ESCAPE")
 DOMAIN=$(echo "$DOMAIN" | sed "$SLASH_ESCAPE")
 DEBIAN_MIRROR=$(echo "$DEBIAN_MIRROR" | sed "$SLASH_ESCAPE")
 HOSTNAME=$(echo "$HOSTNAME" | sed "$SLASH_ESCAPE")
@@ -47,12 +49,13 @@ sed -e "s/{{ arch_short }}/$ARCH_SHORT/g" \
 # Configure the post-install script
 sed -e "s/{{ repo }}/$BOOTSTRAP_REPO/g" \
     -e "s/{{ branch }}/$BOOTSTRAP_BRANCH/g" \
+    -e "s/{{ dest }}/$BOOTSTRAP_DEST/g" \
+    -e "s/{{ ansible_home }}/$ANSIBLE_HOME/g" \
     /src/post-install.sh.j2 > ./post-install.sh
 
 # Fix the permissions on the image
 chown -R root:root .
-find . -type d -exec chmod 0700 {} \;
-find . -type f -exec chmod 0600 {} \;
+chmod -R u=rwX,go= .
 
 # Configure the preseed file
 PRESEED_FILE=/tmp/preseed.cfg

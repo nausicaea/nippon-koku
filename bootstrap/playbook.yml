@@ -1,0 +1,168 @@
+- name: Gather information about the host
+  hosts: all
+  tags:
+    - facts
+  tasks:
+    - name: Classify the host based on its OS distribution
+      ansible.builtin.group_by:
+        key: "os_{{ ansible_distribution | lower }}"
+      changed_when: false
+
+    - name: Classify the host based on its system vendor
+      ansible.builtin.group_by:
+        key: "sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
+      changed_when: false
+
+    - name: Show host distribution, release name, and version
+      vars:
+        msg: |
+          Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
+          Arch: ansible_architecture={{ ansible_architecture }}, ansible_machine={{ ansible_machine }}
+          OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
+          OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
+          Hostnames: ansible_host={{ ansible_host }}, ansible_hostname={{ ansible_hostname }}, ansible_fqdn={{ ansible_fqdn }}, ansible_nodename={{ ansible_nodename }}
+          Ansible Inventory: {{ inventory_hostname }}, {{ inventory_hostname_short }}
+          Ansible Groups: {{ group_names }}
+      ansible.builtin.debug:
+        msg: "{{ msg.split('\n') }}"
+
+- name: Provision the Ansible user
+  hosts: all
+  tags:
+    - ansible_user
+  become: true
+  tasks:
+    - name: Create the Ansible system group
+      ansible.builtin.group:
+        name: "{{ nausicaea_bootstrap.ansible_group }}"
+        system: true
+        state: present
+
+    - name: Create Ansible user
+      ansible.builtin.user:
+        name: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        comment: Ansible user
+        home: "{{ nausicaea_bootstrap.ansible_home }}"
+        create_home: true
+        password_lock: true
+        system: true
+        shell: /bin/bash
+        state: present
+
+    - name: Fix ownership on all files and directories in Ansible home
+      ansible.builtin.file:
+        path: "{{ nausicaea_bootstrap.ansible_home }}"
+        state: directory
+        recurse: true
+        owner: "{{ nausicaea_bootstrap.ansible_user }}"
+        group: "{{ nausicaea_bootstrap.ansible_group }}"
+        mode: 'u=rwX,go='
+
+    - name: Install sudo
+      ansible.builtin.package:
+        name: sudo
+        state: present
+
+    - name: Allow passwordless sudo for Ansible
+      ansible.builtin.copy:
+        content: "ansible ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/ansible
+        mode: "0600"
+
+- name: Install ansible-pull as a periodic service
+  hosts: all
+  tags:
+    - ansible_pull
+  become: true
+  handlers:
+    - name: Reload Systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+  tasks:
+    - name: Configure the ansible.cfg file
+      ansible.builtin.template:
+        src: ansible.cfg.j2
+        dest: /etc/ansible/ansible.cfg
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Configure Ansible Galaxy requirements
+      ansible.builtin.template:
+        src: ansible-requirements.yml.j2
+        dest: /etc/ansible/ansible-requirements.yml
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Configure the systemd units
+      ansible.builtin.template:
+        src: "{{ item.path }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload Systemd
+      loop:
+        - path: ansible-pull.service.j2
+          dest: /etc/systemd/system/ansible-pull.service
+        - path: ansible-pull.timer.j2
+          dest: /etc/systemd/system/ansible-pull.timer
+
+    - name: Enable the timer manually (this needs to work even without systemd available)
+      ansible.builtin.file:
+        src: /etc/systemd/system/ansible-pull.timer
+        dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
+        state: link
+      notify: Reload Systemd
+
+- name: Disable the CDROM repos for APT
+  hosts:
+    - os_ubuntu
+    - os_debian
+  tags:
+    - apt_sources
+  become: true
+  tasks:
+    - name: Find all repo files
+      ansible.builtin.find:
+        paths:
+          - /etc/apt/sources.list.d
+        file_type: file
+        recurse: true
+      register: apt_repository_sources
+
+    - name: Comment out any cdrom repositories
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        line: '#\1'
+        regexp: '^(deb cdrom:.*)$'
+        backrefs: true
+      loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
+
+- name: Apply the dev-sec roles for hardening
+  hosts:
+    - os_ubuntu
+    - os_debian
+  tags:
+    - hardening
+  become: true
+  roles:
+    - devsec.hardening.os_hardening
+    - devsec.hardening.ssh_hardening
+
+- name: Install MbpFan
+  hosts: sys_apple
+  tags:
+    - mbpfan
+  roles:
+    - nausicaea.mbpfan
+
+- name: Install Tailscale
+  hosts: all
+  tags:
+    - tailscale
+  roles:
+    - nausicaea.tailscale
+ 

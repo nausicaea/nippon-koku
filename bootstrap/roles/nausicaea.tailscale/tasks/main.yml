@@ -1,0 +1,82 @@
+---
+- name: Ensure the keyrings directory exists
+  ansible.builtin.file:
+    path: "{{ nausicaea_tailscale_vars.operator_keyrings }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Calculate the keyring path
+  ansible.builtin.set_fact:
+    tailscale_keyring_path: "{{ nausicaea_tailscale_vars.operator_keyrings }}/{{ nausicaea_tailscale_vars.keyring_name }}"
+
+- name: Ensure presence of the Tailscale keyring
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}.noarmor.gpg"
+    checksum: sha256:3e03dacf222698c60b8e2f990b809ca1b3e104de127767864284e6c228f1fb39
+    dest: "{{ tailscale_keyring_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+# yamllint disable rule:line-length
+- name: Ensure presence of the Tailscale repository key
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ tailscale_keyring_path }}] https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower
+      }} main"
+    filename: "{{ nausicaea_tailscale_vars.repo_filename }}"
+    state: present
+  become: true
+# yamllint enable rule:line-length
+
+- name: Provision sysctl customizations for Tailscale
+  ansible.builtin.copy:
+    src: sysctl-tailscale.conf
+    dest: /etc/sysctl.d/99-tailscale.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Force Reload Procps
+  become: true
+  when: nausicaea_tailscale.enable_exit_node
+
+- name: Ensure Tailscale is installed
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+  become: true
+
+- name: Ensure Tailscale daemon is running
+  ansible.builtin.service:
+    name: tailscaled
+    state: started
+    enabled: true
+  become: true
+
+- name: Configure Tailscale as application for UFW
+  ansible.builtin.template:
+    src: ufw-tailscale.j2
+    dest: /etc/ufw/applications.d/tailscale
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Update ufw apps
+
+- name: Configure UFW to allow access to the Tailscale Wireguard port from anywhere
+  community.general.ufw:
+    comment: Allow Wireguard traffic from anywhere
+    rule: allow
+    app: TailscaleWireguard
+  become: true
+
+- name: Configure UFW to allow any and all Tailscale traffic
+  community.general.ufw:
+    comment: Allow any traffic on the Tailnet
+    rule: allow
+    direction: in
+    interface: tailscale0
+  become: true
