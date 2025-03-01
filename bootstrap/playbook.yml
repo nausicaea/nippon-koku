@@ -26,6 +26,10 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
+    - name: Show all known facts
+      ansible.builtin.debug:
+        var: ansible_facts
+
 - name: Provision the Ansible user
   hosts: all
   tags:
