@@ -1,0 +1,36 @@
+- name: Create the Ansible system group
+  ansible.builtin.group:
+    name: "{{ nausicaea_common.ansible_group }}"
+    system: true
+    state: present
+  become: true
+
+- name: Create Ansible user
+  ansible.builtin.user:
+    name: "{{ nausicaea_common.ansible_user }}"
+    group: "{{ nausicaea_common.ansible_group }}"
+    comment: Ansible user
+    home: "{{ nausicaea_common.ansible_home }}"
+    create_home: true
+    password_lock: true
+    system: true
+    shell: /bin/bash
+    state: present
+  become: true
+
+- name: Fix ownership on all files and directories in Ansible home
+  ansible.builtin.file:
+    path: "{{ nausicaea_common.ansible_home }}"
+    state: directory
+    recurse: true
+    owner: "{{ nausicaea_common.ansible_user }}"
+    group: "{{ nausicaea_common.ansible_group }}"
+    mode: 'u=rwX,go='
+  become: true
+
+- name: Allow passwordless sudo for Ansible
+  ansible.builtin.copy:
+    content: "ansible ALL=(ALL) NOPASSWD: ALL"
+    dest: /etc/sudoers.d/ansible
+    mode: "0600"
+  become: true

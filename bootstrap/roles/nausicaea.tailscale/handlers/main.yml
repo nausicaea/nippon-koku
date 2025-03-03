@@ -1,0 +1,6 @@
+---
+- name: Force Reload Procps
+  ansible.builtin.service:
+    name: procps
+    state: reloaded
+  become: true

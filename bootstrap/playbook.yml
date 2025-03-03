@@ -1,5 +1,5 @@
 - name: Gather information about the host
-  hosts: localhost
+  hosts: all
   tags:
     - facts
   tasks:
@@ -17,7 +17,7 @@
       vars:
         msg: |
           Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
-          Arch: {{ ansible_architecture }}, {{ ansible_machine }}
+          Arch: ansible_architecture={{ ansible_architecture }}, ansible_machine={{ ansible_machine }}
           OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
           OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
           Hostnames: ansible_host={{ ansible_host }}, ansible_hostname={{ ansible_hostname }}, ansible_fqdn={{ ansible_fqdn }}, ansible_nodename={{ ansible_nodename }}
@@ -26,36 +26,47 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-- name: Install Ansible prerequisites
-  hosts: localhost
+- name: Run the common tasks
+  hosts: all
   tags:
-    - prerequisites
-  tasks:
-    - name: Install all system prerequisites
-      ansible.builtin.package:
-        name: []
-        state: present
-      
-    - name: Install Python prerequisites
-      ansible.builtin.pip:
-        requirements: "{{ playbook_dir }}/python-requirements.txt"
-        state: present
+    - common
+  roles:
+    - nausicaea.common
 
-    - name: Install Ansible Galaxy prerequisites
-      community.general.ansible_galaxy_install:
-        requirements_file: "{{ playbook_dir }}/ansible-requirements.yml"
-        type: collection
-        state: present
-
-- name: Apply OS and SSH hardening
+- name: Disable the CDROM repos for APT
   hosts:
     - os_ubuntu
     - os_debian
   tags:
-    - hardening
-  roles:
-    - devsec.hardening.os_hardening
-    - devsec.hardening.ssh_hardening
+    - apt_sources
+  become: true
+  tasks:
+    - name: Find all repo files
+      ansible.builtin.find:
+        paths:
+          - /etc/apt/sources.list.d
+        file_type: file
+        recurse: true
+      register: apt_repository_sources
+
+    - name: Comment out any cdrom repositories
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        line: '#\1'
+        regexp: '^(deb cdrom:.*)$'
+        backrefs: true
+      loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
+
+# - name: Apply the dev-sec roles for hardening
+#   hosts:
+#     - os_ubuntu
+#     - os_debian
+#   tags:
+#     - hardening
+#   become: true
+#   roles:
+#     - devsec.hardening.os_hardening
+#     - devsec.hardening.ssh_hardening
 
 - name: Install MbpFan
   hosts: sys_apple
@@ -63,3 +74,11 @@
     - mbpfan
   roles:
     - nausicaea.mbpfan
+
+- name: Install Tailscale
+  hosts: all
+  tags:
+    - tailscale
+  roles:
+    - nausicaea.tailscale
+ 
