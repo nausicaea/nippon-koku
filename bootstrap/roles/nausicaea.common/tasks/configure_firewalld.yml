@@ -1,18 +1,4 @@
 ---
-- name: Remove the unneeded builtin zones
-  ansible.posix.firewalld:
-    zone: "{{ item }}"
-    state: absent
-    permanent: true
-  become: true
-  loop:
-    - work
-    - home
-    - internal
-    - trusted
-    - dmz
-    - external
-
 - name: Get the name of the default network interface
   block:
     - ansible.builtin.shell:
