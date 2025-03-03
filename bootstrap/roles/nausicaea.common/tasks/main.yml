@@ -5,7 +5,7 @@
       - sudo
       - etckeeper
       - acl
-      - unattented-upgrades
+      - unattended-upgrades
       - python3-kubernetes
       - firewalld
     state: present
