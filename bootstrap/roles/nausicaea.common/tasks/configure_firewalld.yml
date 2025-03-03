@@ -4,8 +4,6 @@
     zone: "{{ item }}"
     state: absent
     permanent: true
-    immediate: true
-    offline: true
   become: true
   loop:
     - work
@@ -29,8 +27,6 @@
     interface: "{{ default_interface_name }}"
     state: enabled
     permanent: true
-    immediate: true
-    offline: true
   become: true
 
 - name: Permanently enable SSH on the public zone
@@ -39,8 +35,6 @@
     service: ssh
     state: enabled
     permanent: true
-    immediate: true
-    offline: true
   become: true
 
 - name: Create the Tailscale zone
@@ -49,7 +43,5 @@
     target: DROP
     state: present
     permanent: true
-    immediate: true
-    offline: true
   become: true
 
