@@ -13,11 +13,11 @@
   notify: Etckeeper commit
 
 - name: Configure the Ansible user
-  ansible.builtin.impor_tasks:
+  ansible.builtin.import_tasks:
     file: configure_ansible_user.yml
 
 - name: Configure automatic Ansible pull runs
-  ansible.builtin.impor_tasks:
+  ansible.builtin.import_tasks:
     file: configure_ansible_pull.yml
 
 - name: Configure Firewalld
