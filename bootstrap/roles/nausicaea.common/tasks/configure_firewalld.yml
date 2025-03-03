@@ -26,7 +26,6 @@
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
     zone: tailnet
-    target: DROP
     state: present
     permanent: true
   become: true
