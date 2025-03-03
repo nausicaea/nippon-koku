@@ -26,96 +26,12 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-- name: Provision the Ansible user
+- name: Run the common tasks
   hosts: all
   tags:
-    - ansible_user
-  become: true
-  tasks:
-    - name: Create the Ansible system group
-      ansible.builtin.group:
-        name: "{{ nausicaea_bootstrap.ansible_group }}"
-        system: true
-        state: present
-
-    - name: Create Ansible user
-      ansible.builtin.user:
-        name: "{{ nausicaea_bootstrap.ansible_user }}"
-        group: "{{ nausicaea_bootstrap.ansible_group }}"
-        comment: Ansible user
-        home: "{{ nausicaea_bootstrap.ansible_home }}"
-        create_home: true
-        password_lock: true
-        system: true
-        shell: /bin/bash
-        state: present
-
-    - name: Fix ownership on all files and directories in Ansible home
-      ansible.builtin.file:
-        path: "{{ nausicaea_bootstrap.ansible_home }}"
-        state: directory
-        recurse: true
-        owner: "{{ nausicaea_bootstrap.ansible_user }}"
-        group: "{{ nausicaea_bootstrap.ansible_group }}"
-        mode: 'u=rwX,go='
-
-    - name: Install sudo
-      ansible.builtin.package:
-        name: sudo
-        state: present
-
-    - name: Allow passwordless sudo for Ansible
-      ansible.builtin.copy:
-        content: "ansible ALL=(ALL) NOPASSWD: ALL"
-        dest: /etc/sudoers.d/ansible
-        mode: "0600"
-
-- name: Install ansible-pull as a periodic service
-  hosts: all
-  tags:
-    - ansible_pull
-  become: true
-  handlers:
-    - name: Reload Systemd
-      ansible.builtin.systemd_service:
-        daemon_reload: true
-  tasks:
-    - name: Configure the ansible.cfg file
-      ansible.builtin.template:
-        src: ansible.cfg.j2
-        dest: /etc/ansible/ansible.cfg
-        owner: root
-        group: root
-        mode: "0644"
-
-    - name: Configure Ansible Galaxy requirements
-      ansible.builtin.template:
-        src: ansible-requirements.yml.j2
-        dest: /etc/ansible/ansible-requirements.yml
-        owner: root
-        group: root
-        mode: "0644"
-
-    - name: Configure the systemd units
-      ansible.builtin.template:
-        src: "{{ item.path }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: root
-        mode: "0644"
-      notify: Reload Systemd
-      loop:
-        - path: ansible-pull.service.j2
-          dest: /etc/systemd/system/ansible-pull.service
-        - path: ansible-pull.timer.j2
-          dest: /etc/systemd/system/ansible-pull.timer
-
-    - name: Enable the timer manually (this needs to work even without systemd available)
-      ansible.builtin.file:
-        src: /etc/systemd/system/ansible-pull.timer
-        dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
-        state: link
-      notify: Reload Systemd
+    - common
+  roles:
+    - nausicaea.common
 
 - name: Disable the CDROM repos for APT
   hosts:

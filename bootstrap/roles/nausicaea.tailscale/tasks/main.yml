@@ -56,27 +56,27 @@
     enabled: true
   become: true
 
-- name: Configure Tailscale as application for UFW
-  ansible.builtin.template:
-    src: ufw-tailscale.j2
-    dest: /etc/ufw/applications.d/tailscale
-    owner: root
-    group: root
-    mode: "0644"
-  become: true
-  notify: Update ufw apps
-
-- name: Configure UFW to allow access to the Tailscale Wireguard port from anywhere
-  community.general.ufw:
-    comment: Allow Wireguard traffic from anywhere
-    rule: allow
-    app: TailscaleWireguard
-  become: true
-
-- name: Configure UFW to allow any and all Tailscale traffic
-  community.general.ufw:
-    comment: Allow any traffic on the Tailnet
-    rule: allow
-    direction: in
-    interface: tailscale0
-  become: true
+# - name: Configure Tailscale as application for UFW
+#   ansible.builtin.template:
+#     src: ufw-tailscale.j2
+#     dest: /etc/ufw/applications.d/tailscale
+#     owner: root
+#     group: root
+#     mode: "0644"
+#   become: true
+#   notify: Update ufw apps
+# 
+# - name: Configure UFW to allow access to the Tailscale Wireguard port from anywhere
+#   community.general.ufw:
+#     comment: Allow Wireguard traffic from anywhere
+#     rule: allow
+#     app: TailscaleWireguard
+#   become: true
+# 
+# - name: Configure UFW to allow any and all Tailscale traffic
+#   community.general.ufw:
+#     comment: Allow any traffic on the Tailnet
+#     rule: allow
+#     direction: in
+#     interface: tailscale0
+#   become: true

@@ -1,0 +1,55 @@
+---
+- name: Remove the unneeded builtin zones
+  ansible.posix.firewalld:
+    zone: "{{ item }}"
+    state: absent
+    permanent: true
+    immediate: true
+    offline: true
+  become: true
+  loop:
+    - work
+    - home
+    - internal
+    - trusted
+    - dmz
+    - external
+
+- name: Get the name of the default network interface
+  block:
+    - ansible.builtin.shell:
+        cmd: "ip route | awk '/default/ {print $5; exit}'"
+      register: ip_route_output
+    - ansible.builtin.set_fact:
+        default_interface_name: "{{ ip_route_output.stdout }}"
+
+- name: Assign the public zone to the default interface
+  ansible.posix.firewalld:
+    zone: public
+    interface: "{{ default_interface_name }}"
+    state: enabled
+    permanent: true
+    immediate: true
+    offline: true
+  become: true
+
+- name: Permanently enable SSH on the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: ssh
+    state: enabled
+    permanent: true
+    immediate: true
+    offline: true
+  become: true
+
+- name: Create the Tailscale zone
+  ansible.posix.firewalld:
+    zone: tailnet
+    target: DROP
+    state: present
+    permanent: true
+    immediate: true
+    offline: true
+  become: true
+

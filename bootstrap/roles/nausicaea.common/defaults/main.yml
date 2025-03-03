@@ -1,4 +1,4 @@
-nausicaea_bootstrap:
+nausicaea_common:
   ansible_user: &au ansible
   ansible_group: *au
   ansible_home: /var/lib/ansible

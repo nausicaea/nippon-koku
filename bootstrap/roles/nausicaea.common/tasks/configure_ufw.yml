@@ -1,0 +1,21 @@
+---
+- name: Set a default deny rule for incoming traffic
+  community.general.ufw:
+    default: deny
+    direction: incoming
+  become: true
+
+- name: Set a default accept rule for outgoing traffic
+  community.general.ufw:
+    default: allow
+    direction: outgoing
+  become: true
+
+- name: Allow any traffic on the loopback interface
+  community.general.ufw:
+    comment: Allow any traffic on the loopback interface
+    rule: allow
+    direction: in
+    interface: lo
+  become: true
+

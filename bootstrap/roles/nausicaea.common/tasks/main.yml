@@ -1,51 +1,28 @@
 ---
-- name: Install the package etckeeper
+- name: Install packages
   ansible.builtin.package:
-    name: etckeeper
+    name:
+      - sudo
+      - etckeeper
+      - acl
+      - unattented-upgrades
+      - python3-kubernetes
+      - firewalld
     state: present
   become: true
   notify: Etckeeper commit
 
-- name: Install the ACL package
-  ansible.builtin.package:
-    name: acl
-    state: present
-  become: true
-  notify: Etckeeper commit
+- name: Configure the Ansible user
+  ansible.builtin.impor_tasks:
+    file: configure_ansible_user.yml
 
-- name: Install the package unattented-upgrades
-  ansible.builtin.package:
-    name: unattended-upgrades
-    state: present
-  become: true
-  notify: Etckeeper commit
+- name: Configure automatic Ansible pull runs
+  ansible.builtin.impor_tasks:
+    file: configure_ansible_pull.yml
 
-- name: Ensure that the kubernetes Python package is present
-  ansible.builtin.package:
-    name: python3-kubernetes
-    state: present
-  become: true
-  notify: Etckeeper commit
-
-- name: Set a default deny rule for incoming traffic
-  community.general.ufw:
-    default: deny
-    direction: incoming
-  become: true
-
-- name: Set a default accept rule for outgoing traffic
-  community.general.ufw:
-    default: allow
-    direction: outgoing
-  become: true
-
-- name: Allow any traffic on the loopback interface
-  community.general.ufw:
-    comment: Allow any traffic on the loopback interface
-    rule: allow
-    direction: in
-    interface: lo
-  become: true
+- name: Configure Firewalld
+  ansible.builtin.import_tasks:
+    file: configure_firewalld.yml
 
 - name: Does the K3s kubeconfig exist?
   ansible.builtin.stat:
