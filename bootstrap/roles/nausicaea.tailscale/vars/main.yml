@@ -1,0 +1,6 @@
+---
+nausicaea_tailscale_vars:
+  operator_keyrings: /usr/share/keyrings
+  apt_sources: /etc/apt/sources.list.d
+  keyring_name: tailscale-archive-keyring.gpg
+  repo_filename: tailscale.list
