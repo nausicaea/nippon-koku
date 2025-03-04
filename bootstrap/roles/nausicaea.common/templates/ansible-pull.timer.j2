@@ -1,8 +1,9 @@
 [Unit]
-Description=Run Ansible Pull once daily
+Description=Run Ansible Pull every half hour
 
 [Timer]
-OnCalendar=03:00
+OnActiveSec=30min
+RandomizedDelaySec=5min
 Persistent=true
 
 [Install]

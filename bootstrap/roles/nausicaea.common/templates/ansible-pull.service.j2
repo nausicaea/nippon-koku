@@ -6,9 +6,14 @@ After=network.target
 Type=oneshot
 User={{ nausicaea_common.ansible_user }}
 Group={{ nausicaea_common.ansible_group }}
-ExecStart=/usr/bin/ansible-pull -U "{{ nausicaea_common.repo }}" -C "{{ nausicaea_common.branch }}" --clean \
+ExecStart=/usr/bin/ansible-pull \
+    -U "{{ nausicaea_common.repo }}" \
+    -C "{{ nausicaea_common.branch }}" \
+    --clean \
     -d "{{ nausicaea_common.checkout_dir }}" \
-    -c local -i bootstrap/inventory.yml bootstrap/playbook.yml
+    -c local \
+    -i bootstrap/inventory.yml \
+    bootstrap/playbook.yml
 
 [Install]
 WantedBy=multi-user.target
