@@ -8,6 +8,8 @@
       - unattended-upgrades
       - python3-kubernetes
       - firewalld
+      - vim
+      - tmux
     state: present
   become: true
   notify: Etckeeper commit
