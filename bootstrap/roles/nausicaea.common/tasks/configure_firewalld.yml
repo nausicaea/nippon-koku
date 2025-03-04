@@ -1,10 +1,13 @@
 ---
 - name: Get the name of the default network interface
   block:
-    - ansible.builtin.shell:
+    - name: Determine the default route interface
+      ansible.builtin.shell:
         cmd: "ip route | awk '/default/ {print $5; exit}'"
+      changed_when: false
       register: ip_route_output
-    - ansible.builtin.set_fact:
+    - name: Set an appropriate fact
+      ansible.builtin.set_fact:
         default_interface_name: "{{ ip_route_output.stdout }}"
 
 - name: Assign the public zone to the default interface
