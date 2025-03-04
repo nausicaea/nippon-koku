@@ -18,6 +18,15 @@
   notify: Etckeeper commit
   become: true
 
+- name: Ensure the vault password file has correct permissions
+  ansible.builtin.file:
+    path: "{{ nausicaea_common.ansible_vault_password_file }}"
+    owner: "{{ nausicaea_common.ansible_user }}"
+    group: "{{ nausicaea_common.ansible_group }}"
+    mode: "0600"
+    state: file
+  become: true
+
 - name: Configure the systemd units
   ansible.builtin.template:
     src: "{{ item.path }}"
