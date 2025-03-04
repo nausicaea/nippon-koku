@@ -13,6 +13,7 @@ ExecStart=/usr/bin/ansible-pull \
     -d "{{ nausicaea_common.checkout_dir }}" \
     -c local \
     -i bootstrap/inventory.yml \
+    --vault-password-file "{{ nausicaea_common.ansible_vault_password_file }}" \
     bootstrap/playbook.yml
 
 [Install]

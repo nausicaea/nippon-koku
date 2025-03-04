@@ -2,6 +2,7 @@ nausicaea_common:
   ansible_user: &au ansible
   ansible_group: *au
   ansible_home: /var/lib/ansible
+  ansible_vault_password_file: /var/lib/ansible/vault_password
   checkout_dir: /var/lib/ansible/nippon-koku
   repo: https://github.com/nausicaea/nippon-koku
   branch: feature/post-install
