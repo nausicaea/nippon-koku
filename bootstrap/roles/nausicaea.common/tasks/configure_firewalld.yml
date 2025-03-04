@@ -23,10 +23,3 @@
     permanent: true
   become: true
 
-- name: Create the Tailscale zone
-  ansible.posix.firewalld:
-    zone: tailnet
-    state: present
-    permanent: true
-  become: true
-
