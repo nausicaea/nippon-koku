@@ -55,6 +55,8 @@
         name: devsec.hardening.os_hardening
 
     - name: Import the dev-sec SSH hardening role
+      vars:
+        ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
       ansible.builtin.import_role:
         name: devsec.hardening.ssh_hardening
 
