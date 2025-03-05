@@ -70,11 +70,15 @@
 
 - name: Install MbpFan
   hosts: sys_apple
+  tags:
+    - mbpfan
   roles:
     - nausicaea.mbpfan
 
 - name: Install Tailscale
   hosts: all
+  tags:
+    - tailscale
   roles:
     - nausicaea.tailscale
  
