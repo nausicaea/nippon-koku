@@ -53,3 +53,12 @@
     - Reload Systemd
     - Etckeeper commit
   become: true
+
+- name: Create convenience script for looking at Ansible Pull logs
+  ansible.builtin.template:
+    src: ansible-logs.sh.j2
+    dest: /usr/local/bin/ansible-logs
+    owner: root
+    group: root
+    mode: "0755"
+  become: true

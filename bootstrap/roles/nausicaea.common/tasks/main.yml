@@ -10,6 +10,7 @@
       - firewalld
       - vim
       - tmux
+      - jq
     state: present
   become: true
   notify: Etckeeper commit

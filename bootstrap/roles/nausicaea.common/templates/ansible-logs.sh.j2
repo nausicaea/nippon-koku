@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec journalctl -u ansible-pull.service --output=json --no-pager | jq -r 'select(._COMM == "ansible-pull") | "\(.MESSAGE)"' | less
