@@ -15,3 +15,8 @@
       - update
       - all
   become: true
+
+- name: Reload Systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  become: true

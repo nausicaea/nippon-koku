@@ -1,0 +1,30 @@
+- name: Hash the admin password
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - passwd
+      - "-6"
+      - "{{ nausicaea_common_secrets.admin_initial_password }}"
+  changed_when: false
+  no_log: true
+  register: admin_password_crypted
+
+- name: Create the admin user
+  ansible.builtin.user:
+    name: "{{ nausicaea_common_secrets.admin_user }}"
+    groups: sudo
+    comment: Admin user
+    #password: "{{ nausicaea_common_secrets.admin_initial_password | password_hash('sha512', nausicaea_common_secrets.admin_salt) }}"
+    password: "{{ admin_password_crypted.stdout }}"
+    update_password: on_create
+    create_home: true
+    shell: /bin/bash
+    state: present
+  become: true
+
+- name: Add the primary SSH key to the admin user
+  ansible.posix.authorized_key:
+    user: "{{ nausicaea_common_secrets.admin_user }}"
+    key: "{{ nausicaea_common_secrets.admin_ssh_key }}"
+    state: present
+  become: true

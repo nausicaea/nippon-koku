@@ -1,12 +1,13 @@
 ---
 galaxy_info:
-  role_name: common
+  role_name: tailscale
   namespace: nausicaea
   author: Eleanor Young
-  description: Performs tasks and configurations common to all other roles
+  description: Installs and configures the Tailscale mesh VPN
   company: Nausicaea AS
   license: MIT
   min_ansible_version: "2.1"
   galaxy_tags: []
-dependencies: []
+dependencies:
+  - role: nausicaea.common
 allow_duplicates: false

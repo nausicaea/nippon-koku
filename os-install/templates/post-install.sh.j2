@@ -1,19 +1,61 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 echo "START POST INSTALL"
 
-apt-get install -y ansible-core git curl
-
+export ANSIBLE_HOME="{{ ansible_home }}"
+ANSIBLE_ETCDIR="/etc/ansible"
+ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
+ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
+ANSIBLE_VAULT_PASSWORD="{{ vault_password }}"
+ANSIBLE_VAULT_PW_FILE="$ANSIBLE_HOME/vault_password"
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
-STAGING_DIR=$(mktemp -d)
+BOOTSTRAP_DEST="{{ dest }}"
 
-git clone "$BOOTSTRAP_REPO" "$STAGING_DIR"
+echo "PI: Stage 1"
+if [ ! -e /dev/shm ]; then
+    mkdir -vp /dev/shm
+fi
 
-cd "${STAGING_DIR}/bootstrap"
+mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME"
 
-git checkout "$BOOTSTRAP_BRANCH"
+cat <<EOF > "$ANSIBLE_CFG"
+[defaults]
+home = $ANSIBLE_HOME
+interpreter_python = auto_silent
+hash_behaviour = merge
+EOF
 
-ansible-playbook -v -c local site.yml
+cat <<EOF > "$ANSIBLE_REQS"
+---
+collections:
+  ansible.posix:
+    version: 1.6.2
+  community.crypto:
+    version: 2.25.0
+  community.general:
+    version: 10.4.0
+  devsec.hardening:
+    version: 10.3.0
+  kubernetes.core:
+    version: 5.1.0
+EOF
+
+echo "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"
+
+ansible-galaxy collection install -r "$ANSIBLE_REQS"
+
+echo "PI: Stage 2"
+ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
+    -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
+    --vault-password-file "$ANSIBLE_VAULT_PW_FILE" \
+    bootstrap/playbook.yml \
+    || printf 'ERROR: Ansible run failed with status code %s\n' "$?"
+
+if [ -e /dev/shm ]; then
+    rmdir -v /dev/shm
+fi
+
+echo "END POST INSTALL"
