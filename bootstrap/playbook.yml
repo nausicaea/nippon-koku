@@ -26,22 +26,15 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-- name: Run the common tasks
-  hosts: all
-  tags:
-    - common
-  roles:
-    - nausicaea.common
-
-- name: Disable the CDROM repos for APT
+- name: Perform tasks for Debian derivatives
   hosts:
     - os_ubuntu
     - os_debian
   tags:
-    - apt_sources
+    - debian
   become: true
   tasks:
-    - name: Find all repo files
+    - name: Find all APT repo files
       ansible.builtin.find:
         paths:
           - /etc/apt/sources.list.d
@@ -49,7 +42,7 @@
         recurse: true
       register: apt_repository_sources
 
-    - name: Comment out any cdrom repositories
+    - name: Comment out any cdrom APT repositories
       ansible.builtin.lineinfile:
         path: "{{ item }}"
         line: '#\1'
@@ -57,28 +50,24 @@
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
-# - name: Apply the dev-sec roles for hardening
-#   hosts:
-#     - os_ubuntu
-#     - os_debian
-#   tags:
-#     - hardening
-#   become: true
-#   roles:
-#     - devsec.hardening.os_hardening
-#     - devsec.hardening.ssh_hardening
+    - name: Import the dev-sec OS hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.os_hardening
 
-- name: Install MbpFan
+    - name: Import the dev-sec SSH hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.ssh_hardening
+
+- name: Perform tasks specific to Apple hardware 
   hosts: sys_apple
   tags:
-    - mbpfan
+    - apple
   roles:
     - nausicaea.mbpfan
 
-- name: Install Tailscale
+- name: Perform common tasks
   hosts: all
-  tags:
-    - tailscale
   roles:
+    - nausicaea.common
     - nausicaea.tailscale
  
