@@ -15,7 +15,7 @@
     groups: sudo
     comment: Admin user
     #password: "{{ nausicaea_common_secrets.admin_initial_password | password_hash('sha512', nausicaea_common_secrets.admin_salt) }}"
-    password: "{{ admin_password_crypted }}"
+    password: "{{ admin_password_crypted.stdout }}"
     update_password: on_create
     create_home: true
     shell: /bin/bash
