@@ -47,9 +47,16 @@
       - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
       - "--query-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
   register: firewalld_tailscale_port
-  failed_when: firewalld_tailscale_port.rc != 0 or firewalld_tailscale_port != 1
+  failed_when: false
   changed_when: false
   become: true
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: firewalld_tailscale_port
+
+- fail:
+    msg: STOP
 
 - name: Assign the UDP P2P port to the Tailscale service
   ansible.builtin.command:
