@@ -50,13 +50,21 @@
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
-    - name: Import the dev-sec OS hardening role
-      ignore_errors: true
+    - name: Apply dev-sec OS hardening
       block:
-        - ansible.builtin.include_role:
-          name: devsec.hardening.os_hardening
+        - name: Include the OS hardening role
+          ansible.builtin.include_role:
+            name: devsec.hardening.os_hardening
+      rescue:
+        - name: Recover errors in OS hardening
+          vars:
+            msg: |
+              "ansible_failed_task={{ ansible_failed_task | default({}) }}"
+              "ansible_failed_result={{ ansible_failed_result | default({}) }}"
+          ansible.builtin.debug:
+            msg: "{{ msg.split('\n') }}"
 
-    - name: Import the dev-sec SSH hardening role
+    - name: Apply dev-sec SSH hardening
       vars:
         ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
       ansible.builtin.import_role:

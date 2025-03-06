@@ -21,10 +21,40 @@
     permanent: true
   become: true
 
-- name: Accept traffic on the Wireguard port in the public zone
+- name: Create the Tailscale service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--new-service=tailscale"
+    creates: /etc/firewalld/services/tailscale.xml
+  register: firewalld_new_service
+  become: true
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: firewalld_new_service
+
+- name: Reload firewalld after creating the service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--reload"
+  when: firewalld_new_service.changed
+  become: true
+
+- name: Assign the UDP P2P port to the Tailscale service
+  ansible.builtin.firewalld:
+    service: tailscale
+    port: 41641/udp
+    state: enabled
+    permanent: true
+  become: true
+
+- name: Accept traffic on the Tailscale port in the public zone
   ansible.posix.firewalld:
     zone: public
-    service: wireguard # 41641/udp
+    service: tailscale
     state: enabled
     permanent: true
   become: true
