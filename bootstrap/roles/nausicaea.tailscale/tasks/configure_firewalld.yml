@@ -51,13 +51,6 @@
   changed_when: false
   become: true
 
-- name: DEBUG
-  ansible.builtin.debug:
-    var: firewalld_tailscale_port
-
-- fail:
-    msg: STOP
-
 - name: Assign the UDP P2P port to the Tailscale service
   ansible.builtin.command:
     argv:
