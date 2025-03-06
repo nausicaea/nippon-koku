@@ -60,6 +60,10 @@
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
+    - name: Run the common role once at the beginning to make sure Ansible is set up right
+      ansible.builtin.import_role:
+        name: nausicaea.common
+
 - name: Perform OS hardening tasks
   hosts: harden
   tags:
@@ -87,10 +91,6 @@
         ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
       ansible.builtin.import_role:
         name: devsec.hardening.ssh_hardening
-
-    - name: Run the common role once at the beginning to make sure Ansible is set up right
-      ansible.builtin.import_role:
-        name: nausicaea.common
 
 - name: Perform tasks specific to Apple hardware 
   hosts: dyn_sys_apple
