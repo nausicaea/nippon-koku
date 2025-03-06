@@ -59,3 +59,30 @@
 - name: Configure firewalld
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
+
+- name: Is the tailnet setup?
+  ansible.builtin.shell:
+    cmd: tailscale status --peers=false | awk '{ print $2 }'
+  register: tailscale_status
+  failed_when: not (tailscale_status.rc == 0 or tailscale_status.rc == 1)
+  changed_when: false
+  become: true
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: tailscale_status
+
+# - name: Connect to the tailnet
+#   ansible.builtin.command:
+#     argv:
+#       - tailscale 
+#       - up 
+#       - "--auth-key={{ nausicaea_tailscale_secrets.auth_key }}"
+#       - "--ssh"
+#   register: tailscale_up
+#   become: true
+# 
+# - name: DEBUG
+#   ansible.builtin.debug:
+#     var: tailscale_up
+
