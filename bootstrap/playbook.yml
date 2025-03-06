@@ -17,6 +17,13 @@
         key: "dyn_stage_{{ 'bootstrap' if ansible_is_chroot | default(false) | bool else 'live' }}"
       changed_when: false
 
+    - name: Assign special dynamic groups
+      ansible.builtin.include_tasks:
+        file: tasks/dynamic_groups.yml
+      loop:
+        - harden
+        - tailscale
+
 - name: Show additional information on a host
   hosts: all
   tags: info
@@ -64,34 +71,6 @@
       ansible.builtin.import_role:
         name: nausicaea.common
 
-- name: Perform OS hardening tasks
-  hosts: harden
-  tags:
-    - harden
-  become: true
-  tasks:
-    - name: Apply dev-sec OS hardening
-      block:
-        - name: Include the OS hardening role
-          ansible.builtin.include_role:
-            name: devsec.hardening.os_hardening
-        - name: Flush handlers
-          ansible.builtin.meta: flush_handlers
-      rescue:
-        - name: Recover errors in OS hardening
-          vars:
-            msg: |
-              "ansible_failed_task={{ ansible_failed_task | default({}) }}"
-              "ansible_failed_result={{ ansible_failed_result | default({}) }}"
-          ansible.builtin.debug:
-            msg: "{{ msg.split('\n') }}"
-
-    - name: Apply dev-sec SSH hardening
-      vars:
-        ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
-      ansible.builtin.import_role:
-        name: devsec.hardening.ssh_hardening
-
 - name: Perform tasks specific to Apple hardware 
   hosts: dyn_sys_apple
   tags:
@@ -99,8 +78,19 @@
   roles:
     - nausicaea.mbpfan
 
+- name: Perform OS hardening tasks
+  hosts: dyn_stage_live_and_harden
+  tags:
+    - harden
+  become: true
+  vars:
+    ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
+  roles:
+    - devsec.hardening.os_hardening
+    - devsec.hardening.ssh_hardening
+
 - name: Provision Tailscale
-  hosts: tailscale
+  hosts: dyn_stage_live_and_tailscale
   tags:
     - tailscale
   roles:

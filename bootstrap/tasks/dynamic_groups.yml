@@ -1,0 +1,5 @@
+- name: Assign a group to hosts that are both post-bootstrap and need to be hardened
+  ansible.builtin.group_by:
+    key: "dyn_stage_live_and_{{ item }}"
+  changed_when: false
+  when: "'dyn_stage_live' in group_names and item in group_names"
