@@ -5,10 +5,12 @@ all:
     kagawa: {}
   children:
     harden:
-      shizuoka: {}
-      osaka: {}
-      kagawa: {}
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
     tailscale:
-      shizuoka: {}
-      osaka: {}
-      kagawa: {}
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
