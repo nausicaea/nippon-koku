@@ -47,7 +47,7 @@
       - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
       - "--query-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
   register: firewalld_tailscale_port
-  failed_when: false
+  failed_when: not (firewalld_tailscale_port.rc == 0 or firewalld_tailscale_port.rc == 1)
   changed_when: false
   become: true
 
@@ -68,7 +68,7 @@
       - "--set-short='Tailscale'"
       - "--set-description='Tailscale Wireguard P2P channel port'"
   become: true
-  when: "firewalld_tailscale_port.rc == 1"
+  when: firewalld_tailscale_port.rc == 1
 
 - name: Accept traffic on the Tailscale port in the public zone
   ansible.posix.firewalld:
