@@ -53,6 +53,15 @@
     - Reload Systemd
     - Etckeeper commit
   become: true
+  when: ansible_is_chroot
+
+- name: Enable and start the timer unit
+  ansible.builtin.service:
+    name: ansible-pull.timer
+    enabled: true
+    state: started
+  become: true
+  when: not ansible_is_chroot
 
 - name: Create convenience script for looking at Ansible Pull logs
   ansible.builtin.template:
