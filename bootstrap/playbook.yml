@@ -45,10 +45,6 @@
       ansible.builtin.debug:
         var: ansible_facts
 
-    - name: DEBUG
-      ansible.builtin.fail:
-        msg: DIE
-
 - name: Perform setup tasks for bootstrapping hosts
   hosts: dyn_stage_bootstrap
   tags:
