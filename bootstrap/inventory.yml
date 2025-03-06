@@ -2,3 +2,13 @@ all:
   hosts:
     shizuoka: {}
     osaka: {}
+    kagawa: {}
+  children:
+    harden:
+      shizuoka: {}
+      osaka: {}
+      kagawa: {}
+    tailscale:
+      shizuoka: {}
+      osaka: {}
+      kagawa: {}

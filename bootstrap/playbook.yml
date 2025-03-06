@@ -5,12 +5,17 @@
   tasks:
     - name: Classify the host based on its OS distribution
       ansible.builtin.group_by:
-        key: "os_{{ ansible_distribution | lower }}"
+        key: "dyn_os_{{ ansible_distribution | lower }}"
       changed_when: false
 
     - name: Classify the host based on its system vendor
       ansible.builtin.group_by:
-        key: "sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
+        key: "dyn_sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
+      changed_when: false
+
+    - name: Classify the host based on whether we're running Ansible inside a chroot
+      ansible.builtin.group_by:
+        key: "dyn_stage_{{ 'bootstrap' if ansible_is_chroot | default(false) | bool else 'live' }}"
       changed_when: false
 
     - name: Show host distribution, release name, and version
@@ -26,12 +31,10 @@
       ansible.builtin.debug:
         msg: "{{ msg.split('\n') }}"
 
-- name: Perform tasks for Debian derivatives
-  hosts:
-    - os_ubuntu
-    - os_debian
+- name: Perform setup tasks for bootstrapping hosts
+  hosts: dyn_stage_bootstrap
   tags:
-    - debian
+    - dyn_stage_bootstrap
   become: true
   tasks:
     - name: Find all APT repo files
@@ -50,6 +53,12 @@
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
+- name: Perform OS hardening tasks
+  hosts: harden
+  tags:
+    - harden
+  become: true
+  tasks:
     - name: Apply dev-sec OS hardening
       block:
         - name: Include the OS hardening role
@@ -72,16 +81,21 @@
       ansible.builtin.import_role:
         name: devsec.hardening.ssh_hardening
 
+    - name: Run the common role once at the beginning to make sure Ansible is set up right
+      ansible.builtin.import_role:
+        name: nausicaea.common
+
 - name: Perform tasks specific to Apple hardware 
-  hosts: sys_apple
+  hosts: dyn_sys_apple
   tags:
-    - apple
+    - dyn_sys_apple
   roles:
     - nausicaea.mbpfan
 
-- name: Perform common tasks
-  hosts: all
+- name: Provision Tailscale
+  hosts: tailscale
+  tags:
+    - tailscale
   roles:
-    - nausicaea.common
     - nausicaea.tailscale
  
