@@ -49,14 +49,11 @@
     state: present
   become: true
 
-- name: Enable the Tailscale daemon (this needs to work even without systemd available)
-  ansible.builtin.file:
-    src: /lib/systemd/system/tailscaled.service
-    dest: /etc/systemd/system/multi-user.target.wants/tailscaled.service
-    state: link
-  notify: 
-    - Reload Systemd
-    - Etckeeper commit
+- name: Enable the Tailscale daemon
+  ansible.builtin.service:
+    name: tailscaled
+    enabled: true
+    state: started
   become: true
 
 - name: Configure firewalld
