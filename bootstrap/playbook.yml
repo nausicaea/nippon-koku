@@ -71,6 +71,9 @@
       ansible.builtin.import_role:
         name: nausicaea.common
 
+    - name: Experiment end the playbook
+      ansible.builtin.meta: end_host
+
 - name: Perform tasks specific to Apple hardware 
   hosts: dyn_sys_apple
   tags:
