@@ -55,6 +55,8 @@
         - name: Include the OS hardening role
           ansible.builtin.include_role:
             name: devsec.hardening.os_hardening
+        - name: Flush handlers
+          ansible.builtin.meta: flush_handlers
       rescue:
         - name: Recover errors in OS hardening
           vars:
