@@ -1,13 +1,13 @@
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
-    zone: tailscale
+    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
     state: present
     permanent: true
   become: true
 
 - name: Bind the Tailscale zone to the tailscale0 interface
   ansible.posix.firewalld:
-    zone: tailscale
+    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
     interface: tailscale0
     state: enabled
     permanent: true
@@ -15,7 +15,7 @@
 
 - name: Accept all traffic in the tailscale zone
   ansible.posix.firewalld:
-    zone: tailscale
+    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
     target: ACCEPT
     state: enabled
     permanent: true
@@ -26,60 +26,47 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--new-service=tailscale"
-    creates: /etc/firewalld/services/tailscale.xml
+      - "--new-service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea_tailscale_vars.firewalld_p2p_service }}.xml"
   register: firewalld_new_service
   become: true
-
-- name: DEBUG
-  ansible.builtin.debug:
-    var: firewalld_new_service
 
 - name: Reload firewalld after creating the service
   ansible.builtin.command:
     argv:
       - firewall-cmd
       - "--reload"
+  become: true
   when: firewalld_new_service.changed
+
+- name: Was the UDP P2P port already assigned to the Tailscale service?
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
+      - "--query-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
+  register: firewalld_tailscale_port
+  failed_when: firewalld_tailscale_port.rc != 0 or firewalld_tailscale_port != 1
+  changed_when: false
   become: true
 
 - name: Assign the UDP P2P port to the Tailscale service
-  ansible.builtin.firewalld:
-    service: tailscale
-    port: 41641/udp
-    state: enabled
-    permanent: true
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
+      - "--add-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
+      - "--set-short='Tailscale'"
+      - "--set-description='Tailscale Wireguard P2P channel port'"
   become: true
+  when: "firewalld_tailscale_port.rc == 1"
 
 - name: Accept traffic on the Tailscale port in the public zone
   ansible.posix.firewalld:
     zone: public
-    service: tailscale
+    service: "{{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
     state: enabled
     permanent: true
   become: true
-
-# - name: Configure Tailscale as application for UFW
-#   ansible.builtin.template:
-#     src: ufw-tailscale.j2
-#     dest: /etc/ufw/applications.d/tailscale
-#     owner: root
-#     group: root
-#     mode: "0644"
-#   become: true
-#   notify: Update ufw apps
-# 
-# - name: Configure UFW to allow access to the Tailscale Wireguard port from anywhere
-#   community.general.ufw:
-#     comment: Allow Wireguard traffic from anywhere
-#     rule: allow
-#     app: TailscaleWireguard
-#   become: true
-# 
-# - name: Configure UFW to allow any and all Tailscale traffic
-#   community.general.ufw:
-#     comment: Allow any traffic on the Tailnet
-#     rule: allow
-#     direction: in
-#     interface: tailscale0
-#   become: true
