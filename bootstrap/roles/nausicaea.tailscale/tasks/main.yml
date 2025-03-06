@@ -72,17 +72,18 @@
   ansible.builtin.debug:
     var: tailscale_status
 
-# - name: Connect to the tailnet
-#   ansible.builtin.command:
-#     argv:
-#       - tailscale 
-#       - up 
-#       - "--auth-key={{ nausicaea_tailscale_secrets.auth_key }}"
-#       - "--ssh"
-#   register: tailscale_up
-#   become: true
-# 
-# - name: DEBUG
-#   ansible.builtin.debug:
-#     var: tailscale_up
+- name: Connect to the tailnet
+  ansible.builtin.command:
+    argv:
+      - tailscale 
+      - up 
+      - "--auth-key={{ nausicaea_tailscale_secrets.auth_key }}"
+      - "--ssh"
+  register: tailscale_up
+  become: true
+  when: tailscale_status.stdout != inventory_hostname
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: tailscale_up
 
