@@ -14,7 +14,6 @@ ExecStart=/usr/bin/ansible-pull \
     -c local \
     -i bootstrap/inventory.yml \
     --vault-password-file "{{ nausicaea_common.ansible_vault_password_file }}" \
-    --skip-tags info \
     bootstrap/playbook.yml
 
 [Install]
