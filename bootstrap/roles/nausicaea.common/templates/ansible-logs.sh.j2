@@ -1,3 +1,5 @@
 #!/bin/bash
 
-exec journalctl -u ansible-pull.service --output=json --no-pager | jq -r 'select(._COMM == "ansible-pull") | "[\(._SOURCE_REALTIME_TIMESTAMP | todateiso8601)] \(.MESSAGE)"' | less
+exec journalctl -u ansible-pull.service --output=json --no-pager \
+    | jq -r 'select(._COMM == "ansible-pull" or ._COMM == "systemd") | "[\(.__REALTIME_TIMESTAMP | tonumber / 1000000 | todateiso8601)] [\(._COMM)] \(.MESSAGE)"' \
+    | less
