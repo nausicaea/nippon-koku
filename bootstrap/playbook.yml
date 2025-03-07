@@ -19,7 +19,7 @@
 
     - name: Assign special dynamic groups
       ansible.builtin.include_tasks:
-        file: tasks/dynamic_groups.yml
+        file: tasks/special_dynamic_groups.yml
       loop:
         - harden
         - tailscale
