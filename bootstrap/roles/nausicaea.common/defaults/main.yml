@@ -3,6 +3,9 @@ nausicaea_common:
   ansible_group: *au
   ansible_home: /var/lib/ansible
   ansible_vault_password_file: /var/lib/ansible/vault_password
+  ansible_requirements_file: /etc/ansible/ansible-requirements.yml
   checkout_dir: /var/lib/ansible/nippon-koku
   repo: https://github.com/nausicaea/nippon-koku
   branch: feature/post-install
+  git_allowed_signers_file: /etc/git/allowed_signers
+  git_gitconfig_file: /etc/gitconfig

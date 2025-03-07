@@ -11,11 +11,18 @@
 - name: Configure Ansible Galaxy requirements
   ansible.builtin.template:
     src: ansible-requirements.yml.j2
-    dest: /etc/ansible/ansible-requirements.yml
+    dest: "{{ nausicaea_common.ansible_requirements_file }}"
     owner: root
     group: root
     mode: "0644"
   notify: Etckeeper commit
+  become: true
+
+- name: Install updated Ansible galaxy requirements
+  community.general.ansible_galaxy_install:
+    requirements_file: "{{ nausicaea_common.ansible_requirements_file }}"
+    type: collection
+    state: present
   become: true
 
 - name: Ensure the vault password file has correct permissions
@@ -25,6 +32,24 @@
     group: "{{ nausicaea_common.ansible_group }}"
     mode: "0600"
     state: file
+  become: true
+
+- name: Configure the allowed signers file
+  ansible.builtin.template:
+    src: git-allowed-signers.j2
+    dest: "{{ nausicaea_common.git_allowed_signers_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Configure Git to use the allowed signers file
+  ansible.builtin.template:
+    src: git-gitconfig.j2
+    dest: "{{ nausicaea_common.git_gitconfig_file }}"
+    owner: root
+    group: root
+    mode: "0644"
   become: true
 
 - name: Configure the systemd units

@@ -13,13 +13,17 @@ ANSIBLE_VAULT_PW_FILE="$ANSIBLE_HOME/vault_password"
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
 BOOTSTRAP_DEST="{{ dest }}"
+GIT_SYSTEM_GITCONFIG="/etc/gitconfig"
+GIT_ALLOWED_SIGNERS_FILE="/etc/git/allowed_signers"
+GIT_AUTHOR_EMAIL="{{ email }}"
+GIT_AUTHOR_SSH_PUB="{{ ssh_pub }}"
 
 echo "PI: Stage 1"
 if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
-mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME"
+mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME" $(dirname "$GIT_ALLOWED_SIGNERS_FILE")
 
 cat <<EOF > "$ANSIBLE_CFG"
 [defaults]
@@ -44,10 +48,18 @@ EOF
 
 echo "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"
 
+printf '%s namespaces="git" %s\n' "$GIT_AUTHOR_EMAIL" "$GIT_AUTHOR_SSH_PUB" > "$GIT_ALLOWED_SIGNERS_FILE"
+
+cat <<EOF > "$GIT_SYSTEM_GITCONFIG"
+[gpg "ssh"]
+    allowedSignersFile = $GIT_ALLOWED_SIGNERS_FILE
+EOF
+
 ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
 echo "PI: Stage 2"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
+    --verify-commit \
     -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
     --vault-password-file "$ANSIBLE_VAULT_PW_FILE" \
     bootstrap/playbook.yml \
