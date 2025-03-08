@@ -94,6 +94,14 @@
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX='
         line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
+      register: grub_default
+
+    - name: Update GRUB
+      ansible.builtin.command: 
+        argv:
+          - update-grub
+      changed_when: true
+      when: grub_default.changed
 
     - name: Import the OS hardening role
       ansible.builtin.import_role:
