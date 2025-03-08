@@ -1,6 +1,7 @@
 [Unit]
 Description=Ansible Pull Mode
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=oneshot
