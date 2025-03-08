@@ -2,11 +2,13 @@
 Description=Ansible Pull Mode
 Wants=network-online.target
 After=network-online.target
+#ConditionPathExists=/run/systemd/netif/state
 
 [Service]
 Type=oneshot
 User={{ nausicaea_common.ansible_user }}
 Group={{ nausicaea_common.ansible_group }}
+#ExecStartPre=/bin/sh -c 'until ping -c1 -w2 1.1.1.1; do sleep 5; done'
 ExecStart=/usr/bin/ansible-pull \
     -U "{{ nausicaea_common.repo }}" \
     -C "{{ nausicaea_common.branch }}" \
@@ -20,3 +22,5 @@ ExecStart=/usr/bin/ansible-pull \
 
 [Install]
 WantedBy=multi-user.target
+
+# vim: set ft=systemd:
