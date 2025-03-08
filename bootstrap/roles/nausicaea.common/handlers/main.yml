@@ -7,13 +7,12 @@
   failed_when: etckeeper_autocommit.rc != 0 and not "working tree clean" in etckeeper_autocommit.stdout
   become: true
 
-- name: Update ufw apps
+- name: Reload Firewalld
   ansible.builtin.command:
     argv:
-      - ufw
-      - app
-      - update
-      - all
+      - firewalld
+      - reload
+  changed_when: true
   become: true
 
 - name: Reload Systemd

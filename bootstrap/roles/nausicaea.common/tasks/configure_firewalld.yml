@@ -16,6 +16,7 @@
     state: enabled
     permanent: true
   become: true
+  notify: Reload Firewalld
 
 - name: Permanently enable SSH on the public zone
   ansible.posix.firewalld:
@@ -24,4 +25,5 @@
     state: enabled
     permanent: true
   become: true
+  notify: Reload Firewalld
 

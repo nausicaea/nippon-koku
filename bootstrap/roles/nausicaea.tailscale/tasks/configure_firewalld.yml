@@ -4,6 +4,7 @@
     state: present
     permanent: true
   become: true
+  notify: Reload Firewalld
 
 - name: Bind the Tailscale zone to the tailscale0 interface
   ansible.posix.firewalld:
@@ -12,6 +13,7 @@
     state: enabled
     permanent: true
   become: true
+  notify: Reload Firewalld
 
 - name: Accept all traffic in the tailscale zone
   ansible.posix.firewalld:
@@ -20,6 +22,7 @@
     state: enabled
     permanent: true
   become: true
+  notify: Reload Firewalld
 
 - name: Create the Tailscale service
   ansible.builtin.command:
@@ -30,6 +33,7 @@
     creates: "/etc/firewalld/services/{{ nausicaea_tailscale_vars.firewalld_p2p_service }}.xml"
   register: firewalld_new_service
   become: true
+  notify: Reload Firewalld
 
 - name: Reload firewalld after creating the service
   ansible.builtin.command:
@@ -38,6 +42,7 @@
       - "--reload"
   become: true
   when: firewalld_new_service.changed
+  notify: Reload Firewalld
 
 - name: Was the UDP P2P port already assigned to the Tailscale service?
   ansible.builtin.command:
@@ -50,6 +55,7 @@
   failed_when: not (firewalld_tailscale_port.rc == 0 or firewalld_tailscale_port.rc == 1)
   changed_when: false
   become: true
+  notify: Reload Firewalld
 
 - name: Assign the UDP P2P port to the Tailscale service
   ansible.builtin.command:
@@ -60,6 +66,7 @@
       - "--add-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
   become: true
   when: firewalld_tailscale_port.rc == 1
+  notify: Reload Firewalld
 
 - name: Accept traffic on the Tailscale port in the public zone
   ansible.posix.firewalld:
@@ -68,3 +75,4 @@
     state: enabled
     permanent: true
   become: true
+  notify: Reload Firewalld
