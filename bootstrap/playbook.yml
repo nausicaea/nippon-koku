@@ -84,10 +84,24 @@
     - harden
   become: true
   vars:
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
+      net.ipv6.conf.all.forwarding: 1
     ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
-  roles:
-    - devsec.hardening.os_hardening
-    - devsec.hardening.ssh_hardening
+  tasks:
+    - name: Ensure audit=1 is set in GRUB configuration
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
+
+    - name: Import the OS hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.os_hardening
+
+    - name: Import the SSH hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.ssh_hardening
 
 - name: Provision Tailscale
   hosts: dyn_stage_live_and_tailscale
