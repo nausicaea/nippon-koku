@@ -3,7 +3,7 @@ galaxy_info:
   role_name: k3s_server
   namespace: nausicaea
   author: Eleanor Young
-  description: Installs and configures the K3s kubernetes distribution for a control plane
+  description: Installs and configures the K3s kubernetes distribution for a control pane
   company: Nausicaea AS
   license: MIT
   min_ansible_version: "2.1"

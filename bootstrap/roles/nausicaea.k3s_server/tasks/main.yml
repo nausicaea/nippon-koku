@@ -8,3 +8,23 @@
     group: root
     mode: "0500"
   become: true
+
+- name: Provision the first server node
+  when: inventory_hostname == groups[k3s_server_group_name][0]
+  block:
+    - name: Run the K3s installer for a server node (control pane)
+      ansible.builtin.command:
+        argv:
+          - /usr/local/bin/k3s-install
+      environment:
+        INSTALL_K3S_EXEC: server
+        INSTALL_K3S_CHANNEL: stable
+      become: true
+
+    - name: Make sure the K3s server service is running
+      ansible.builtin.service:
+        name: k3s
+        state: started
+        enabled: true
+      become: true
+

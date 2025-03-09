@@ -123,5 +123,7 @@
   hosts: dyn_stage_live_and_k3s_server
   tags:
     - k3s_server
+  vars:
+    k3s_server_group_name: dyn_stage_live_and_k3s_server
   roles:
     - nausicaea.k3s_server
