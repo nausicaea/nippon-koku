@@ -105,3 +105,14 @@
   ansible.builtin.hostname:
     name: "{{ tailscale_host_fqdn }}"
   become: true
+
+- name: Update the hosts file
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ tailscale_host_fqdn }} {{ inventory_hostname_short }}"
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+  become: true
