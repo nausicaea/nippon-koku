@@ -67,13 +67,12 @@
       - status
       - "--json"
   register: tailscale_status_preauth
-  failed_when: not (tailscale_status_preauth.rc == 0 or tailscale_status_preauth.rc == 1)
   changed_when: false
   become: true
 
 - name: Is Tailscale logged in?
   ansible.builtin.set_fact:
-    tailscale_is_logged_in: "{{ tailscale_status_preauth | from_json | json_query('Self.Online') }}"
+    tailscale_is_logged_in: "{{ tailscale_status_preauth.stdout | from_json | json_query('Self.Online') }}"
 
 - name: Connect to the tailnet
   ansible.builtin.command:
@@ -99,8 +98,8 @@
 
 - name: What is the MagicDNS suffix and the host's DNS name?
   ansible.builtin.set_fact:
-    tailscale_search_domain: "{{ tailscale_status | from_json | json_query('MagicDNSSuffix') }}"
-    tailscale_host_fqdn: "{{ tailscale_status | from_json | json_query('Self.DNSName') | rstrip('.') }}"
+    tailscale_search_domain: "{{ tailscale_status.stdout | from_json | json_query('MagicDNSSuffix') }}"
+    tailscale_host_fqdn: "{{ tailscale_status.stdout | from_json | json_query('Self.DNSName') | rstrip('.') }}"
 
 - name: Update the host name
   ansible.builtin.hostname:
