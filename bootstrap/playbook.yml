@@ -23,6 +23,7 @@
       loop:
         - harden
         - tailscale
+        - k3s_server
 
 - name: Show additional information on a host
   hosts: all
@@ -118,3 +119,9 @@
   roles:
     - nausicaea.tailscale
  
+- name: Provision K3S server nodes
+  hosts: dyn_stage_live_and_k3s_server
+  tags:
+    - k3s_server
+  roles:
+    - nausicaea.k3s_server

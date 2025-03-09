@@ -42,7 +42,6 @@
       - "--reload"
   become: true
   when: firewalld_new_service.changed
-  notify: Reload Firewalld
 
 - name: Was the UDP P2P port already assigned to the Tailscale service?
   ansible.builtin.command:
