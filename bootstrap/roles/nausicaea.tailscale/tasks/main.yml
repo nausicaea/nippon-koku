@@ -99,16 +99,23 @@
       - tailscale 
       - status 
       - "--json"
-  register: tailscale_status
+  register: tailscale_status_raw
   changed_when: false
   check_mode: false
   become: true
 
 - name: What is the MagicDNS suffix and the host's DNS name?
-  ansible.builtin.set_fact:
-    tailscale_search_domain: "{{ tailscale_status.stdout | from_json | json_query('MagicDNSSuffix') }}"
-    tailscale_host_fqdn: "{{ (tailscale_status.stdout | from_json | json_query('Self.DNSName')).rstrip('.') }}"
-    tailscale_ips: "{{ tailscale_status.stdout | from_json | json_query('TailscaleIPs') }}"
+  block:
+    - name: Parse the output of Tailscale status as JSON
+      ansible.builtin.set_fact: 
+        tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
+
+    - name: Collect a few important facts about the tailnet
+      ansible.builtin.set_fact:
+        tailscale_magicdns_suffix: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
+        tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
+        tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ipv4 | first }}"
+        tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ipv6 | first }}"
 
 - name: Update the host name
   ansible.builtin.hostname:
