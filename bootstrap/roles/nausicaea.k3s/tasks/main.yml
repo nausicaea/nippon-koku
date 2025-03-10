@@ -89,13 +89,13 @@
       ansible.builtin.uri:
         url: "{{ nausicaea.k3s.args.api_url }}"
         validate_certs: false
+        status_code: [200, 401]
         method: GET
         follow_redirects: none
         timeout: 5
       register: k8s_apiserver
       retries: 12
       delay: 5
-      until: k8s_apiserver.status == 200
 
     - name: Run the K3s installer for a server (control pane)
       ansible.builtin.command:
