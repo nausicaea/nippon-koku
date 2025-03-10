@@ -74,6 +74,7 @@
       - "--json"
   register: tailscale_status_preauth
   changed_when: false
+  check_mode: false
   become: true
 
 - name: Is Tailscale logged in?
@@ -100,6 +101,7 @@
       - "--json"
   register: tailscale_status
   changed_when: false
+  check_mode: false
   become: true
 
 - name: What is the MagicDNS suffix and the host's DNS name?
