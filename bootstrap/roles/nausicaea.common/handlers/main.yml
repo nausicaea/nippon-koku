@@ -8,8 +8,20 @@
   become: true
 
 - name: Reload Firewalld
-  ansible.builtin.include_tasks:
-    file: reload_firewalld.yml
+  ansible.builtin.stat:
+    path: /run/dbus/system-bus-socket
+  register: dbus_socket
+  failed_when: false
+  changed_when: dbus_socket.stat is defined and dbus_socket.stat.exists
+  notify: Reload Firewalld Stage 2
+  become: true
+  
+- name: Reload Firewalld Stage 2
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--reload"
+  become: true
 
 - name: Reload Systemd
   ansible.builtin.systemd_service:
