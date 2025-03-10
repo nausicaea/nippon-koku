@@ -11,7 +11,7 @@
 - name: Configure Ansible Galaxy requirements
   ansible.builtin.template:
     src: ansible-requirements.yml.j2
-    dest: "{{ nausicaea_common.ansible_requirements_file }}"
+    dest: "{{ nausicaea.common.ansible_requirements_file }}"
     owner: root
     group: root
     mode: "0644"
@@ -20,16 +20,16 @@
 
 - name: Install updated Ansible galaxy requirements
   community.general.ansible_galaxy_install:
-    requirements_file: "{{ nausicaea_common.ansible_requirements_file }}"
+    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
     type: collection
     state: present
   become: true
 
 - name: Ensure the vault password file has correct permissions
   ansible.builtin.file:
-    path: "{{ nausicaea_common.ansible_vault_password_file }}"
-    owner: "{{ nausicaea_common.ansible_user }}"
-    group: "{{ nausicaea_common.ansible_group }}"
+    path: "{{ nausicaea.common.ansible_vault_password_file }}"
+    owner: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
     mode: "0600"
     state: file
   become: true
@@ -37,7 +37,7 @@
 - name: Configure the allowed signers file
   ansible.builtin.template:
     src: git-allowed-signers.j2
-    dest: "{{ nausicaea_common.git_allowed_signers_file }}"
+    dest: "{{ nausicaea.common.git_allowed_signers_file }}"
     owner: root
     group: root
     mode: "0644"
@@ -46,7 +46,7 @@
 - name: Configure Git to use the allowed signers file
   ansible.builtin.template:
     src: git-gitconfig.j2
-    dest: "{{ nausicaea_common.git_gitconfig_file }}"
+    dest: "{{ nausicaea.common.git_gitconfig_file }}"
     owner: root
     group: root
     mode: "0644"

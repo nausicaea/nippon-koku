@@ -1,6 +1,6 @@
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
+    zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
     state: present
     permanent: true
   become: true
@@ -8,7 +8,7 @@
 
 - name: Bind the Tailscale zone to the tailscale0 interface
   ansible.posix.firewalld:
-    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
+    zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
     interface: tailscale0
     state: enabled
     permanent: true
@@ -17,7 +17,7 @@
 
 - name: Accept all traffic in the tailscale zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea_tailscale_vars.firewalld_zone }}"
+    zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
     target: ACCEPT
     state: enabled
     permanent: true
@@ -29,8 +29,8 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--new-service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
-    creates: "/etc/firewalld/services/{{ nausicaea_tailscale_vars.firewalld_p2p_service }}.xml"
+      - "--new-service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.tailscale.vars.firewalld_p2p_service }}.xml"
   register: firewalld_new_service
   become: true
   notify: Reload Firewalld
@@ -48,8 +48,8 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
-      - "--query-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
+      - "--service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
+      - "--query-port={{ nausicaea.tailscale.vars.firewalld_p2p_port }}"
   register: firewalld_tailscale_port
   failed_when: not (firewalld_tailscale_port.rc == 0 or firewalld_tailscale_port.rc == 1)
   changed_when: false
@@ -61,8 +61,8 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--service={{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
-      - "--add-port={{ nausicaea_tailscale_vars.firewalld_p2p_port }}"
+      - "--service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
+      - "--add-port={{ nausicaea.tailscale.vars.firewalld_p2p_port }}"
   become: true
   when: firewalld_tailscale_port.rc == 1
   notify: Reload Firewalld
@@ -70,7 +70,7 @@
 - name: Accept traffic on the Tailscale port in the public zone
   ansible.posix.firewalld:
     zone: public
-    service: "{{ nausicaea_tailscale_vars.firewalld_p2p_service }}"
+    service: "{{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
     state: enabled
     permanent: true
   become: true

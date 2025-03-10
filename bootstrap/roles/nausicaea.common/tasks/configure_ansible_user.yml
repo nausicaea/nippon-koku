@@ -1,16 +1,16 @@
 - name: Create the Ansible system group
   ansible.builtin.group:
-    name: "{{ nausicaea_common.ansible_group }}"
+    name: "{{ nausicaea.common.ansible_group }}"
     system: true
     state: present
   become: true
 
 - name: Create Ansible user
   ansible.builtin.user:
-    name: "{{ nausicaea_common.ansible_user }}"
-    group: "{{ nausicaea_common.ansible_group }}"
+    name: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
     comment: Ansible user
-    home: "{{ nausicaea_common.ansible_home }}"
+    home: "{{ nausicaea.common.ansible_home }}"
     create_home: true
     password_lock: true
     system: true
@@ -20,11 +20,11 @@
 
 - name: Fix ownership on all files and directories in Ansible home
   ansible.builtin.file:
-    path: "{{ nausicaea_common.ansible_home }}"
+    path: "{{ nausicaea.common.ansible_home }}"
     state: directory
     recurse: true
-    owner: "{{ nausicaea_common.ansible_user }}"
-    group: "{{ nausicaea_common.ansible_group }}"
+    owner: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
     #mode: 'u=rwX,go='
   become: true
 

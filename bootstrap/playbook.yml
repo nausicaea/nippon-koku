@@ -23,6 +23,7 @@
       loop:
         - harden
         - tailscale
+        - k3s_cluster_init_server
         - k3s_server
 
 - name: Show additional information on a host
@@ -118,12 +119,21 @@
     - tailscale
   roles:
     - nausicaea.tailscale
- 
+
+- name: Provision the K3s cluster init server node
+  hosts: dyn_stage_live_and_k3s_cluster_init_server
+  tags: k3s_cluster_init_server
+  vars:
+    nausicaea:
+      k3s_server:
+        args:
+          cluster_init: true
+  roles:
+    - nausicaea.k3s_server
+
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
   tags:
     - k3s_server
-  vars:
-    k3s_server_group_name: dyn_stage_live_and_k3s_server
   roles:
     - nausicaea.k3s_server

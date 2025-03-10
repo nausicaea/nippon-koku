@@ -1,3 +1,4 @@
 ---
-nausicaea_tailscale:
-  enable_exit_node: false
+nausicaea:
+  tailscale:
+    enable_exit_node: false

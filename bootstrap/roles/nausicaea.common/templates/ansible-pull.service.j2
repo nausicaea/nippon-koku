@@ -6,18 +6,18 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-User={{ nausicaea_common.ansible_user }}
-Group={{ nausicaea_common.ansible_group }}
+User={{ nausicaea.common.ansible_user }}
+Group={{ nausicaea.common.ansible_group }}
 #ExecStartPre=/bin/sh -c 'until ping -c1 -w2 1.1.1.1; do sleep 5; done'
 ExecStart=/usr/bin/ansible-pull \
-    -U "{{ nausicaea_common.repo }}" \
-    -C "{{ nausicaea_common.branch }}" \
+    -U "{{ nausicaea.common.repo }}" \
+    -C "{{ nausicaea.common.branch }}" \
     --clean \
     --verify-commit \
-    -d "{{ nausicaea_common.checkout_dir }}" \
+    -d "{{ nausicaea.common.checkout_dir }}" \
     -c local \
     -i bootstrap/inventory.yml \
-    --vault-password-file "{{ nausicaea_common.ansible_vault_password_file }}" \
+    --vault-password-file "{{ nausicaea.common.ansible_vault_password_file }}" \
     bootstrap/playbook.yml
 
 [Install]

@@ -1,7 +1,7 @@
 ---
 - name: Ensure the keyrings directory exists
   ansible.builtin.file:
-    path: "{{ nausicaea_tailscale_vars.operator_keyrings }}"
+    path: "{{ nausicaea.tailscale.vars.operator_keyrings }}"
     state: directory
     owner: root
     group: root
@@ -10,7 +10,7 @@
 
 - name: Calculate the keyring path
   ansible.builtin.set_fact:
-    tailscale_keyring_path: "{{ nausicaea_tailscale_vars.operator_keyrings }}/{{ nausicaea_tailscale_vars.keyring_name }}"
+    tailscale_keyring_path: "{{ nausicaea.tailscale.vars.operator_keyrings }}/{{ nausicaea.tailscale.vars.keyring_name }}"
 
 - name: Ensure presence of the Tailscale keyring
   ansible.builtin.get_url:
@@ -27,7 +27,7 @@
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ tailscale_keyring_path }}] https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower
       }} main"
-    filename: "{{ nausicaea_tailscale_vars.repo_filename }}"
+    filename: "{{ nausicaea.tailscale.vars.repo_filename }}"
     state: present
   become: true
 # yamllint enable rule:line-length
@@ -41,7 +41,7 @@
     mode: "0644"
   notify: Force Reload Procps
   become: true
-  when: nausicaea_tailscale.enable_exit_node
+  when: nausicaea.tailscale.enable_exit_node
 
 - name: Ensure Tailscale is installed
   ansible.builtin.apt:
@@ -85,7 +85,7 @@
     argv:
       - tailscale 
       - up 
-      - "--auth-key={{ nausicaea_tailscale_secrets.auth_key }}"
+      - "--auth-key={{ nausicaea.tailscale.secrets.auth_key }}"
       - "--ssh"
   changed_when: true
   no_log: true

@@ -27,12 +27,18 @@
   become: true
 
 - name: Provision the first server node
-  when: inventory_hostname == groups[k3s_server_group_name][0]
+  when: nausicaea.k3s_server.args.cluster_init
   block:
     - name: Run the K3s installer for a server node (control pane)
       ansible.builtin.command:
         argv:
           - /usr/local/sbin/k3s-install
+          - server
+          - "--cluster-init"
+          - "--token"
+          - "TOKEN"
+          - 
+        creates: /usr/local/bin/k3s
       environment:
         INSTALL_K3S_EXEC: server
         INSTALL_K3S_CHANNEL: stable

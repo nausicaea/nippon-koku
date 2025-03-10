@@ -4,14 +4,14 @@
       - openssl
       - passwd
       - "-6"
-      - "{{ nausicaea_common_secrets.admin_initial_password }}"
+      - "{{ nausicaea.common.secrets.admin_initial_password }}"
   changed_when: false
   no_log: true
   register: admin_password_crypted
 
 - name: Create the admin user
   ansible.builtin.user:
-    name: "{{ nausicaea_common_secrets.admin_user }}"
+    name: "{{ nausicaea.common.secrets.admin_user }}"
     groups: sudo
     comment: Admin user
     password: "{{ admin_password_crypted.stdout }}"
@@ -23,7 +23,7 @@
 
 - name: Add the primary SSH key to the admin user
   ansible.posix.authorized_key:
-    user: "{{ nausicaea_common_secrets.admin_user }}"
-    key: "{{ nausicaea_common_secrets.admin_ssh_pub }}"
+    user: "{{ nausicaea.common.secrets.admin_user }}"
+    key: "{{ nausicaea.common.secrets.admin_ssh_pub }}"
     state: present
   become: true
