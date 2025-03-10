@@ -15,7 +15,7 @@
 
 - name: DEBUG
   ansible.builtin.debug:
-    var: "[tailscale_host_fqdn, tailscale_ips | join(',')] | flatten"
+    var: "[tailscale_host_fqdn, tailscale_ips] | flatten | join(',')"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
