@@ -12,6 +12,7 @@
       - jq
       - git
       - curl
+      - resolvconf
     state: present
   become: true
   notify: Etckeeper commit
