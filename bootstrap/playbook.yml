@@ -135,5 +135,10 @@
   hosts: dyn_stage_live_and_k3s_server
   tags:
     - k3s_server
+  vars:
+    nausicaea:
+      k3s_server:
+        args:
+          cluster_init: false
   roles:
     - nausicaea.k3s_server
