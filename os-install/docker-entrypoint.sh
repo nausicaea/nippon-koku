@@ -9,8 +9,30 @@
 
 set -e
 
+# Required arguments (provided via getotps)
+# ANSIBLE_VAULT_PASSWORD=""
+# GIT_AUTHOR_EMAIL=""
+# GIT_AUTHOR_SSH_PUB=""
+# ROOT_PASSWORD_CRYPTED=""
+
+# Arguments with defaults
+ARCH="${ARCH:-amd64}"
+BOOT_DEVICE="${BOOT_DEVICE:-/dev/nvme0n1}"
+BOOTSTRAP_REPO="${BOOTSTRAP_REPO:-https://github.com/nausicaea/nippon-koku}"
+BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
+DEBIAN_MIRROR="${DEBIAN_MIRROR:-debian.ethz.ch}"
+DEBIAN_VERSION="${DEBIAN_VERSION:-12.9.0}"
+HOSTNAME="${HOSTNAME:-debian}"
+DOMAIN="${DOMAIN}"
+INSTALL_NONFREE_FIRMWARE="${INSTALL_NONFREE_FIRMWARE:-false}"
+TIMEZONE="${TIMEZONE:-Europe/Zurich}"
+
+# Hardcoded variables
+ANSIBLE_HOME="/var/lib/ansible"
+BOOTSTRAP_DEST="/var/lib/ansible/repo"
+
 while getopts ':a:b:B:e:hH:nr:s:v:' 'opt'; do
-    case ${opt} in
+    case $opt in
         a)
             ARCH="${OPTARG}"
             ;;
@@ -100,7 +122,7 @@ if [ -z "$GIT_AUTHOR_EMAIL" -o -z "$GIT_AUTHOR_SSH_PUB" ]; then
     exit 1
 fi
 
-echo "Building Debian preseed image for $DEBIAN_VERSION and $ARCH"
+echo "Building Debian ($DEBIAN_VERSION/$ARCH) preseed image for $HOSTNAME"
 
 SLASH_ESCAPE='s/\//\\\//g'
 ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
