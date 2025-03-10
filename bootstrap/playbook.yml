@@ -89,7 +89,7 @@
     sysctl_overwrite:
       net.ipv4.ip_forward: 1
       net.ipv6.conf.all.forwarding: 1
-    ssh_allow_users: "{{ nausicaea_common_secrets.admin_user }}"
+    ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }}"
   tasks:
     - name: Ensure audit=1 is set in GRUB configuration
       ansible.builtin.lineinfile:
