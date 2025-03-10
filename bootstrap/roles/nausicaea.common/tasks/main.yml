@@ -16,12 +16,6 @@
   become: true
   notify: Etckeeper commit
 
-- name: Delete the post-install script
-  ansible.builtin.file:
-    path: /root/post-install.sh
-    state: absent
-  become: true
-
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
     file: configure_ansible_user.yml
