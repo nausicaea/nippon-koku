@@ -8,7 +8,7 @@
   become: true
 
 - name: Reload Firewalld
-  ansible.builtin.import_tasks:
+  ansible.builtin.include_tasks:
     file: reload_firewalld.yml
 
 - name: Reload Systemd
