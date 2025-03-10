@@ -1,0 +1,4 @@
+nausicaea:
+  k3s_server:
+    args:
+      api_url: "https://shizuoka-2.takaya-map.ts.net:6443"
