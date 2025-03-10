@@ -91,8 +91,8 @@
 - name: Create convenience script for looking at Ansible Pull logs
   ansible.builtin.template:
     src: ansible-logs.sh.j2
-    dest: /usr/local/bin/ansible-logs
+    dest: /usr/local/sbin/ansible-logs
     owner: root
     group: root
-    mode: "0755"
+    mode: "0500"
   become: true
