@@ -1,3 +1,20 @@
+- name: Configure the default environment file
+  block:
+    - name: Does the file already exist?
+      ansible.builtin.stat:
+        path: /etc/default/ansible-pull
+      register: default_env_file
+
+    - name: Copy the default template
+      ansible.builtin.template:
+        src: default-env-file.j2
+        dest: /etc/default/ansible-pull
+        owner: root
+        group: root
+        mode: 0644
+      become: true
+      when: not (default_env_file.stat is defined and default_env_file.stat.exists)
+
 - name: Configure the ansible.cfg file
   ansible.builtin.template:
     src: ansible.cfg.j2
