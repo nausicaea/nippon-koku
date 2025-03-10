@@ -1,4 +1,8 @@
 ---
+- name: Configure firewalld
+  ansible.builtin.import_tasks:
+    file: configure_firewalld.yml
+
 - name: Download the K3s installer script
   ansible.builtin.get_url:
     url: https://get.k3s.io

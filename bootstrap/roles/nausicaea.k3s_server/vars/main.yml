@@ -1,0 +1,4 @@
+nausicaea:
+  k3s:
+    vars:
+      firewalld_zone: k3s
