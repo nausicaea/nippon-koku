@@ -15,7 +15,8 @@
 
 - name: Determine the TLS SAN values
   ansible.builtin.set_fact:
-    k3s_tls_san: "[tailscale_host_fqdn, tailscale_ips] | flatten | join(',')"
+    k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_ips] | flatten | join(',') }}"
+    k3s_advertise_address_ipv4: "{{ tailscale_ips | ipv4 | first }}"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
@@ -59,6 +60,8 @@
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
           - "{{ k3s_tls_san }}"
+          - "--advertise-address"
+          - "{{ k3s_advertise_address_ipv4 }}"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -114,6 +117,8 @@
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
           - "{{ k3s_tls_san }}"
+          - "--advertise-address"
+          - "{{ k3s_advertise_address_ipv4 }}"
         creates: /usr/local/bin/k3s
       become: true
 
