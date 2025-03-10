@@ -1,21 +1,4 @@
 ---
-- name: Does the K3s kubeconfig exist?
-  ansible.builtin.stat:
-    path: /etc/rancher/k3s/k3s.yaml
-  register: k3s_kubeconfig
-  become: true
-
-- name: Does the K3s manifests directory exist?
-  ansible.builtin.stat:
-    path: /var/lib/rancher/k3s/server/manifests
-  register: k3s_manifests
-  become: true
-
-- name: Set facts for convenience
-  ansible.builtin.set_fact:
-    k3s_kubeconfig_exists: "{{ k3s_kubeconfig.stat.exists and k3s_kubeconfig.stat.isreg }}"
-    k3s_manifests_exists: "{{ k3s_manifests.stat.exists and k3s_manifests.stat.isdir }}"
-
 - name: Download the K3s installer script
   ansible.builtin.get_url:
     url: https://get.k3s.io
