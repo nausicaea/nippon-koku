@@ -125,11 +125,11 @@
   tags: k3s_cluster_init_server
   vars:
     nausicaea:
-      k3s_server:
+      k3s:
         args:
           cluster_init: true
   roles:
-    - nausicaea.k3s_server
+    - nausicaea.k3s
 
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
@@ -137,8 +137,8 @@
     - k3s_server
   vars:
     nausicaea:
-      k3s_server:
+      k3s:
         args:
           cluster_init: false
   roles:
-    - nausicaea.k3s_server
+    - nausicaea.k3s

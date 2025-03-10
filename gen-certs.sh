@@ -9,8 +9,8 @@ SHA256_FILE_HASH="0dcbcb95891ee05fdbd81dc3487753bbcf7f3cd290a01667185a8099949548
 SCRIPT_DEST="$TEMP_DIR/generate-custom-ca-certs.sh"
 SCRIPT_CHECKSUM="$TEMP_DIR/generate-custom-ca-certs.sha256"
 CERT_DIR="$TEMP_DIR/k3s/server/tls"
-CERT_ARCHIVE="$SCRIPT_DIR/bootstrap/roles/nausicaea.k3s_server/files/k3s-server-tls.tgz"
-K3S_TOKEN_FILE="$SCRIPT_DIR/bootstrap/roles/nausicaea.k3s_server/files/k3s-token"
+CERT_ARCHIVE="$SCRIPT_DIR/bootstrap/roles/nausicaea.k3s/files/k3s-server-tls.tgz"
+K3S_TOKEN_FILE="$SCRIPT_DIR/bootstrap/roles/nausicaea.k3s/files/k3s-token"
 
 # Download the cert generation script
 curl -Lo "$SCRIPT_DEST" "https://raw.githubusercontent.com/k3s-io/k3s/$COMMIT_HASH/contrib/util/generate-custom-ca-certs.sh"

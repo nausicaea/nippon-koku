@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: k3s_server
+  role_name: k3s
   namespace: nausicaea
   author: Eleanor Young
   description: Installs and configures the K3s kubernetes distribution for a control pane
