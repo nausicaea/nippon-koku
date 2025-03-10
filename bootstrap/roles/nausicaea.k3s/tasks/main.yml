@@ -53,6 +53,8 @@
           - "--cluster-init"
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
+          #- "--tls-san"
+          #- ""
         creates: /usr/local/bin/k3s
       become: true
 
@@ -106,6 +108,8 @@
           - "{{ nausicaea.k3s.args.api_url }}"
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
+          #- "--tls-san"
+          #- ""
         creates: /usr/local/bin/k3s
       become: true
 

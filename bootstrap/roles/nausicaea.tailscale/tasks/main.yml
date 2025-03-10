@@ -108,6 +108,7 @@
   ansible.builtin.set_fact:
     tailscale_search_domain: "{{ tailscale_status.stdout | from_json | json_query('MagicDNSSuffix') }}"
     tailscale_host_fqdn: "{{ (tailscale_status.stdout | from_json | json_query('Self.DNSName')).rstrip('.') }}"
+    tailscale_ips: "{{ tailscale_status.stdout | from_json | json_query('TailscaleIPs') | type_debug }}"
 
 - name: Update the host name
   ansible.builtin.hostname:
