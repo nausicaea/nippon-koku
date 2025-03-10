@@ -1,0 +1,144 @@
+- name: Group hosts dynamically
+  hosts: all
+  tags: always
+  tasks:
+    - name: Classify the host based on its OS distribution
+      ansible.builtin.group_by:
+        key: "dyn_os_{{ ansible_distribution | lower }}"
+      changed_when: false
+
+    - name: Classify the host based on its system vendor
+      ansible.builtin.group_by:
+        key: "dyn_sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
+      changed_when: false
+
+    - name: Classify the host based on whether we're running Ansible inside a chroot
+      ansible.builtin.group_by:
+        key: "dyn_stage_{{ 'bootstrap' if ansible_is_chroot | default(false) | bool else 'live' }}"
+      changed_when: false
+
+    - name: Assign special dynamic groups
+      ansible.builtin.include_tasks:
+        file: tasks/special_dynamic_groups.yml
+      loop:
+        - harden
+        - tailscale
+        - k3s_cluster_init_server
+        - k3s_server
+
+- name: Show additional information on a host
+  hosts: all
+  tags: info
+  tasks:
+    - name: Show host distribution, release name, and version
+      vars:
+        msg: |
+          Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
+          Arch: ansible_architecture={{ ansible_architecture }}, ansible_machine={{ ansible_machine }}
+          OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
+          OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
+          Hostnames: ansible_host={{ ansible_host }}, ansible_hostname={{ ansible_hostname }}, ansible_fqdn={{ ansible_fqdn }}, ansible_nodename={{ ansible_nodename }}
+          Ansible Inventory: {{ inventory_hostname }}, {{ inventory_hostname_short }}
+          Ansible Groups: {{ group_names }}
+      ansible.builtin.debug:
+        msg: "{{ msg.split('\n') }}"
+
+    - name: Print all available facts
+      ansible.builtin.debug:
+        var: ansible_facts
+
+- name: Perform setup tasks for bootstrapping hosts
+  hosts: dyn_stage_bootstrap
+  tags:
+    - dyn_stage_bootstrap
+  become: true
+  tasks:
+    - name: Find all APT repo files
+      ansible.builtin.find:
+        paths:
+          - /etc/apt/sources.list.d
+        file_type: file
+        recurse: true
+      register: apt_repository_sources
+
+    - name: Comment out any cdrom APT repositories
+      ansible.builtin.lineinfile:
+        path: "{{ item }}"
+        line: '#\1'
+        regexp: '^(deb cdrom:.*)$'
+        backrefs: true
+      loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
+
+    - name: Run the common role once at the beginning to make sure Ansible is set up right
+      ansible.builtin.import_role:
+        name: nausicaea.common
+
+- name: Perform tasks specific to Apple hardware 
+  hosts: dyn_sys_apple
+  tags:
+    - dyn_sys_apple
+  roles:
+    - nausicaea.mbpfan
+
+- name: Perform OS hardening tasks
+  hosts: dyn_stage_live_and_harden
+  tags:
+    - harden
+  become: true
+  vars:
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
+      net.ipv6.conf.all.forwarding: 1
+    ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }}"
+  tasks:
+    - name: Ensure audit=1 is set in GRUB configuration
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
+      register: grub_default
+
+    - name: Update GRUB
+      ansible.builtin.command: 
+        argv:
+          - update-grub
+      changed_when: true
+      when: grub_default.changed
+
+    - name: Import the OS hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.os_hardening
+
+    - name: Import the SSH hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.ssh_hardening
+
+- name: Provision Tailscale
+  hosts: dyn_stage_live_and_tailscale
+  tags:
+    - tailscale
+  roles:
+    - nausicaea.tailscale
+
+- name: Provision the K3s cluster init server node
+  hosts: dyn_stage_live_and_k3s_cluster_init_server
+  tags: k3s_cluster_init_server
+  vars:
+    nausicaea:
+      k3s:
+        args:
+          cluster_init: true
+  roles:
+    - nausicaea.k3s
+
+- name: Provision K3S server nodes
+  hosts: dyn_stage_live_and_k3s_server
+  tags:
+    - k3s_server
+  vars:
+    nausicaea:
+      k3s:
+        args:
+          cluster_init: false
+  roles:
+    - nausicaea.k3s

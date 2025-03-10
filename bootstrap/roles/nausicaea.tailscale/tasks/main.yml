@@ -1,0 +1,134 @@
+---
+- name: Ensure the keyrings directory exists
+  ansible.builtin.file:
+    path: "{{ nausicaea.tailscale.vars.operator_keyrings }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Calculate the keyring path
+  ansible.builtin.set_fact:
+    tailscale_keyring_path: "{{ nausicaea.tailscale.vars.operator_keyrings }}/{{ nausicaea.tailscale.vars.keyring_name }}"
+
+- name: Ensure presence of the Tailscale keyring
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }}/{{ ansible_distribution_release | lower }}.noarmor.gpg"
+    checksum: sha256:3e03dacf222698c60b8e2f990b809ca1b3e104de127767864284e6c228f1fb39
+    dest: "{{ tailscale_keyring_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+# yamllint disable rule:line-length
+- name: Ensure presence of the Tailscale repository key
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ tailscale_keyring_path }}] https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower
+      }} main"
+    filename: "{{ nausicaea.tailscale.vars.repo_filename }}"
+    state: present
+  become: true
+# yamllint enable rule:line-length
+
+- name: Provision sysctl customizations for Tailscale
+  ansible.builtin.copy:
+    src: sysctl-tailscale.conf
+    dest: /etc/sysctl.d/99-tailscale.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Force Reload Procps
+  become: true
+  when: nausicaea.tailscale.enable_exit_node
+
+- name: Ensure Tailscale is installed
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+  become: true
+
+- name: Enable the Tailscale daemon
+  ansible.builtin.service:
+    name: tailscaled
+    enabled: true
+    state: started
+  become: true
+
+- name: Configure firewalld
+  ansible.builtin.import_tasks:
+    file: configure_firewalld.yml
+
+- name: Install jmespath, a prerequisite for the filter `json_query`
+  ansible.builtin.package:
+    name: python3-jmespath
+    state: present
+  become: true
+
+- name: Get the Tailscale status
+  ansible.builtin.command:
+    argv: 
+      - tailscale 
+      - status
+      - "--json"
+  register: tailscale_status_preauth
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Is Tailscale logged in?
+  ansible.builtin.set_fact:
+    tailscale_is_logged_in: "{{ tailscale_status_preauth.stdout | from_json | json_query('Self.Online') }}"
+
+- name: Connect to the tailnet
+  ansible.builtin.command:
+    argv:
+      - tailscale 
+      - up 
+      - "--auth-key={{ nausicaea.tailscale.secrets.auth_key }}"
+      - "--ssh"
+  changed_when: true
+  no_log: true
+  become: true
+  when: not tailscale_is_logged_in
+
+- name: Get the Tailscale status again
+  ansible.builtin.command:
+    argv:
+      - tailscale 
+      - status 
+      - "--json"
+  register: tailscale_status_raw
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: What is the MagicDNS suffix and the host's DNS name?
+  block:
+    - name: Parse the output of Tailscale status as JSON
+      ansible.builtin.set_fact: 
+        tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
+
+    - name: Collect a few important facts about the tailnet
+      ansible.builtin.set_fact:
+        tailscale_magicdns_suffix: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
+        tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
+        tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ipv4 | first }}"
+        tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ipv6 | first }}"
+
+- name: Update the host name
+  ansible.builtin.hostname:
+    name: "{{ tailscale_host_fqdn }}"
+  become: true
+
+- name: Update the hosts file
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ tailscale_host_fqdn }} {{ inventory_hostname_short }}"
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+  become: true

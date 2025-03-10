@@ -1,0 +1,26 @@
+[Unit]
+Description=Ansible Pull Mode
+Wants=network-online.target
+After=network-online.target
+#ConditionPathExists=/run/systemd/netif/state
+
+[Service]
+Type=oneshot
+User={{ nausicaea.common.ansible_user }}
+Group={{ nausicaea.common.ansible_group }}
+#ExecStartPre=/bin/sh -c 'until ping -c1 -w2 1.1.1.1; do sleep 5; done'
+ExecStart=/usr/bin/ansible-pull \
+    -U "{{ nausicaea.common.repo }}" \
+    -C "{{ nausicaea.common.branch }}" \
+    --clean \
+    --verify-commit \
+    -d "{{ nausicaea.common.checkout_dir }}" \
+    -c local \
+    -i bootstrap/inventory.yml \
+    --vault-password-file "{{ nausicaea.common.ansible_vault_password_file }}" \
+    bootstrap/playbook.yml
+
+[Install]
+WantedBy=multi-user.target
+
+# vim: set ft=systemd:

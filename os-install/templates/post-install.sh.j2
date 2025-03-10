@@ -1,19 +1,76 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 echo "START POST INSTALL"
 
-apt-get install -y ansible-core git curl
-
+export ANSIBLE_HOME="{{ ansible_home }}"
+ANSIBLE_ETCDIR="/etc/ansible"
+ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
+ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
+ANSIBLE_VAULT_PASSWORD="{{ vault_password }}"
+ANSIBLE_VAULT_PW_FILE="$ANSIBLE_HOME/vault_password"
 BOOTSTRAP_REPO="{{ repo }}"
 BOOTSTRAP_BRANCH="{{ branch }}"
-STAGING_DIR=$(mktemp -d)
+BOOTSTRAP_DEST="{{ dest }}"
+GIT_SYSTEM_GITCONFIG="/etc/gitconfig"
+GIT_ALLOWED_SIGNERS_FILE="/etc/git/allowed_signers"
+GIT_AUTHOR_EMAIL="{{ email }}"
+GIT_AUTHOR_SSH_PUB="{{ ssh_pub }}"
 
-git clone "$BOOTSTRAP_REPO" "$STAGING_DIR"
+echo "PI: Stage 1"
+if [ ! -e /dev/shm ]; then
+    mkdir -vp /dev/shm
+fi
 
-cd "${STAGING_DIR}/bootstrap"
+exit_cleanup() {
+    if [ -e /dev/shm ]; then
+        rmdir -v /dev/shm
+    fi
+}
+trap exit_cleanup EXIT
 
-git checkout "$BOOTSTRAP_BRANCH"
+mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME" $(dirname "$GIT_ALLOWED_SIGNERS_FILE")
 
-ansible-playbook -v -c local site.yml
+cat <<EOF > "$ANSIBLE_CFG"
+[defaults]
+home = $ANSIBLE_HOME
+interpreter_python = auto_silent
+hash_behaviour = merge
+EOF
+
+cat <<EOF > "$ANSIBLE_REQS"
+collections:
+  - name: ansible.posix
+    version: 2.0.0
+  - name: community.crypto
+    version: 2.24.0
+  - name: community.general
+    version: 10.3.0
+  - name: devsec.hardening
+    version: 10.2.0
+  - name: kubernetes.core
+    version: 5.1.0
+EOF
+
+echo "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"
+
+printf '%s namespaces="git" %s\n' "$GIT_AUTHOR_EMAIL" "$GIT_AUTHOR_SSH_PUB" > "$GIT_ALLOWED_SIGNERS_FILE"
+
+cat <<EOF > "$GIT_SYSTEM_GITCONFIG"
+[gpg "ssh"]
+    allowedSignersFile = $GIT_ALLOWED_SIGNERS_FILE
+EOF
+
+echo "PI: Stage 2"
+ansible-galaxy collection install -r "$ANSIBLE_REQS"
+
+echo "PI: Stage 3"
+ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
+    --verify-commit \
+    -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
+    --vault-password-file "$ANSIBLE_VAULT_PW_FILE" \
+    bootstrap/playbook.yml \
+    || printf 'ERROR: Ansible run failed with status code %s\n' "$?"
+
+echo "END POST INSTALL"

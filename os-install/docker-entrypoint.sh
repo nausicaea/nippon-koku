@@ -9,17 +9,113 @@
 
 set -e
 
+while getopts ':a:b:B:e:hH:nr:s:v:' 'opt'; do
+    case ${opt} in
+        a)
+            ARCH="${OPTARG}"
+            ;;
+        b)
+            BOOT_DEVICE="${OPTARG}"
+            ;;
+        B)
+            BOOTSTRAP_BRANCH="${OPTARG}"
+            ;;
+        e)
+            GIT_AUTHOR_EMAIL="${OPTARG}"
+            ;;
+        h)
+            printf \
+'nippon-koku 0.1.0 (docker-entrypoint.sh)
+Eleanor Young <developer@nausicaea.net>
+
+Generates a Debian ISO image with a preseed configuration. The preseed images
+are saved to the ./artifacts/ directory, while the original unmodified images
+are saved to the ./cache/ directory.
+
+Project home page: https://github.com/nausicaea/nippon-koku
+
+USAGE:
+  docker-entrypoint.sh [OPTIONS]
+
+OPTIONS:
+  -a ARCH                       Specify the architecture of the Debian image
+                                (available options are "amd64", "i386", and 
+                                "arm64").
+  -b BOOT_DEVICE                Specify the boot device (e.g. "/dev/sda").
+  -B BOOTSTRAP_BRANCH           Specify the branch to check out during
+                                postinstall.
+  -e GIT_AUTHOR_EMAIL           Specify the email address of the author who 
+                                signs commits.
+  -h                            Print this usage message and exit.
+  -H                            Specify the target hostname.
+  -n                            Install non-free firmware.
+  -r ROOT_PASSWORD_CRYPTED      Specify the crypt(3) root password (e.g. 
+                                "$6$SALT$HASH"). You can use "openssl passwd" 
+                                to create such hashes.
+  -s GIT_AUTHOR_SSH_PUB         Specify the public SSH key of the author
+                                who signs commits.
+  -v ANSIBLE_VAULT_PASSWORD     Specify the Ansible vault password in 
+                                plaintext.
+'
+            exit 0
+            ;;
+        H)
+            HOSTNAME="${OPTARG}"
+            ;;
+        n)
+            INSTALL_NONFREE_FIRMWARE=true
+            ;;
+        r)
+            ROOT_PASSWORD_CRYPTED="${OPTARG}"
+            ;;
+        s)
+            GIT_AUTHOR_SSH_PUB="${OPTARG}"
+            ;;
+        v)
+            ANSIBLE_VAULT_PASSWORD="${OPTARG}"
+            ;;
+        :)
+            echo "Option -${OPTARG} requires an argument."
+            exit 1
+            ;;
+        ?)
+            echo "Unknown option: -${OPTARG}."
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$ROOT_PASSWORD_CRYPTED" ]; then
+    echo "Empty root passwords are not allowed. You must provide the hashed root password either as command line parameter or as environment variable 'ROOT_PASSWORD_CRYPTED'"
+    exit 1
+fi
+
+if [ -z "$ANSIBLE_VAULT_PASSWORD" ]; then
+    echo "Empty Ansible vault passwords are not allowed. You must provide the plaintext password either as command line parameter or as environment variable 'ANSIBLE_VAULT_PASSWORD'"
+    exit 1
+fi
+
+if [ -z "$GIT_AUTHOR_EMAIL" -o -z "$GIT_AUTHOR_SSH_PUB" ]; then
+    echo "You must provide git commit signing parameters either on the command line or as environment variables 'GIT_AUTHOR_EMAIL' and 'GIT_AUTHOR_SSH_PUB'"
+    exit 1
+fi
+
 echo "Building Debian preseed image for $DEBIAN_VERSION and $ARCH"
 
 SLASH_ESCAPE='s/\//\\\//g'
+ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
+ANSIBLE_VAULT_PASSWORD=$(echo "$ANSIBLE_VAULT_PASSWORD" | sed "$SLASH_ESCAPE")
 BOOT_DEVICE=$(echo "$BOOT_DEVICE" | sed "$SLASH_ESCAPE")
 BOOTSTRAP_REPO=$(echo "$BOOTSTRAP_REPO" | sed "$SLASH_ESCAPE")
 BOOTSTRAP_BRANCH=$(echo "$BOOTSTRAP_BRANCH" | sed "$SLASH_ESCAPE")
+BOOTSTRAP_DEST=$(echo "$BOOTSTRAP_DEST" | sed "$SLASH_ESCAPE")
 DOMAIN=$(echo "$DOMAIN" | sed "$SLASH_ESCAPE")
 DEBIAN_MIRROR=$(echo "$DEBIAN_MIRROR" | sed "$SLASH_ESCAPE")
+GIT_AUTHOR_EMAIL=$(echo "$GIT_AUTHOR_EMAIL" | sed "$SLASH_ESCAPE")
+GIT_AUTHOR_SSH_PUB=$(echo "$GIT_AUTHOR_SSH_PUB" | sed "$SLASH_ESCAPE")
 HOSTNAME=$(echo "$HOSTNAME" | sed "$SLASH_ESCAPE")
 INSTALL_NONFREE_FIRMWARE=$(echo "$INSTALL_NONFREE_FIRMWARE" | sed "$SLASH_ESCAPE")
-ROOT_PASSWORD_CRYPTED=$(echo "$1" | sed "$SLASH_ESCAPE")
+ROOT_PASSWORD_CRYPTED=$(echo "$ROOT_PASSWORD_CRYPTED" | sed "$SLASH_ESCAPE")
 TIMEZONE=$(echo "$TIMEZONE" | sed "$SLASH_ESCAPE")
 
 ARCH_SHORT=$(echo $ARCH | awk '{ if ($0 == "amd64") print "amd"; else if ($0 == "i386") print "386"; else if ($0 == "arm64") print "a64"; else print $0; }')
@@ -47,12 +143,16 @@ sed -e "s/{{ arch_short }}/$ARCH_SHORT/g" \
 # Configure the post-install script
 sed -e "s/{{ repo }}/$BOOTSTRAP_REPO/g" \
     -e "s/{{ branch }}/$BOOTSTRAP_BRANCH/g" \
+    -e "s/{{ dest }}/$BOOTSTRAP_DEST/g" \
+    -e "s/{{ ansible_home }}/$ANSIBLE_HOME/g" \
+    -e "s/{{ vault_password }}/$ANSIBLE_VAULT_PASSWORD/g" \
+    -e "s/{{ email }}/$GIT_AUTHOR_EMAIL/g" \
+    -e "s/{{ ssh_pub }}/$GIT_AUTHOR_SSH_PUB/g" \
     /src/post-install.sh.j2 > ./post-install.sh
 
 # Fix the permissions on the image
 chown -R root:root .
-find . -type d -exec chmod 0700 {} \;
-find . -type f -exec chmod 0600 {} \;
+chmod -R u=rwX,go= .
 
 # Configure the preseed file
 PRESEED_FILE=/tmp/preseed.cfg

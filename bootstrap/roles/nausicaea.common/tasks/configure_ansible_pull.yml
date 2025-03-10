@@ -1,0 +1,98 @@
+- name: Configure the ansible.cfg file
+  ansible.builtin.template:
+    src: ansible.cfg.j2
+    dest: /etc/ansible/ansible.cfg
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Etckeeper commit
+  become: true
+
+- name: Configure Ansible Galaxy requirements
+  ansible.builtin.template:
+    src: ansible-requirements.yml.j2
+    dest: "{{ nausicaea.common.ansible_requirements_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Etckeeper commit
+  become: true
+
+- name: Install updated Ansible galaxy requirements
+  community.general.ansible_galaxy_install:
+    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
+    type: collection
+    state: present
+  become: true
+
+- name: Ensure the vault password file has correct permissions
+  ansible.builtin.file:
+    path: "{{ nausicaea.common.ansible_vault_password_file }}"
+    owner: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
+    mode: "0600"
+    state: file
+  become: true
+
+- name: Configure the allowed signers file
+  ansible.builtin.template:
+    src: git-allowed-signers.j2
+    dest: "{{ nausicaea.common.git_allowed_signers_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Configure Git to use the allowed signers file
+  ansible.builtin.template:
+    src: git-gitconfig.j2
+    dest: "{{ nausicaea.common.git_gitconfig_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Configure the systemd units
+  ansible.builtin.template:
+    src: "{{ item.path }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: 
+    - Reload Systemd
+    - Etckeeper commit
+  become: true
+  loop:
+    - path: ansible-pull.service.j2
+      dest: /etc/systemd/system/ansible-pull.service
+    - path: ansible-pull.timer.j2
+      dest: /etc/systemd/system/ansible-pull.timer
+
+- name: Enable the timer manually (this needs to work even without systemd available)
+  ansible.builtin.file:
+    src: /etc/systemd/system/ansible-pull.timer
+    dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
+    state: link
+  notify: 
+    - Reload Systemd
+    - Etckeeper commit
+  become: true
+  when: ansible_is_chroot
+
+- name: Enable and start the timer unit
+  ansible.builtin.service:
+    name: ansible-pull.timer
+    enabled: true
+    state: started
+  become: true
+  when: not ansible_is_chroot
+
+- name: Create convenience script for looking at Ansible Pull logs
+  ansible.builtin.template:
+    src: ansible-logs.sh.j2
+    dest: /usr/local/sbin/ansible-logs
+    owner: root
+    group: root
+    mode: "0500"
+  become: true

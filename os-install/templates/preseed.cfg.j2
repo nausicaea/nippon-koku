@@ -55,6 +55,7 @@ d-i apt-setup/non-free-firmware boolean {{ nonfree_firmware }}
 tasksel tasksel/first multiselect standard, ssh-server
 
 d-i pkgsel/upgrade select safe-upgrade
+d-i pkgsel/include string resolvconf git curl ansible-core
 
 popularity-contest popularity-contest/participate boolean true
 
@@ -62,13 +63,15 @@ d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 d-i grub-installer/bootdev string {{ boot_device }}
 
+d-i debian-installer/add-kernel-opts string quiet audit=1
+
 d-i finish-install/reboot_in_progress note
 
 ### Description: for internal use; can be preseeded
 #   Shell command or commands to run in the d-i environment as late as possible
 # d-i preseed/late_command string <string>
 d-i preseed/late_command string \
-    mkdir -p /target/root; \
-    cp /cdrom/post-install.sh /target/root/; \
-    chmod +x /target/root/post-install.sh; \
-    in-target /bin/sh /root/post-install.sh
+    mkdir -p /target/tmp; \
+    cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
+    chmod 0500 /target/tmp/post-install.sh; \
+    in-target /bin/sh /tmp/post-install.sh

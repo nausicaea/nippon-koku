@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+FOLLOW="false"
+
+while getopts ':f' 'opt'; do
+    case $opt in
+        f)
+            FOLLOW="true"
+            ;;
+        ?)
+            echo "Unknown option: -${OPTARG}."
+            exit 1
+            ;;
+    esac
+done
+
+if [ "$FOLLOW" = "true" ]; then
+    exec journalctl -fu ansible-pull.service --output=json --no-pager \
+        | jq -r 'select(._COMM == "ansible-pull" or ._COMM == "systemd") | "[\(.__REALTIME_TIMESTAMP | tonumber / 1000000 | todateiso8601)] [\(._COMM)] \(.MESSAGE)"'
+else
+    exec journalctl -u ansible-pull.service --output=json --no-pager \
+        | jq -r 'select(._COMM == "ansible-pull" or ._COMM == "systemd") | "[\(.__REALTIME_TIMESTAMP | tonumber / 1000000 | todateiso8601)] [\(._COMM)] \(.MESSAGE)"' \
+        | less
+fi

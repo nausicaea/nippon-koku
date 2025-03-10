@@ -1,0 +1,34 @@
+- name: Create the K3s zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    state: present
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Bind the K3s zone to the pod IP addresses
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    source: 10.42.0.0/16
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Bind the K3s zone to the service IP addresses
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    source: 10.43.0.0/16
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Accept all traffic in the K3s zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    target: ACCEPT
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld

@@ -1,0 +1,29 @@
+---
+- name: Determine the default route interface
+  ansible.builtin.shell:
+    cmd: "ip route | awk '/default/ {print $5; exit}'"
+  changed_when: false
+  register: ip_route_output
+
+- name: Get the name of the default network interface
+  ansible.builtin.set_fact:
+    default_interface_name: "{{ ip_route_output.stdout }}"
+
+- name: Assign the public zone to the default interface
+  ansible.posix.firewalld:
+    zone: public
+    interface: "{{ default_interface_name }}"
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Permanently enable SSH on the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: ssh
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+

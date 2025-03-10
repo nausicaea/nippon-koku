@@ -1,0 +1,23 @@
+all:
+  hosts:
+    shizuoka: {}
+    osaka: {}
+    kagawa: {}
+  children:
+    harden:
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
+    tailscale:
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
+    k3s_cluster_init_server:
+      hosts:
+        shizuoka: {}
+    k3s_server:
+      hosts:
+        osaka: {}
+        kagawa: {}
