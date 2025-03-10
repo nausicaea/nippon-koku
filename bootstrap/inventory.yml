@@ -1,22 +1,22 @@
 all:
   hosts:
-    shizuoka-2: {}
+    shizuoka: {}
     osaka: {}
     kagawa: {}
   children:
     harden:
       hosts:
-        shizuoka-2: {}
+        shizuoka: {}
         osaka: {}
         kagawa: {}
     tailscale:
       hosts:
-        shizuoka-2: {}
+        shizuoka: {}
         osaka: {}
         kagawa: {}
     k3s_cluster_init_server:
       hosts:
-        shizuoka-2: {}
+        shizuoka: {}
     k3s_server:
       hosts:
         osaka: {}
