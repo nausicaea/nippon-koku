@@ -4,7 +4,7 @@ set -e
 
 echo "START POST INSTALL"
 
-export ANSIBLE_HOME="{{ ansible_home }}"
+ANSIBLE_HOME="{{ ansible_home }}"
 ANSIBLE_ETCDIR="/etc/ansible"
 ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
 ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
@@ -62,10 +62,16 @@ cat <<EOF > "$GIT_SYSTEM_GITCONFIG"
     allowedSignersFile = $GIT_ALLOWED_SIGNERS_FILE
 EOF
 
+cat <<EOF > /etc/default/ansible-pull
+BOOTSTRAP_BRANCH="$BOOTSTRAP_BRANCH"
+EOF
+
 echo "PI: Stage 2"
+export ANSIBLE_HOME
 ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
 echo "PI: Stage 3"
+export BOOTSTRAP_BRANCH
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     --verify-commit \
     -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
