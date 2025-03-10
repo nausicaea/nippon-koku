@@ -58,10 +58,6 @@
         mode: "0600"
       become: true
 
-    - name: DEBUG
-      ansible.builtin.fail:
-        msg: BREAK POINT
-
     - name: Run the K3s installer for a server node (control pane)
       ansible.builtin.command:
         argv:
