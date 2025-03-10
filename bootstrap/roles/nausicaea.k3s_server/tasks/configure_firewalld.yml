@@ -6,12 +6,19 @@
   become: true
   notify: Reload Firewalld
 
-- name: Bind the K3s zone to the pod and service IP addresses
+- name: Bind the K3s zone to the pod IP addresses
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
-    source: 
-      - 10.42.0.0/16
-      - 10.43.0.0/16
+    source: 10.42.0.0/16
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Bind the K3s zone to the service IP addresses
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    source: 10.43.0.0/16
     state: enabled
     permanent: true
   become: true
