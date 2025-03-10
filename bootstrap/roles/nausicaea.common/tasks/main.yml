@@ -10,6 +10,8 @@
       - vim
       - tmux
       - jq
+      - git
+      - curl
     state: present
   become: true
   notify: Etckeeper commit
