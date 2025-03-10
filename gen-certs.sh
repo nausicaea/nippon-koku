@@ -30,7 +30,7 @@ cd "$SCRIPT_DIR"
 SERVER_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.crt")
 #SERVER_CA_PEM_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.pem")
 
-echo "K10${SERVER_CA_CRT_HASH}::server:$(openssl rand -base64 22)" > "$K3S_TOKEN_FILE"
+echo "K10${SERVER_CA_CRT_HASH}::server:$(openssl rand -hex 16)" > "$K3S_TOKEN_FILE"
 ansible-vault encrypt --vault-id=@op-client.sh "$K3S_TOKEN_FILE"
 
 # Create and encrypt the certificate archive
