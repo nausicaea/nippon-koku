@@ -15,7 +15,7 @@
 
 - name: DEBUG
   ansible.builtin.debug:
-    var: tailscale_ips
+    var: "{{ [tailscale_host_fqdn, tailscale_ips | join(',')] | flatten }}"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
@@ -57,8 +57,8 @@
           - "--cluster-init"
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
-          #- "--tls-san"
-          #- ""
+          - "--tls-san"
+          - "{{ [tailscale_host_fqdn, tailscale_ips | join(',')] | flatten }}"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -112,8 +112,8 @@
           - "{{ nausicaea.k3s.args.api_url }}"
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
-          #- "--tls-san"
-          #- ""
+          - "--tls-san"
+          - "{{ [tailscale_host_fqdn, tailscale_ips | join(',')] | flatten }}"
         creates: /usr/local/bin/k3s
       become: true
 
