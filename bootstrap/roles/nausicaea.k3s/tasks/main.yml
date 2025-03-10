@@ -60,7 +60,7 @@
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
           - "{{ k3s_tls_san }}"
-          - "--advertise-address"
+          - "--bind-address"
           - "{{ k3s_advertise_address_ipv4 }}"
         creates: /usr/local/bin/k3s
       become: true
@@ -117,7 +117,7 @@
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
           - "{{ k3s_tls_san }}"
-          - "--advertise-address"
+          - "--bind-address"
           - "{{ k3s_advertise_address_ipv4 }}"
         creates: /usr/local/bin/k3s
       become: true
