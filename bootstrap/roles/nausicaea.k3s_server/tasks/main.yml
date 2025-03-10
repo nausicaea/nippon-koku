@@ -64,7 +64,7 @@
       become: true
 
 - name: Provision the other server nodes
-  when: nausicaea.k3s_server.args.cluster_init
+  when: not nausicaea.k3s_server.args.cluster_init
   block:
     - name: Create the server directory
       ansible.builtin.file:
