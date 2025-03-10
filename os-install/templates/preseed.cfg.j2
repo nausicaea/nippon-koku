@@ -71,7 +71,7 @@ d-i finish-install/reboot_in_progress note
 #   Shell command or commands to run in the d-i environment as late as possible
 # d-i preseed/late_command string <string>
 d-i preseed/late_command string \
-    mkdir -p /target/root; \
+    mkdir -p /target/tmp; \
     cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
     chmod 0500 /target/tmp/post-install.sh; \
     in-target /bin/sh /tmp/post-install.sh
