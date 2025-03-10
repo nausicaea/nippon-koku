@@ -27,8 +27,8 @@ cd "$SCRIPT_DIR"
 
 # Calculate the SHA256 hash of the CA certificate
 #ROOT_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/root-ca.crt")
-SERVER_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.crt")
 #SERVER_CA_PEM_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.pem")
+SERVER_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.crt" | cut -d ' ' -f 1)
 
 echo "K10${SERVER_CA_CRT_HASH}::server:$(openssl rand -hex 16)" > "$K3S_TOKEN_FILE"
 ansible-vault encrypt --vault-id=@op-client.sh "$K3S_TOKEN_FILE"
