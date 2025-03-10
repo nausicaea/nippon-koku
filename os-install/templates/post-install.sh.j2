@@ -23,6 +23,13 @@ if [ ! -e /dev/shm ]; then
     mkdir -vp /dev/shm
 fi
 
+exit_cleanup() {
+    if [ -e /dev/shm ]; then
+        rmdir -v /dev/shm
+    fi
+}
+trap exit_cleanup EXIT
+
 mkdir -vp "$ANSIBLE_ETCDIR" "$ANSIBLE_HOME" $(dirname "$GIT_ALLOWED_SIGNERS_FILE")
 
 cat <<EOF > "$ANSIBLE_CFG"
@@ -55,18 +62,15 @@ cat <<EOF > "$GIT_SYSTEM_GITCONFIG"
     allowedSignersFile = $GIT_ALLOWED_SIGNERS_FILE
 EOF
 
+echo "PI: Stage 2"
 ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
-echo "PI: Stage 2"
+echo "PI: Stage 3"
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     --verify-commit \
     -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
     --vault-password-file "$ANSIBLE_VAULT_PW_FILE" \
     bootstrap/playbook.yml \
     || printf 'ERROR: Ansible run failed with status code %s\n' "$?"
-
-if [ -e /dev/shm ]; then
-    rmdir -v /dev/shm
-fi
 
 echo "END POST INSTALL"

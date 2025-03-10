@@ -72,6 +72,6 @@ d-i finish-install/reboot_in_progress note
 # d-i preseed/late_command string <string>
 d-i preseed/late_command string \
     mkdir -p /target/root; \
-    cp /cdrom/post-install.sh /target/root/; \
-    chmod +x /target/root/post-install.sh; \
-    in-target /bin/sh /root/post-install.sh
+    cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
+    chmod 0500 /target/tmp/post-install.sh; \
+    in-target /bin/sh /tmp/post-install.sh

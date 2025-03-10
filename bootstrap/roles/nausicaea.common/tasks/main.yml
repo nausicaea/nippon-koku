@@ -16,6 +16,12 @@
   become: true
   notify: Etckeeper commit
 
+- name: Delete the post-install script
+  ansible.builtin.file:
+    path: /root/post-install.sh
+    state: absent
+  become: true
+
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
     file: configure_ansible_user.yml
@@ -31,21 +37,4 @@
 - name: Configure Firewalld
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
-
-- name: Does the K3s kubeconfig exist?
-  ansible.builtin.stat:
-    path: /etc/rancher/k3s/k3s.yaml
-  register: k3s_kubeconfig
-  become: true
-
-- name: Does the K3s manifests directory exist?
-  ansible.builtin.stat:
-    path: /var/lib/rancher/k3s/server/manifests
-  register: k3s_manifests
-  become: true
-
-- name: Set facts for convenience
-  ansible.builtin.set_fact:
-    k3s_kubeconfig_exists: "{{ k3s_kubeconfig.stat.exists and k3s_kubeconfig.stat.isreg }}"
-    k3s_manifests_exists: "{{ k3s_manifests.stat.exists and k3s_manifests.stat.isdir }}"
 
