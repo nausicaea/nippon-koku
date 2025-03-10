@@ -26,11 +26,9 @@ cd "$TEMP_DIR"
 cd "$SCRIPT_DIR"
 
 # Calculate the SHA256 hash of the CA certificate
-#ROOT_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/root-ca.crt")
-#SERVER_CA_PEM_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.pem")
-SERVER_CA_CRT_HASH=$(shasum -a 256 "$CERT_DIR/server-ca.crt" | cut -d ' ' -f 1)
+ROOT_CA_DER_HASH=$(openssl x509 -inform pem -in "$CERT_DIR/root-ca.pem" -outform der -out - | shasum -a 256 | cut -d ' ' -f 1)
 
-echo "K10${SERVER_CA_CRT_HASH}::server:$(openssl rand -hex 16)" > "$K3S_TOKEN_FILE"
+echo "K10${ROOT_CA_DER_HASH}::server:$(openssl rand -hex 16)" > "$K3S_TOKEN_FILE"
 ansible-vault encrypt --vault-id=@op-client.sh "$K3S_TOKEN_FILE"
 
 # Create and encrypt the certificate archive
