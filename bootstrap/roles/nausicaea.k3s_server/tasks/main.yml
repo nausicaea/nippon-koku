@@ -3,7 +3,7 @@
   ansible.builtin.get_url:
     url: https://get.k3s.io
     checksum: sha256:9d5fc42bf825d3e8dcc8682c8bac071b1de18019af81f85519ccbe5c919e0896
-    dest: /usr/local/bin/k3s-install
+    dest: /usr/local/sbin/k3s-install
     owner: root
     group: root
     mode: "0500"
@@ -15,7 +15,7 @@
     - name: Run the K3s installer for a server node (control pane)
       ansible.builtin.command:
         argv:
-          - /usr/local/bin/k3s-install
+          - /usr/local/sbin/k3s-install
       environment:
         INSTALL_K3S_EXEC: server
         INSTALL_K3S_CHANNEL: stable
