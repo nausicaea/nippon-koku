@@ -14,6 +14,7 @@ set -e
 # GIT_AUTHOR_EMAIL=""
 # GIT_AUTHOR_SSH_PUB=""
 # ROOT_PASSWORD_CRYPTED=""
+# KUBE_APISERVER_URL=""
 
 # Arguments with defaults
 ARCH="${ARCH:-amd64}"
@@ -31,7 +32,7 @@ TIMEZONE="${TIMEZONE:-Europe/Zurich}"
 ANSIBLE_HOME="/var/lib/ansible"
 BOOTSTRAP_DEST="/var/lib/ansible/repo"
 
-while getopts ':a:b:B:e:hH:nr:s:v:' 'opt'; do
+while getopts ':a:b:B:e:hH:k:nr:s:v:' 'opt'; do
     case $opt in
         a)
             ARCH="${OPTARG}"
@@ -70,6 +71,7 @@ OPTIONS:
                                 signs commits.
   -h                            Print this usage message and exit.
   -H                            Specify the target hostname.
+  -k                            Specify the Kube API server URL
   -n                            Install non-free firmware.
   -r ROOT_PASSWORD_CRYPTED      Specify the crypt(3) root password (e.g. 
                                 "$6$SALT$HASH"). You can use "openssl passwd" 
@@ -83,6 +85,9 @@ OPTIONS:
             ;;
         H)
             HOSTNAME="${OPTARG}"
+            ;;
+        k)
+            KUBE_APISERVER_URL="${OPTARG}"
             ;;
         n)
             INSTALL_NONFREE_FIRMWARE=true
@@ -122,8 +127,14 @@ if [ -z "$GIT_AUTHOR_EMAIL" -o -z "$GIT_AUTHOR_SSH_PUB" ]; then
     exit 1
 fi
 
+if [ -z "$KUBE_APISERVER_URL" ]; then
+    echo "You must provide a URL for the Kube API server either on the command line or as environment variable 'KUBE_APISERVER_URL'"
+    exit 1
+fi
+
 echo "Building Debian ($DEBIAN_VERSION/$ARCH) preseed image for $HOSTNAME"
 echo "Configuring Ansible to check out branch $BOOTSTRAP_BRANCH"
+echo "Configuring K3s to use the Kube API server $KUBE_APISERVER_URL"
 
 SLASH_ESCAPE='s/\//\\\//g'
 ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
@@ -138,6 +149,7 @@ GIT_AUTHOR_EMAIL=$(echo "$GIT_AUTHOR_EMAIL" | sed "$SLASH_ESCAPE")
 GIT_AUTHOR_SSH_PUB=$(echo "$GIT_AUTHOR_SSH_PUB" | sed "$SLASH_ESCAPE")
 HOSTNAME=$(echo "$HOSTNAME" | sed "$SLASH_ESCAPE")
 INSTALL_NONFREE_FIRMWARE=$(echo "$INSTALL_NONFREE_FIRMWARE" | sed "$SLASH_ESCAPE")
+KUBE_APISERVER_URL=$(echo "$KUBE_APISERVER_URL" | sed "$SLASH_ESCAPE")
 ROOT_PASSWORD_CRYPTED=$(echo "$ROOT_PASSWORD_CRYPTED" | sed "$SLASH_ESCAPE")
 TIMEZONE=$(echo "$TIMEZONE" | sed "$SLASH_ESCAPE")
 
@@ -171,6 +183,7 @@ sed -e "s/{{ repo }}/$BOOTSTRAP_REPO/g" \
     -e "s/{{ vault_password }}/$ANSIBLE_VAULT_PASSWORD/g" \
     -e "s/{{ email }}/$GIT_AUTHOR_EMAIL/g" \
     -e "s/{{ ssh_pub }}/$GIT_AUTHOR_SSH_PUB/g" \
+    -e "s/{{ kube_apiserver_url }}/$KUBE_APISERVER_URL/g" \
     /src/post-install.sh.j2 > ./post-install.sh
 
 # Fix the permissions on the image

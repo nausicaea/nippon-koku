@@ -8,6 +8,7 @@ set -e
 # Required environment variables (we assume that these environment variables are present)
 # GIT_AUTHOR_EMAIL=""
 # GIT_AUTHOR_SSH_PUB=""
+# KUBE_APISERVER_URL=""
 
 # Arguments with defaults
 BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
@@ -62,5 +63,5 @@ for host_data in "$@"; do
         -b "$host_boot_device" -H "$host_name" -a "$host_arch" -B "$BOOTSTRAP_BRANCH" \
         -r $(openssl passwd -6 $(op read --account="$OP_ACCOUNT_SERVER" "$OP_ROOT_PW_ID")) \
         -v $(op read --account="$OP_ACCOUNT_SERVER" "$OP_VAULT_ID") \
-        -e "$GIT_AUTHOR_EMAIL" -s "$GIT_AUTHOR_SSH_PUB"
+        -e "$GIT_AUTHOR_EMAIL" -s "$GIT_AUTHOR_SSH_PUB" -k "$KUBE_APISERVER_URL"
 done

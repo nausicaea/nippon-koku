@@ -1,4 +1,4 @@
 nausicaea:
   k3s:
     args:
-      api_url: "https://shizuoka.takaya-map.ts.net:6443"
+      api_url: "{{ lookup('env', 'KUBE_APISERVER_URL', default='https://shizuoka.takaya-map.ts.net:6443') }}"
