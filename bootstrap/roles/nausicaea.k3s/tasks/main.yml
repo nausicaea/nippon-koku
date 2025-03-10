@@ -13,9 +13,9 @@
     mode: "0500"
   become: true
 
-- name: DEBUG
-  ansible.builtin.debug:
-    var: "[tailscale_host_fqdn, tailscale_ips] | flatten | join(',')"
+- name: Determine the TLS SAN values
+  ansible.builtin.set_fact:
+    k3s_tls_san: "[tailscale_host_fqdn, tailscale_ips] | flatten | join(',')"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
@@ -58,7 +58,7 @@
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
-          - "{{ [tailscale_host_fqdn, tailscale_ips | join(',')] | flatten }}"
+          - "{{ k3s_tls_san }}"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -113,7 +113,7 @@
           - "--token-file"
           - "/var/lib/rancher/k3s/server/token"
           - "--tls-san"
-          - "{{ [tailscale_host_fqdn, tailscale_ips | join(',')] | flatten }}"
+          - "{{ k3s_tls_san }}"
         creates: /usr/local/bin/k3s
       become: true
 
