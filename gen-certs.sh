@@ -37,5 +37,5 @@ ansible-vault encrypt --vault-id=@op-client.sh "$K3S_TOKEN_FILE"
 if [ -e "$CERT_ARCHIVE" ]; then
     rm "$CERT_ARCHIVE"
 fi
-tar -czf "$CERT_ARCHIVE" -C "$CERT_DIR" "."
+tar -czf "$CERT_ARCHIVE" --exclude "._*" -C "$CERT_DIR" "."
 ansible-vault encrypt --vault-id=@op-client.sh "$CERT_ARCHIVE"
