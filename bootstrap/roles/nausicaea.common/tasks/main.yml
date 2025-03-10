@@ -6,8 +6,6 @@
       - etckeeper
       - acl
       - unattended-upgrades
-      - python3-kubernetes
-      - python3-jmespath
       - firewalld
       - vim
       - tmux

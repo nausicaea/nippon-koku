@@ -60,6 +60,12 @@
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
 
+- name: Install jmespath, a prerequisite for the filter `json_query`
+  ansible.builtin.package:
+    name: python3-jmespath
+    state: present
+  become: true
+
 - name: Get the Tailscale status
   ansible.builtin.command:
     argv: 
