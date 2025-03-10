@@ -123,6 +123,7 @@ if [ -z "$GIT_AUTHOR_EMAIL" -o -z "$GIT_AUTHOR_SSH_PUB" ]; then
 fi
 
 echo "Building Debian ($DEBIAN_VERSION/$ARCH) preseed image for $HOSTNAME"
+echo "Configuring Ansible to check out branch $BOOTSTRAP_BRANCH"
 
 SLASH_ESCAPE='s/\//\\\//g'
 ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
