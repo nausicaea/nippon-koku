@@ -29,19 +29,44 @@
 - name: Provision the first server node
   when: nausicaea.k3s_server.args.cluster_init
   block:
+    - name: Create the TLS directory
+      ansible.builtin.file:
+        path: /var/lib/rancher/k3s/server/tls
+        state: directory
+        recurse: true
+        owner: root
+        group: root
+        mode: "u=rwX,go="
+      become: true
+
+    - name: Extract the custom TLS certificates
+      ansible.builtin.unarchive:
+        src: k3s-server-tls.tgz
+        dest: /var/lib/rancher/k3s/server/tls
+        creates: /var/lib/rancher/k3s/server/tls/root-ca.crt
+        owner: root
+        group: root
+        mode: "u=rwX,go="
+      become: true
+
+    - name: Copy the K3s token file
+      ansible.builtin.copy:
+        src: k3s-token
+        dest: /var/lib/rancher/k3s/server/token
+        owner: root
+        group: root
+        mode: "0600"
+      become: true
+
     - name: Run the K3s installer for a server node (control pane)
       ansible.builtin.command:
         argv:
           - /usr/local/sbin/k3s-install
           - server
           - "--cluster-init"
-          - "--token"
-          - "TOKEN"
-          - 
+          - "--token-file"
+          - "/var/lib/rancher/k3s/server/token"
         creates: /usr/local/bin/k3s
-      environment:
-        INSTALL_K3S_EXEC: server
-        INSTALL_K3S_CHANNEL: stable
       become: true
 
     - name: Make sure the K3s server service is running
