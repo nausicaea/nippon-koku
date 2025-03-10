@@ -110,10 +110,6 @@
     tailscale_host_fqdn: "{{ (tailscale_status.stdout | from_json | json_query('Self.DNSName')).rstrip('.') }}"
     tailscale_ips: "{{ tailscale_status.stdout | from_json | json_query('TailscaleIPs') }}"
 
-- name: DEBUG
-  ansible.builtin.debug:
-    var: tailscale_ips | type_debug
-
 - name: Update the host name
   ansible.builtin.hostname:
     name: "{{ tailscale_host_fqdn }}"
