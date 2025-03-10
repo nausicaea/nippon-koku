@@ -114,8 +114,8 @@
       ansible.builtin.set_fact:
         tailscale_magicdns_suffix: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
         tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
-        tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ipv4 | first }}"
-        tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ipv6 | first }}"
+        tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv4 | first }}"
+        tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv6 | first }}"
 
 - name: Update the host name
   ansible.builtin.hostname:
