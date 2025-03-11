@@ -5,6 +5,7 @@
 # * [Debian preseeding](https://wiki.debian.org/DebianInstaller/Preseed),
 # * [Debian ISO repacking](https://wiki.debian.org/RepackBootableISO),
 # * [Phil Pagel's "Debian Headless" repository](https://github.com/philpagel/debian-headless),
+# * [Conner Crosby's Homelab Preseed](https://github.com/cavcrosby/homelab-cm/blob/9339b9ed805f71064f81bc868d435503eb01e6f6/preseed.cfg.j2#L103C1-L103C126)
 # * and [Ricardo Branco's FAI builder for Docker](https://github.com/ricardobranco777/docker-fai).
 
 set -e
@@ -202,6 +203,7 @@ sed -e "s/{{ hostname }}/$HOSTNAME/g" \
     /src/preseed.cfg.j2 > "$PRESEED_FILE"
 chown root:root "$PRESEED_FILE"
 chmod 0644 "$PRESEED_FILE"
+cp "$PRESEED_FILE" "/cache/$HOSTNAME-preseed.cfg"
 
 # Add the preseed.cfg file to the kernel
 INITRD_TMP=$(mktemp)
