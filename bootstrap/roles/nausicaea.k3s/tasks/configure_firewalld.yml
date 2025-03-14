@@ -42,3 +42,71 @@
   become: true
   notify: Reload Firewalld
 
+- name: Allow masquerading in the K3s zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    masquerade: true
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Create the K3s service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--new-service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.k3s.vars.firewalld_k3s_service }}.xml"
+  register: firewalld_new_service
+  become: true
+  notify: Reload Firewalld
+
+- name: Reload firewalld after creating the service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--reload"
+  become: true
+  when: firewalld_new_service.changed
+
+- name: Assign ports to the K3s service
+  block:
+    - name: Was the port already assigned to the K3s service?
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--permanent"
+          - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+          - "--query-port={{ item }}"
+      register: firewalld_k3s_port
+      failed_when: not (firewalld_k3s_port.rc == 0 or firewalld_k3s_port.rc == 1)
+      changed_when: false
+      become: true
+      notify: Reload Firewalld
+
+    - name: Assign the port to the K3s service
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--permanent"
+          - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+          - "--add-port={{ item }}"
+      become: true
+      when: firewalld_k3s_port.rc == 1
+      notify: Reload Firewalld
+  loop:
+    - 2379/tcp
+    - 2380/tcp
+    - 6443/tcp
+    - 10250/tcp
+    - 8472/udp
+
+- name: Accept traffic on the K3s service in the public zone
+  ansible.posix.firewalld:
+    zone: public
+    service: "{{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+    state: enabled
+    permanent: true
+  become: true
+  notify: Reload Firewalld
