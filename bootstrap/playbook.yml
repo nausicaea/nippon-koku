@@ -78,9 +78,9 @@
         name: nausicaea.common
 
 - name: Perform tasks specific to Apple hardware
-  hosts: dyn_sys_apple
+  hosts: mbpfan
   tags:
-    - dyn_sys_apple
+    - mbpfan
   roles:
     - nausicaea.mbpfan
 
