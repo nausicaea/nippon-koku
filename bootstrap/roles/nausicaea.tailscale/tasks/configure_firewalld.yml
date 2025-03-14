@@ -81,9 +81,9 @@
   when: firewalld_tailscale_port.rc == 1
   notify: Reload Firewalld
 
-- name: Accept traffic on the Tailscale port in the public zone
+- name: Accept traffic on the Tailscale port in the block zone
   ansible.posix.firewalld:
-    zone: public
+    zone: block
     service: "{{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
     state: enabled
     permanent: true

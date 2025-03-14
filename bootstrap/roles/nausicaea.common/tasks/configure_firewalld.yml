@@ -1,17 +1,8 @@
 ---
-- name: Assign the public zone to the default interface
+- name: Assign the block zone to the default interface
   ansible.posix.firewalld:
-    zone: public
+    zone: block
     interface: "{{ ansible_facts.default_ipv4.interface }}"
-    state: enabled
-    permanent: true
-  become: true
-  notify: Reload Firewalld
-
-- name: Permanently enable SSH on the public zone
-  ansible.posix.firewalld:
-    zone: public
-    service: ssh
     state: enabled
     permanent: true
   become: true

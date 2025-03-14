@@ -75,9 +75,9 @@
     - 10250/tcp
     - 8472/udp
 
-- name: Accept traffic on the K3s service in the public zone
+- name: Accept traffic on the K3s service in the block zone
   ansible.posix.firewalld:
-    zone: public
+    zone: block
     service: "{{ nausicaea.k3s.vars.firewalld_k3s_service }}"
     state: enabled
     permanent: true
