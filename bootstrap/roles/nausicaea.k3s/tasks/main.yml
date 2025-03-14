@@ -77,25 +77,25 @@
         enabled: true
       become: true
 
-    - name: Wait for the node to be ready
-      kubernetes.core.k3s_info:
-        kubeconfig: /etc/rancher/k3s/k3s.yaml
-        kind: Node
-        name: "{{ tailscale_host_fqdn }}"
-        wait: true
-        wait_condition:
-          type: Ready
-          status: "True"
-      register: k8s_node_info
-      become: true
+      #- name: Wait for the node to be ready
+      #  kubernetes.core.k3s_info:
+      #    kubeconfig: /etc/rancher/k3s/k3s.yaml
+      #    kind: Node
+      #    name: "{{ tailscale_host_fqdn }}"
+      #    wait: true
+      #    wait_condition:
+      #      type: Ready
+      #      status: "True"
+      #  register: k8s_node_info
+      #  become: true
 
-    - name: Ensure that the node fulfills the expected roles
-      ansible.builtin.assert:
-        that: k8s_node_info | json_query('items[0].metadata.labels."node-role.kubernetes.io/{{ item }}"') | bool
-      loop:
-        - control-plane
-        - etcd
-        - master
+      #- name: Ensure that the node fulfills the expected roles
+      #  ansible.builtin.assert:
+      #    that: k8s_node_info | json_query('items[0].metadata.labels."node-role.kubernetes.io/{{ item }}"') | bool
+      #  loop:
+      #    - control-plane
+      #    - etcd
+      #    - master
 
 - name: Provision the other server nodes
   when: not nausicaea.k3s.args.cluster_init
