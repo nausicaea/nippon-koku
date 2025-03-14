@@ -87,7 +87,7 @@
           type: Ready
           status: "True"
         register: k8s_node_info
-        become: true
+      become: true
 
     - name: Ensure that the node fulfills the expected roles
       ansible.builtin.assert:
