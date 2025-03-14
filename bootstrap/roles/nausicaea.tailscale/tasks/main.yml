@@ -23,7 +23,7 @@
   become: true
 
 # yamllint disable rule:line-length
-- name: Ensure presence of the Tailscale repository key
+- name: Ensure presence of the Tailscale repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ tailscale_keyring_path }}] https://pkgs.tailscale.com/stable/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower
       }} main"

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: mbpfan
+  role_name: fancontrol
   namespace: nausicaea
   author: Eleanor Young
   description: Installs and configures mbpfan, to regulate Apple hardware fan speeds

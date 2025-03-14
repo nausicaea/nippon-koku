@@ -195,4 +195,3 @@
         wait_condition:
           type: Ready
           status: "True"
-

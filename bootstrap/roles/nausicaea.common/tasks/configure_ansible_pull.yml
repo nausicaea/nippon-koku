@@ -33,7 +33,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: 
+  notify:
     - Etckeeper commit
     - Update Ansible Galaxy Collections
   become: true

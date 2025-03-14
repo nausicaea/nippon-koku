@@ -1,3 +1,4 @@
+---
 - name: Install the Kubernetes helper package
   ansible.builtin.package:
     name: python3-kubernetes
@@ -53,7 +54,7 @@
           - server: https://kubernetes.default.svc
             namespace: "*"
         clusterResourceWhitelist:
-          - group: ''
+          - group: ""
             kind: Namespace
 
 - name: Define the cluster bootstrap application

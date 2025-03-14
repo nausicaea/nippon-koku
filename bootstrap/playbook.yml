@@ -32,7 +32,7 @@
   hosts: all
   tags: info
   tasks:
-# yamllint disable rule:line-length
+    # yamllint disable rule:line-length
     - name: Show host distribution, release name, and version
       vars:
         msg: |
@@ -78,11 +78,11 @@
         name: nausicaea.common
 
 - name: Perform tasks specific to Apple hardware
-  hosts: mbpfan
+  hosts: dyn_sys_apple
   tags:
     - mbpfan
   roles:
-    - nausicaea.mbpfan
+    - nausicaea.fancontrol
 
 - name: Perform OS hardening tasks
   hosts: dyn_stage_live_and_harden

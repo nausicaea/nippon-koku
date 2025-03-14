@@ -5,7 +5,7 @@ nausicaea:
       operator_keyrings: /usr/share/keyrings
       apt_sources: /etc/apt/sources.list.d
       keyring_name: tailscale-archive-keyring.gpg
-      repo_filename: tailscale.list
+      repo_filename: tailscale
       firewalld_zone: tailscale
       firewalld_p2p_service: tailscale
       firewalld_p2p_port: 41641/udp

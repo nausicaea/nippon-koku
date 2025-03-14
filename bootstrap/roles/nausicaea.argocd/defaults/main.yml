@@ -1,3 +1,4 @@
+---
 nausicaea:
   argocd:
     version: "v2.14.5"

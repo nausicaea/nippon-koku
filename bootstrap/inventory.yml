@@ -7,9 +7,6 @@ all:
     test01: {}
     test02: {}
   children:
-    mbpfan:
-      hosts:
-        osaka: {}
     harden:
       hosts:
         shizuoka: {}
