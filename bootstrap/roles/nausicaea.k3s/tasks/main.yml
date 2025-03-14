@@ -164,4 +164,37 @@
         enabled: true
       become: true
 
+    - name: Create the Kubeconfig directory
+      ansible.builtin.file:
+        path: "{{ nausicaea.common.ansible_home }}/.kube"
+        state: directory
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0700"
+      become: true
+
+    - name: Copy the K3s kubeconfig to the Ansible user
+      ansible.builtin.copy:
+        remote_src: true
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0600"
+      become: true
+
+    - name: Wait for the node to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        kind: Node
+        name: "{{ tailscale_host_fqdn }}"
+        label_selectors:
+          - node-role.kubernetes.io/control-plane=true
+          - node-role.kubernetes.io/etcd=true
+          - node-role.kubernetes.io/master=true
+        wait: true
+        wait_condition:
+          type: Ready
+          status: "True"
+      become: true
 
