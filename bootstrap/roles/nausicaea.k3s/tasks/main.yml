@@ -111,10 +111,10 @@
     - name: Ensure that the node fulfills the expected roles
       ansible.builtin.assert:
         that: k8s_node_info | json_query('items[0].metadata.labels."node-role.kubernetes.io/{{ item }}"') | bool
-        loop:
-          - control-plane
-          - etcd
-          - master
+      loop:
+        - control-plane
+        - etcd
+        - master
 
 - name: Provision the other server nodes
   when: not nausicaea.k3s.args.cluster_init
