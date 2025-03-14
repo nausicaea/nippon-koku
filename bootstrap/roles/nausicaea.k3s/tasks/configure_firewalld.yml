@@ -71,30 +71,8 @@
   when: firewalld_new_service.changed
 
 - name: Assign ports to the K3s service
-  block:
-    - name: Was the port already assigned to the K3s service?
-      ansible.builtin.command:
-        argv:
-          - firewall-cmd
-          - "--permanent"
-          - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
-          - "--query-port={{ item }}"
-      register: firewalld_k3s_port
-      failed_when: not (firewalld_k3s_port.rc == 0 or firewalld_k3s_port.rc == 1)
-      changed_when: false
-      become: true
-      notify: Reload Firewalld
-
-    - name: Assign the port to the K3s service
-      ansible.builtin.command:
-        argv:
-          - firewall-cmd
-          - "--permanent"
-          - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
-          - "--add-port={{ item }}"
-      become: true
-      when: firewalld_k3s_port.rc == 1
-      notify: Reload Firewalld
+  ansible.builtin.include_tasks:
+    file: configure_firewalld_k3s_service_ports.incl.yml
   loop:
     - 2379/tcp
     - 2380/tcp
