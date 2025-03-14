@@ -107,7 +107,6 @@
         wait_condition:
           type: Ready
           status: "True"
-      become: true
 
 - name: Provision the other server nodes
   when: not nausicaea.k3s.args.cluster_init
@@ -196,5 +195,4 @@
         wait_condition:
           type: Ready
           status: "True"
-      become: true
 
