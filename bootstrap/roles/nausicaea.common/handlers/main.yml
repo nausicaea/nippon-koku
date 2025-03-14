@@ -28,3 +28,11 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
   become: true
+
+- name: Update Ansible Galaxy Collections
+  community.general.ansible_galaxy_install:
+    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
+    type: collection
+    state: present
+    force: true
+  become: true

@@ -33,14 +33,9 @@
     owner: root
     group: root
     mode: "0644"
-  notify: Etckeeper commit
-  become: true
-
-- name: Install updated Ansible galaxy requirements
-  community.general.ansible_galaxy_install:
-    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
-    type: collection
-    state: present
+  notify: 
+    - Etckeeper commit
+    - Update Ansible Galaxy Collections
   become: true
 
 - name: Ensure the vault password file has correct permissions
