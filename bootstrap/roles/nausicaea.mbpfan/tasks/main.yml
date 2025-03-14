@@ -44,14 +44,6 @@
   loop: "{{ fan_max_matches.files }}"
   register: fan_max_values_b64
 
-- name: DEBUG
-  vars:
-    msg: |
-      fan_min_values_b64={{ fan_min_values_b64 }}
-      fan_max_values_b64={{ fan_max_values_b64 }}
-  ansible.builtin.vars:
-    msg: "{{ msg | split('\n') }}"
-
 - name: Get the fan speed limits
   ansible.builtin.set_fact:
     fan_min: "{{ fan_min_values_b64.results | map(attribute='content') | map('b64decode') | map('trim') | min }}"
