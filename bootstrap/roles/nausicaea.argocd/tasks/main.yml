@@ -6,14 +6,78 @@
 
 - name: Create the ArgoCD namespace
   kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     kind: Namespace
     name: argocd
     state: present
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
 
 - name: Download and deploy the ArgoCD core manifest as K3s AddOn
   kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/core-install.yaml"
     namespace: argocd
     state: present
+
+- name: Define the Nippon-Koku repository
+  kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      stringData:
+        url: "{{ nausicaea.common.repo }}"
+        project: "{{ nausicaea.common.project_name }}"
+
+- name: Define the governance policy for the cluster bootstrap application
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: AppProject
+      metadata:
+        name: "{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        finalizers:
+          - resources-finalizer.argocd.argoproj.io
+      spec:
+        sourceRepos:
+          - "{{ nausicaea.common.repo }}"
+        destinations:
+          - server: https://kubernetes.default.svc
+            namespace: "*"
+        clusterResourceWhitelist:
+          - group: ''
+            kind: Namespace
+
+- name: Define the cluster bootstrap application
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: "{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        finalizers:
+          - resources-finalizer.argocd.argoproj.io
+      spec:
+        project: "{{ nausicaea.common.project_name }}"
+        source:
+          repoURL: "{{ nausicaea.common.repo }}"
+          targetRevision: "{{ nausicaea.common.branch }}"
+          path: application
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: argocd
+        # syncPolicy:
+        #   automated:
+        #     prune: true
+        #     selfHeal: true
