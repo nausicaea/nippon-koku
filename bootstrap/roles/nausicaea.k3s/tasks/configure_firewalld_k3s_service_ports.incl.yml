@@ -20,5 +20,6 @@
       - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
       - "--add-port={{ item }}"
   become: true
+  changed_when: true
   when: firewalld_k3s_port.rc == 1
   notify: Reload Firewalld

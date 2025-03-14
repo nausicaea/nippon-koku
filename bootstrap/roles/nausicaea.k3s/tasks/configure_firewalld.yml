@@ -59,17 +59,11 @@
       - "--permanent"
       - "--new-service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
     creates: "/etc/firewalld/services/{{ nausicaea.k3s.vars.firewalld_k3s_service }}.xml"
-  register: firewalld_new_service
   become: true
   notify: Reload Firewalld
 
-- name: Reload firewalld after creating the service
-  ansible.builtin.command:
-    argv:
-      - firewall-cmd
-      - "--reload"
-  become: true
-  when: firewalld_new_service.changed
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Assign ports to the K3s service
   ansible.builtin.include_tasks:
