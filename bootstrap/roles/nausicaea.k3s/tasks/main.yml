@@ -105,7 +105,7 @@
         wait_condition:
           type: Ready
           status: "True"
-        register: k8s_node_info
+      register: k8s_node_info
       become: true
 
     - name: Ensure that the node fulfills the expected roles
