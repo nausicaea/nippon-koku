@@ -30,3 +30,6 @@ all:
         osaka: {}
         kagawa: {}
         test02: {}
+    argocd:
+      hosts:
+        shizuoka: {}

@@ -1,0 +1,16 @@
+- name: Create the ArgoCD namespace
+  kubernetes.core.k8s:
+    kind: Namespace
+    name: argocd
+    state: present
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+
+- name: Download and deploy the ArgoCD core manifest as K3s AddOn
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/core-install.yaml"
+    checksum: "{{ nausicaea.argocd.checksum }}"
+    dest: /var/lib/rancher/k3s/server/manifests/argocd-core.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  become: true

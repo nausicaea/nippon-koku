@@ -26,6 +26,7 @@
         - tailscale
         - k3s_cluster_init_server
         - k3s_server
+        - argocd
 
 - name: Show additional information on a host
   hosts: all
@@ -144,3 +145,10 @@
           cluster_init: false
   roles:
     - nausicaea.k3s
+
+- name: Provision Argocd
+  hosts: dyn_stage_live_and_argocd
+  tags:
+    - argocd
+  roles:
+    - nausicaea.argocd
