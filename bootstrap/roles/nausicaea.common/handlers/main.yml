@@ -15,7 +15,7 @@
   changed_when: dbus_socket.stat is defined and dbus_socket.stat.exists
   notify: Reload Firewalld Stage 2
   become: true
-  
+
 - name: Reload Firewalld Stage 2
   ansible.builtin.command:
     argv:

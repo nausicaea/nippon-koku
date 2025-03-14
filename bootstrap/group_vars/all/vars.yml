@@ -1,3 +1,4 @@
+---
 nausicaea:
   common:
     branch: "{{ lookup('env', 'BOOTSTRAP_BRANCH', default='main') }}"

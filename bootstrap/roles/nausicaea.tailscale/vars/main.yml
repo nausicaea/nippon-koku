@@ -11,4 +11,3 @@ nausicaea:
       firewalld_p2p_port: 41641/udp
       firewalld_p2p_short: Tailscale
       firewalld_p2p_desc: Tailscale Wireguard P2P channel port
-

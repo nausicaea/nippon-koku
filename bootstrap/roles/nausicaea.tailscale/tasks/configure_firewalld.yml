@@ -1,3 +1,4 @@
+---
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"

@@ -1,3 +1,4 @@
+---
 - name: Create the K3s zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"

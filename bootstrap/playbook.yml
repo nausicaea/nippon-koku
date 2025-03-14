@@ -1,3 +1,4 @@
+---
 - name: Group hosts dynamically
   hosts: all
   tags: always
@@ -64,8 +65,8 @@
     - name: Comment out any cdrom APT repositories
       ansible.builtin.lineinfile:
         path: "{{ item }}"
-        line: '#\1'
-        regexp: '^(deb cdrom:.*)$'
+        line: "#\\1"
+        regexp: "^(deb cdrom:.*)$"
         backrefs: true
       loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
 
@@ -73,7 +74,7 @@
       ansible.builtin.import_role:
         name: nausicaea.common
 
-- name: Perform tasks specific to Apple hardware 
+- name: Perform tasks specific to Apple hardware
   hosts: dyn_sys_apple
   tags:
     - dyn_sys_apple
@@ -94,12 +95,12 @@
     - name: Ensure audit=1 is set in GRUB configuration
       ansible.builtin.lineinfile:
         path: /etc/default/grub
-        regexp: '^GRUB_CMDLINE_LINUX='
+        regexp: "^GRUB_CMDLINE_LINUX="
         line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
       register: grub_default
 
     - name: Update GRUB
-      ansible.builtin.command: 
+      ansible.builtin.command:
         argv:
           - update-grub
       changed_when: true

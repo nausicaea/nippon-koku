@@ -1,3 +1,4 @@
+---
 - name: Hash the admin password
   ansible.builtin.command:
     argv:

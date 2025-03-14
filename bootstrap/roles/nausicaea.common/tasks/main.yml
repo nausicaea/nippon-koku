@@ -32,4 +32,3 @@
 - name: Configure Firewalld
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
-

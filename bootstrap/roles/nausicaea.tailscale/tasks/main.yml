@@ -68,8 +68,8 @@
 
 - name: Get the Tailscale status
   ansible.builtin.command:
-    argv: 
-      - tailscale 
+    argv:
+      - tailscale
       - status
       - "--json"
   register: tailscale_status_preauth
@@ -84,8 +84,8 @@
 - name: Connect to the tailnet
   ansible.builtin.command:
     argv:
-      - tailscale 
-      - up 
+      - tailscale
+      - up
       - "--auth-key={{ nausicaea.tailscale.secrets.auth_key }}"
       - "--ssh"
   changed_when: true
@@ -96,8 +96,8 @@
 - name: Get the Tailscale status again
   ansible.builtin.command:
     argv:
-      - tailscale 
-      - status 
+      - tailscale
+      - status
       - "--json"
   register: tailscale_status_raw
   changed_when: false
@@ -107,7 +107,7 @@
 - name: What is the MagicDNS suffix and the host's DNS name?
   block:
     - name: Parse the output of Tailscale status as JSON
-      ansible.builtin.set_fact: 
+      ansible.builtin.set_fact:
         tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
 
     - name: Collect a few important facts about the tailnet
@@ -125,7 +125,7 @@
 - name: Update the hosts file
   ansible.builtin.lineinfile:
     path: /etc/hosts
-    regexp: '^127\.0\.1\.1'
+    regexp: "^127\\.0\\.1\\.1"
     line: "127.0.1.1 {{ tailscale_host_fqdn }} {{ inventory_hostname_short }}"
     owner: root
     group: root

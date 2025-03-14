@@ -1,3 +1,4 @@
+---
 nausicaea:
   common:
     ansible_user: &au ansible

@@ -26,4 +26,3 @@
     permanent: true
   become: true
   notify: Reload Firewalld
-

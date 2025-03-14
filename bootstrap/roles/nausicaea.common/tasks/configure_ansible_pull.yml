@@ -1,3 +1,4 @@
+---
 - name: Configure the default environment file
   block:
     - name: Does the file already exist?
@@ -11,7 +12,7 @@
         dest: /etc/default/ansible-pull
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
       become: true
       when: not (default_env_file.stat is defined and default_env_file.stat.exists)
 
@@ -76,7 +77,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: 
+  notify:
     - Reload Systemd
     - Etckeeper commit
   become: true
@@ -91,7 +92,7 @@
     src: /etc/systemd/system/ansible-pull.timer
     dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
     state: link
-  notify: 
+  notify:
     - Reload Systemd
     - Etckeeper commit
   become: true

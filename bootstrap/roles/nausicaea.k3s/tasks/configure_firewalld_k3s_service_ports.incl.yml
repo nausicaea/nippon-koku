@@ -1,3 +1,4 @@
+---
 - name: Was the port already assigned to the K3s service?
   ansible.builtin.command:
     argv:

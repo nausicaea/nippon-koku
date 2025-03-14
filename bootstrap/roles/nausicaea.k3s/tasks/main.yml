@@ -13,7 +13,7 @@
     mode: "0500"
   become: true
 
-- name: Determine the network parameters 
+- name: Determine the network parameters
   ansible.builtin.set_fact:
     k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
 
