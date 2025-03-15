@@ -3,5 +3,5 @@ nausicaea:
   fancontrol:
     vars:
       operator_keyrings: /usr/share/keyrings
-      keyring_name: t2-ubuntu-repo.gpg
+      keyring_name: t2-ubuntu-repo.asc
       repo_filename: t2-ubuntu-repo
