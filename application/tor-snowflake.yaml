@@ -1,0 +1,26 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  annotations:
+    helmcharts.cattle.io/managed-by: helm-controller
+  finalizers:
+    - wrangler.cattle.io/on-helm-chart-remove
+  generation: 1
+  name: snowflake-install
+  namespace: default
+spec:
+  version: 0.5.0
+  chart: tor-snowflake-proxy
+  repo: https://codeberg.org/api/packages/lukm/helm
+  failurePolicy: abort
+  targetNamespace: torproject
+  createNamespace: true
+  valuesContent: |-
+    image:
+      repository: containers.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake
+      pullPolicy: IfNotPresent
+      tag: v2.10.0
+    args:
+      - "-metrics"
+      - "-metrics-address"
+      - "0.0.0.0"
