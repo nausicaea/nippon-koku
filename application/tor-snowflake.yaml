@@ -1,26 +1,53 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  annotations:
-    helmcharts.cattle.io/managed-by: helm-controller
-  finalizers:
-    - wrangler.cattle.io/on-helm-chart-remove
-  generation: 1
-  name: snowflake-install
-  namespace: default
+  name: tor-snowflake-proxy
+  namespace: torproject
+  labels:
+    app.kubernetes.io/instance: snowflake-install
+    app.kubernetes.io/managed-by: argocd
+    app.kubernetes.io/name: tor-snowflake-proxy
+    app.kubernetes.io/version: v2.10.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tor-snowflake-proxy
+  namespace: torproject
+  labels:
+    app.kubernetes.io/instance: snowflake-install
+    app.kubernetes.io/managed-by: argocd
+    app.kubernetes.io/name: tor-snowflake-proxy
+    app.kubernetes.io/version: v2.10.0
 spec:
-  version: 0.5.0
-  chart: tor-snowflake-proxy
-  repo: https://codeberg.org/api/packages/lukm/helm
-  failurePolicy: abort
-  targetNamespace: torproject
-  createNamespace: true
-  valuesContent: |-
-    image:
-      repository: containers.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake
-      pullPolicy: IfNotPresent
-      tag: v2.10.0
-    args:
-      - "-metrics"
-      - "-metrics-address"
-      - "0.0.0.0"
+  progressDeadlineSeconds: 600
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: snowflake-install
+      app.kubernetes.io/name: tor-snowflake-proxy
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: snowflake-install
+        app.kubernetes.io/name: tor-snowflake-proxy
+    spec:
+      containers:
+        - name: tor-snowflake-proxy
+          image: containers.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake:v2.10.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -metrics
+            - -metrics-address
+            - 0.0.0.0
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccount: tor-snowflake-proxy
+      serviceAccountName: tor-snowflake-proxy
+      terminationGracePeriodSeconds: 30
