@@ -9,21 +9,6 @@ LABEL org.opencontainers.image.licenses="GPLv3"
 
 VOLUME ["/cache", "/artifacts"]
 
-ENV ARCH="amd64"
-ENV ANSIBLE_HOME="/var/lib/ansible"
-ENV BOOT_DEVICE="/dev/nvme0n1"
-ENV BOOTSTRAP_REPO="https://github.com/nausicaea/nippon-koku"
-ENV BOOTSTRAP_BRANCH="main"
-ENV BOOTSTRAP_DEST="/var/lib/ansible/nippon-koku"
-ENV DEBIAN_MIRROR="debian.ethz.ch"
-ENV DEBIAN_VERSION="12.9.0"
-ENV DOMAIN="bootstrap.local"
-ENV GIT_AUTHOR_EMAIL=""
-ENV GIT_AUTHOR_SSH_PUB=""
-ENV HOSTNAME="debian"
-ENV INSTALL_NONFREE_FIRMWARE="false"
-ENV TIMEZONE="Europe/Zurich"
-
 RUN <<-EOM
     set -e
     apt-get update

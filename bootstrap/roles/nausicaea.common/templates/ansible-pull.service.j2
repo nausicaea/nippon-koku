@@ -2,13 +2,12 @@
 Description=Ansible Pull Mode
 Wants=network-online.target
 After=network-online.target
-#ConditionPathExists=/run/systemd/netif/state
 
 [Service]
 Type=oneshot
 User={{ nausicaea.common.ansible_user }}
 Group={{ nausicaea.common.ansible_group }}
-#ExecStartPre=/bin/sh -c 'until ping -c1 -w2 1.1.1.1; do sleep 5; done'
+EnvironmentFile=-/etc/default/ansible-pull
 ExecStart=/usr/bin/ansible-pull \
     -U "{{ nausicaea.common.repo }}" \
     -C "{{ nausicaea.common.branch }}" \

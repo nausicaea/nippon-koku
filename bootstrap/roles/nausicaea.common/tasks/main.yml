@@ -7,12 +7,13 @@
       - acl
       - unattended-upgrades
       - firewalld
+      - resolvconf
+      - git
+      - curl
       - vim
       - tmux
       - jq
-      - git
-      - curl
-      - resolvconf
+      - btop
     state: present
   become: true
   notify: Etckeeper commit
@@ -32,4 +33,3 @@
 - name: Configure Firewalld
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
-

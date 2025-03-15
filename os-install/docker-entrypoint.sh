@@ -5,12 +5,36 @@
 # * [Debian preseeding](https://wiki.debian.org/DebianInstaller/Preseed),
 # * [Debian ISO repacking](https://wiki.debian.org/RepackBootableISO),
 # * [Phil Pagel's "Debian Headless" repository](https://github.com/philpagel/debian-headless),
+# * [Conner Crosby's Homelab Preseed](https://github.com/cavcrosby/homelab-cm/blob/9339b9ed805f71064f81bc868d435503eb01e6f6/preseed.cfg.j2#L103C1-L103C126)
 # * and [Ricardo Branco's FAI builder for Docker](https://github.com/ricardobranco777/docker-fai).
 
 set -e
 
-while getopts ':a:b:B:e:hH:nr:s:v:' 'opt'; do
-    case ${opt} in
+# Required arguments (provided via getotps)
+# ANSIBLE_VAULT_PASSWORD=""
+# GIT_AUTHOR_EMAIL=""
+# GIT_AUTHOR_SSH_PUB=""
+# ROOT_PASSWORD_CRYPTED=""
+# KUBE_APISERVER_URL=""
+
+# Arguments with defaults
+ARCH="${ARCH:-amd64}"
+BOOT_DEVICE="${BOOT_DEVICE:-/dev/nvme0n1}"
+BOOTSTRAP_REPO="${BOOTSTRAP_REPO:-https://github.com/nausicaea/nippon-koku}"
+BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
+DEBIAN_MIRROR="${DEBIAN_MIRROR:-debian.ethz.ch}"
+DEBIAN_VERSION="${DEBIAN_VERSION:-12.9.0}"
+HOSTNAME="${HOSTNAME:-debian}"
+DOMAIN="${DOMAIN}"
+INSTALL_NONFREE_FIRMWARE="${INSTALL_NONFREE_FIRMWARE:-false}"
+TIMEZONE="${TIMEZONE:-Europe/Zurich}"
+
+# Hardcoded variables
+ANSIBLE_HOME="/var/lib/ansible"
+BOOTSTRAP_DEST="/var/lib/ansible/repo"
+
+while getopts ':a:b:B:e:hH:k:nr:s:v:' 'opt'; do
+    case $opt in
         a)
             ARCH="${OPTARG}"
             ;;
@@ -48,6 +72,7 @@ OPTIONS:
                                 signs commits.
   -h                            Print this usage message and exit.
   -H                            Specify the target hostname.
+  -k                            Specify the Kube API server URL
   -n                            Install non-free firmware.
   -r ROOT_PASSWORD_CRYPTED      Specify the crypt(3) root password (e.g. 
                                 "$6$SALT$HASH"). You can use "openssl passwd" 
@@ -61,6 +86,9 @@ OPTIONS:
             ;;
         H)
             HOSTNAME="${OPTARG}"
+            ;;
+        k)
+            KUBE_APISERVER_URL="${OPTARG}"
             ;;
         n)
             INSTALL_NONFREE_FIRMWARE=true
@@ -100,7 +128,14 @@ if [ -z "$GIT_AUTHOR_EMAIL" -o -z "$GIT_AUTHOR_SSH_PUB" ]; then
     exit 1
 fi
 
-echo "Building Debian preseed image for $DEBIAN_VERSION and $ARCH"
+if [ -z "$KUBE_APISERVER_URL" ]; then
+    echo "You must provide a URL for the Kube API server either on the command line or as environment variable 'KUBE_APISERVER_URL'"
+    exit 1
+fi
+
+echo "Building Debian ($DEBIAN_VERSION/$ARCH) preseed image for $HOSTNAME"
+echo "Configuring Ansible to check out branch $BOOTSTRAP_BRANCH"
+echo "Configuring K3s to use the Kube API server $KUBE_APISERVER_URL"
 
 SLASH_ESCAPE='s/\//\\\//g'
 ANSIBLE_HOME=$(echo "$ANSIBLE_HOME" | sed "$SLASH_ESCAPE")
@@ -115,6 +150,7 @@ GIT_AUTHOR_EMAIL=$(echo "$GIT_AUTHOR_EMAIL" | sed "$SLASH_ESCAPE")
 GIT_AUTHOR_SSH_PUB=$(echo "$GIT_AUTHOR_SSH_PUB" | sed "$SLASH_ESCAPE")
 HOSTNAME=$(echo "$HOSTNAME" | sed "$SLASH_ESCAPE")
 INSTALL_NONFREE_FIRMWARE=$(echo "$INSTALL_NONFREE_FIRMWARE" | sed "$SLASH_ESCAPE")
+KUBE_APISERVER_URL=$(echo "$KUBE_APISERVER_URL" | sed "$SLASH_ESCAPE")
 ROOT_PASSWORD_CRYPTED=$(echo "$ROOT_PASSWORD_CRYPTED" | sed "$SLASH_ESCAPE")
 TIMEZONE=$(echo "$TIMEZONE" | sed "$SLASH_ESCAPE")
 
@@ -148,6 +184,7 @@ sed -e "s/{{ repo }}/$BOOTSTRAP_REPO/g" \
     -e "s/{{ vault_password }}/$ANSIBLE_VAULT_PASSWORD/g" \
     -e "s/{{ email }}/$GIT_AUTHOR_EMAIL/g" \
     -e "s/{{ ssh_pub }}/$GIT_AUTHOR_SSH_PUB/g" \
+    -e "s/{{ kube_apiserver_url }}/$KUBE_APISERVER_URL/g" \
     /src/post-install.sh.j2 > ./post-install.sh
 
 # Fix the permissions on the image
@@ -166,6 +203,7 @@ sed -e "s/{{ hostname }}/$HOSTNAME/g" \
     /src/preseed.cfg.j2 > "$PRESEED_FILE"
 chown root:root "$PRESEED_FILE"
 chmod 0644 "$PRESEED_FILE"
+cp "$PRESEED_FILE" "/cache/$HOSTNAME-preseed.cfg"
 
 # Add the preseed.cfg file to the kernel
 INITRD_TMP=$(mktemp)

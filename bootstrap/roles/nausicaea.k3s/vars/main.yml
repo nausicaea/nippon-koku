@@ -1,4 +1,6 @@
+---
 nausicaea:
   k3s:
     vars:
       firewalld_zone: k3s
+      firewalld_k3s_service: k3s

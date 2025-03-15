@@ -26,7 +26,9 @@ d-i clock-setup/utc boolean true
 d-i time/zone string {{ timezone }}
 d-i clock-setup/ntp boolean true
 
-d-i partman-auto/disk string {{ boot_device }}
+# Thanks to @cavcrosby for the tip with the early command! https://github.com/cavcrosby/homelab-cm/blob/9339b9ed805f71064f81bc868d435503eb01e6f6/preseed.cfg.j2#L103C1-L103C126
+d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "{{ boot_device }}")"
+#d-i partman-auto/disk string {{ boot_device }}
 d-i partman-auto/method string lvm
 d-i partman-auto-lvm/guided_size string max
 d-i partman-md/device_remove_md boolean true

@@ -4,7 +4,7 @@ set -e
 
 echo "START POST INSTALL"
 
-export ANSIBLE_HOME="{{ ansible_home }}"
+ANSIBLE_HOME="{{ ansible_home }}"
 ANSIBLE_ETCDIR="/etc/ansible"
 ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
 ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
@@ -17,6 +17,7 @@ GIT_SYSTEM_GITCONFIG="/etc/gitconfig"
 GIT_ALLOWED_SIGNERS_FILE="/etc/git/allowed_signers"
 GIT_AUTHOR_EMAIL="{{ email }}"
 GIT_AUTHOR_SSH_PUB="{{ ssh_pub }}"
+KUBE_APISERVER_URL="{{ kube_apiserver_url }}"
 
 echo "PI: Stage 1"
 if [ ! -e /dev/shm ]; then
@@ -62,10 +63,17 @@ cat <<EOF > "$GIT_SYSTEM_GITCONFIG"
     allowedSignersFile = $GIT_ALLOWED_SIGNERS_FILE
 EOF
 
+cat <<EOF > /etc/default/ansible-pull
+BOOTSTRAP_BRANCH="$BOOTSTRAP_BRANCH"
+KUBE_APISERVER_URL="$KUBE_APISERVER_URL"
+EOF
+
 echo "PI: Stage 2"
+export ANSIBLE_HOME
 ansible-galaxy collection install -r "$ANSIBLE_REQS"
 
 echo "PI: Stage 3"
+export BOOTSTRAP_BRANCH
 ansible-pull -U "$BOOTSTRAP_REPO" -C "$BOOTSTRAP_BRANCH" --clean \
     --verify-commit \
     -d "$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \

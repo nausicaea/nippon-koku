@@ -15,15 +15,29 @@
   changed_when: dbus_socket.stat is defined and dbus_socket.stat.exists
   notify: Reload Firewalld Stage 2
   become: true
-  
+
 - name: Reload Firewalld Stage 2
   ansible.builtin.command:
     argv:
       - firewall-cmd
       - "--reload"
+  changed_when: true
   become: true
 
 - name: Reload Systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
+  become: true
+
+- name: Reload APT cache
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+
+- name: Update Ansible Galaxy Collections
+  community.general.ansible_galaxy_install:
+    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
+    type: collection
+    state: present
+    force: true
   become: true

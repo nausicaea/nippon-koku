@@ -1,0 +1,5 @@
+---
+nausicaea:
+  argocd:
+    version: "v2.14.5"
+    checksum: sha256:d677c8b4355e61770b89ce4c1563caa7b8fdf2d4e47d3a620ee7d14835572c79
