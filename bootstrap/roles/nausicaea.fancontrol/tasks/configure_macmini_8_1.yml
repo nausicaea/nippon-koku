@@ -23,19 +23,17 @@
   become: true
 
 # yamllint disable rule:line-length
-- name: Ensure presence of the T2 Ubuntu generic repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./"
-    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}"
+- name: Configure the T2 Ubuntu repositories
+  ansible.builtin.blockinfile:
+    path: "/etc/apt/sources.list.d/{{ nausicaea.fancontrol.vars.repo_filename }}.list"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
     state: present
-  become: true
-
-- name: Ensure presence of the T2 Ubuntu release-specific repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }}
-      ./"
-    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
-    state: present
+    block: |
+      deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./
+      deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }} ./
   become: true
 # yamllint enable rule:line-length
 
