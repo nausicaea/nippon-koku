@@ -1,4 +1,26 @@
 ---
+- name: Configure APT pinning for Tailscale
+  ansible.builtin.blockinfile:
+    path: "/etc/apt/preferences.d/{{ nausicaea.tailscale.vars.repo_filename }}.pref"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+    block: |
+      Package: *
+      Pin: origin pkgs.tailscale.com
+      Pin-Priority: 100
+
+      Package: tailscale
+      Pin: origin pkgs.tailscale.com
+      Pin-Priority: 1001
+
+      Package: tailscale-archive-keyring
+      Pin: origin pkgs.tailscale.com
+      Pin-Priority: 1001
+  become: true
+
 - name: Ensure the keyrings directory exists
   ansible.builtin.file:
     path: "{{ nausicaea.tailscale.vars.operator_keyrings }}"

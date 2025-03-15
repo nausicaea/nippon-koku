@@ -1,4 +1,26 @@
 ---
+- name: Configure APT pinning for the T2 repo
+  ansible.builtin.blockinfile:
+    path: "/etc/apt/preferences.d/{{ nausicaea.fancontrol.vars.repo_filename }}.pref"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+    block: |
+      Package: *
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 100
+
+      Package: applesmc-t2
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 1001
+
+      Package: t2fanrd
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 1001
+  become: true
+
 - name: Ensure the keyrings directory exists
   ansible.builtin.file:
     path: "{{ nausicaea.fancontrol.vars.operator_keyrings }}"
@@ -24,19 +46,6 @@
 
 # yamllint disable rule:line-length
 
-#- name: Configure the T2 Ubuntu repositories
-#  ansible.builtin.blockinfile:
-#    path: "/etc/apt/sources.list.d/{{ nausicaea.fancontrol.vars.repo_filename }}.list"
-#    create: true
-#    owner: root
-#    group: root
-#    mode: "0644"
-#    state: present
-#    block: |
-#      deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./
-#      deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }} ./
-#  become: true
-
 - name: Ensure presence of the T2 Ubuntu generic repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./"
@@ -48,7 +57,7 @@
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }} ./"
     filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
-    state: present
+    state: absent
   become: true
 # yamllint enable rule:line-length
 
