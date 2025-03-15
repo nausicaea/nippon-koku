@@ -20,6 +20,7 @@
       Pin: origin pkgs.tailscale.com
       Pin-Priority: 1001
   become: true
+  notify: Reload APT cache
 
 - name: Ensure the keyrings directory exists
   ansible.builtin.file:

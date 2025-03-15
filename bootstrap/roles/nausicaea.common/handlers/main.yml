@@ -29,6 +29,11 @@
     daemon_reload: true
   become: true
 
+- name: Reload APT cache
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+
 - name: Update Ansible Galaxy Collections
   community.general.ansible_galaxy_install:
     requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
