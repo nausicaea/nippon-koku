@@ -1,10 +1,56 @@
 ---
+- name: Ensure that firewalld is running
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+    state: started
+  become: true
+
+- name: Enable deny logging
+  become: true
+  block:
+    - name: Is deny logging enabled?
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--get-log-denied"
+      changed_when: false
+      register: firewalld_deny_logging
+
+    - name: Set deny logging to all
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--set-log-denied=all"
+      changed_when: true
+      when: firewalld_deny_logging.rc == 0 and firewalld_deny_logging.stdout != 'all'
+
+- name: Set the default zone to block
+  become: true
+  block:
+    - name: What is the current default zone?
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--get-default-zone"
+      changed_when: false
+      register: firewalld_default_zone
+
+    - name: Make the block zone the default zone
+      ansible.builtin.command:
+        argv:
+          - firewall-cmd
+          - "--set-default-zone=block"
+      changed_when: true
+      when: firewalld_default_zone.rc == 0 and firewalld_default_zone.stdout != 'block'
+
 - name: Assign the block zone to the default interface
   ansible.posix.firewalld:
     zone: block
     interface: "{{ ansible_facts.default_ipv4.interface }}"
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -14,6 +60,7 @@
     forward: true
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -23,5 +70,6 @@
     masquerade: true
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld

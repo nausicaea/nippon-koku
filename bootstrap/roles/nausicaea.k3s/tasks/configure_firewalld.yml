@@ -4,6 +4,7 @@
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
     state: present
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -13,6 +14,7 @@
     source: 10.42.0.0/16
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -22,6 +24,7 @@
     source: 10.43.0.0/16
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -31,6 +34,7 @@
     target: ACCEPT
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -40,6 +44,7 @@
     forward: true
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -49,6 +54,7 @@
     masquerade: true
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -81,5 +87,6 @@
     service: "{{ nausicaea.k3s.vars.firewalld_k3s_service }}"
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
