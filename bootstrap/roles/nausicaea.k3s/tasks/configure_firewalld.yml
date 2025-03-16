@@ -33,7 +33,6 @@
     target: ACCEPT
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
