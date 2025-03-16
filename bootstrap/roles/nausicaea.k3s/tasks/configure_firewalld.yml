@@ -17,6 +17,16 @@
   become: true
   notify: Reload Firewalld
 
+- name: Bind the K3s zone to the cni interface
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    interface: cni0
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
 - name: Bind the K3s zone to the service IP addresses
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
