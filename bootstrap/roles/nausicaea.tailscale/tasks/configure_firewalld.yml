@@ -4,7 +4,6 @@
     zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
     state: present
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 

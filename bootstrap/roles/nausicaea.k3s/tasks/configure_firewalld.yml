@@ -4,7 +4,6 @@
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
     state: present
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
