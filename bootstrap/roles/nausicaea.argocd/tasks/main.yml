@@ -12,10 +12,10 @@
     name: argocd
     state: present
 
-- name: Download and deploy the ArgoCD core manifest as K3s AddOn
+- name: Download and deploy the ArgoCD manifest
   kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/core-install.yaml"
+    src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/install.yaml"
     namespace: argocd
     state: present
 
