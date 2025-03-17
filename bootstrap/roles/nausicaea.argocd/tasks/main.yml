@@ -53,15 +53,6 @@
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
-        clusterResourceWhitelist:
-          - group: ""
-            kind: Namespace
-          - group: ""
-            kind: CustomResourceDefinition
-          - group: ""
-            kind: ClusterRole
-          - group: ""
-            kind: ClusterRoleBinding
 
 - name: Define the cluster bootstrap application
   kubernetes.core.k8s:
@@ -83,6 +74,7 @@
           path: application
         destination:
           server: https://kubernetes.default.svc
+          namespace: "*"
         syncPolicy:
           automated:
             prune: true
