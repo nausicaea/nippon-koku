@@ -53,6 +53,8 @@
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
+          - server: https://kubernetes.default.svc
+            namespace: ""
 
 - name: Define the cluster bootstrap application
   kubernetes.core.k8s:
@@ -74,7 +76,6 @@
           path: application
         destination:
           server: https://kubernetes.default.svc
-          namespace: "*"
         syncPolicy:
           automated:
             prune: true
