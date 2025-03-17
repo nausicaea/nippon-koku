@@ -58,7 +58,7 @@
   ansible.posix.firewalld:
     zone: block
     service: dhcpv6-client
-    statee: enabled
+    state: enabled
     permanent: true
     immediate: true
   become: true
