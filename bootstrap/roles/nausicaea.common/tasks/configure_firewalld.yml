@@ -54,6 +54,16 @@
   become: true
   notify: Reload Firewalld
 
+- name: Allow DHCPv6 traffic across the block zone
+  ansible.posix.firewalld:
+    zone: block
+    service: dhcpv6-client
+    statee: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
 - name: Allow forwarding in the block zone
   ansible.posix.firewalld:
     zone: block
