@@ -5,6 +5,9 @@ function(source_repo, source_target_revision) {
         name: "tor-snowflake",
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
+        annotations: {
+            "argocd.argoproj.io/sync-wave": "1",
+        },
     },
     spec: {
         project: "appproj-nippon-koku",
