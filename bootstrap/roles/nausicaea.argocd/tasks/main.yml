@@ -52,6 +52,7 @@
           - "{{ nausicaea.common.repo }}"
           - https://bitnami-labs.github.io/sealed-secrets
           - https://pkgs.tailscale.com/helmcharts
+          - https://charts.longhorn.io
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
