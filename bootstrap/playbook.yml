@@ -23,6 +23,7 @@
         file: tasks/special_dynamic_groups.yml
       loop:
         - harden
+        - longhorn
         - tailscale
         - k3s_cluster_init_server
         - k3s_server
@@ -115,6 +116,13 @@
     - name: Import the SSH hardening role
       ansible.builtin.import_role:
         name: devsec.hardening.ssh_hardening
+
+- name: Provision Longhorn (prerequisites)
+  hosts: dyn_stage_live_and_longhorn
+  tags:
+    - longhorn
+  roles:
+    - nausicaea.longhorn
 
 - name: Provision Tailscale
   hosts: dyn_stage_live_and_tailscale

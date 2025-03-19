@@ -14,6 +14,13 @@ all:
         kagawa: {}
         test01: {}
         test02: {}
+    longhorn:
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
+        test01: {}
+        test02: {}
     tailscale:
       hosts:
         shizuoka: {}
