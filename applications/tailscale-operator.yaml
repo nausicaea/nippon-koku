@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: tailscale
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "1"
 ---
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
