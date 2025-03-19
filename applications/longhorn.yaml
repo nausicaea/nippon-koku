@@ -45,7 +45,7 @@ spec:
     server: "https://kubernetes.default.svc"
     namespace: longhorn-system
     helm:
-      valuesObject:
+      values: |
         preUpgradeChecker:
           jobEnabled: false
         persistence:
