@@ -50,6 +50,7 @@
       spec:
         sourceRepos:
           - "{{ nausicaea.common.repo }}"
+          - https://bitnami-labs.github.io/sealed-secrets
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
