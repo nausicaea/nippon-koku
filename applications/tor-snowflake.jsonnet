@@ -7,7 +7,7 @@ function(source_repo, source_target_revision) {
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
     },
     spec: {
-        project: "app-nippon-koku",
+        project: "appproj-nippon-koku",
         source: {
             repoURL: source_repo,
             targetRevision: source_target_revision,
