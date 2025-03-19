@@ -41,11 +41,8 @@ spec:
     chart: longhorn
     repoURL: https://charts.longhorn.io
     targetRevision: 1.8.0
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: longhorn-system
     helm:
-      values: |
+      valuesObject:
         preUpgradeChecker:
           jobEnabled: false
         persistence:
@@ -62,6 +59,9 @@ spec:
           pollInterval: 300
         longhornUI:
           replicas: 1
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: longhorn-system
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
