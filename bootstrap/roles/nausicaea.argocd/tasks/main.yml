@@ -43,7 +43,7 @@
       apiVersion: argoproj.io/v1alpha1
       kind: AppProject
       metadata:
-        name: "{{ nausicaea.common.project_name }}"
+        name: "appproj-{{ nausicaea.common.project_name }}"
         namespace: argocd
         finalizers:
           - resources-finalizer.argocd.argoproj.io
@@ -67,12 +67,12 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "{{ nausicaea.common.project_name }}"
+        name: "app-{{ nausicaea.common.project_name }}"
         namespace: argocd
         finalizers:
           - resources-finalizer.argocd.argoproj.io
       spec:
-        project: "{{ nausicaea.common.project_name }}"
+        project: "appproj-{{ nausicaea.common.project_name }}"
         source:
           repoURL: "{{ nausicaea.common.repo }}"
           targetRevision: "{{ nausicaea.common.branch }}"
