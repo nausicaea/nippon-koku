@@ -81,8 +81,8 @@
             jsonnet:
               tlas:
                 - name: source_repo
-                  value: $ARGOCD_APP_SOURCE_REPO_URL
+                  value: "{{ nausicaea.common.repo }}"
                 - name: source_target_revision
-                  value: $ARGOCD_APP_SOURCE_TARGET_REVISION
+                  value: "{{ nausicaea.common.branch }}"
         destination:
           server: https://kubernetes.default.svc
