@@ -1,6 +1,8 @@
-- name: Install nfs-common
+- name: Install nfs-common and open-iscsi
   ansible.builtin.package:
-    name: nfs-common
+    name: 
+      - nfs-common
+      - open-iscsi
     state: present
   become: true
 
@@ -27,4 +29,5 @@
     enabled: false
     state: stopped
   become: true
+  when: "'os_ubuntu' in groups"
 
