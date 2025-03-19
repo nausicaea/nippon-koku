@@ -46,6 +46,8 @@ spec:
     namespace: longhorn-system
     helm:
       valuesObject:
+        preUpgradeChecker:
+          jobEnabled: false
         persistence:
           defaultClassReplicaCount: 2
           defaultDataLocality: best-effort
