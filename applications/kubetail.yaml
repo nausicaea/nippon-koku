@@ -42,6 +42,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: kubetail-install-dashboard
+                name: kubetail-dashboard
                 port:
                   number: 8080
