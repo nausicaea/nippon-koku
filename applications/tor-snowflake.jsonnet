@@ -11,7 +11,7 @@ function(source_repo, source_target_revision) {
         source: {
             repoURL: source_repo,
             targetRevision: source_target_revision,
-            path: "application/tor-snowflake",
+            path: "manifests/tor-snowflake",
         },
         destination: {
             server: "https://kubernetes.default.svc",

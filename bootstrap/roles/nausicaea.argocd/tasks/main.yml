@@ -76,7 +76,7 @@
         source:
           repoURL: "{{ nausicaea.common.repo }}"
           targetRevision: "{{ nausicaea.common.branch }}"
-          path: application
+          path: applications
           directory:
             jsonnet:
               tlas:
