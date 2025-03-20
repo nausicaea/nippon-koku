@@ -4,6 +4,8 @@ metadata:
   creationTimestamp: null
   name: k3s-etcd-snapshot-s3-config
   namespace: kube-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   encryptedData:
     etcd-s3-access-key: AgBKFOHh0+qg0PfyqIi8I7umkj8BNMavCMbeFRcplz2CvD/Q4ZLYo8qsPYYZmdhgj7f1djxHgvlrsbIcS9+rjgBwzBGiTIiPRN6GrdYO8SHk4h8YFrNKolTMV3JOMWBuxNk16zUV+U0A0Z3zdvHxgXcnzF+XLiuvDCw+Jlf7LR7nIJyBbkLgPaxEIqbYidwvZg4jcY3Or5ZHLqbDpNwU3kpmbzYL2eCTyW0ZNPdkwj+4E52ra1R+qPQhGqOLuI5ysG7AzSvtr0I2WNdAO1af6srBQyJEOoYEAM0dPDUlb/n38brJyAAKTkBYmXpy2iHS7mGOlISl14rrOiFQrB1dcuXtK2w2ejvyZ3ZC4kl4oC1R5eVm+QlJPlAc8UYeJFMnoUcVDZDAm3xxUmJit4yINfzdjZSyLdvOgyZz9rV7I2cnjmGRqold9kOBmkTOKMu07cTLPYPPQ1a5NeJiCm4mCc4/uDCpetoPkf6+jAlXWfgXz1OSPDIKXwkLOUa7tP6KdO4A8YIOm2vxyFVKFZNwsQwbWDLZgGsTqOf98voMeRKaTGnTi17TodAFN3z5Br474JrDcRFwMc/yVJk2G+kIOb1B017ChgSMK5zic9UywcwbalFSz2eJrhJOUSvQWHqA1bHav8gPlPG/zisrlk06kkqITFkMe8CFYeaj5XNECE10NF61428Ff6v6L2neezN8sdISsSzegZGwNJJTUn7H5BpI1kaOXEdYsSdq
@@ -14,8 +16,6 @@ spec:
     etcd-s3-timeout: AgDO+j5RYwRXH+m142R7k6cegMcMwFmdjcxP8thaGCSEO1ucViZC/eQq/shJ0lLpJ4wLXNpKKO5ARuBJJ92r/DQr9F9Ig5uPzLlln0Kv2f91Dy6SelsoWRLDT+yHojnO1B+AWlQwwB/SxFj9uh18dfUldomEhc6Vm6PBvSH3IXY+X+T0mF/MOjjmgk/SGEW5jQ+EScsFFUoecuJdUm4Pwn7KWfRKM/UINfnBWyXFx8TjpV9KQBo/8HOVTDaPZTYndRMDFYmyGZFIx0zdDG0+f8KOM4k/Qo1hoUIFvqU01IbHCQxsDYqJUqmthjaEJpcR6NiSwW3p5a4ZC3g/U0WJbG75PAxe7eptn5aLuug54wd00H+qoZzdXF5ye1nebpBoB6KKwgbNggeQSscJy1y5Qli2CLeBXyWXAyF0uEjd7364nmhrkvssvVghpPaJagrE24OoUs/W6XkRdB0Nbcazu9xaukvGib9IVSX+ikSM3bsuHYN+3mEQM1uqeMHo9rC3MCsgLgUF9a3z7KcidxxLWzxj++6Q9QwU+02PylcviG9hixC7LnbgUlZLGs2c6IjU28lXHlq2ibukfdvIXpxRMA++xZQdfSmUNka4cZsKvnH1ksgMnNySRyI76lgI4Llt0lxTn8oQxJ3tuXUHq0ovo7J73I10z/KokYvjN1ObRGRmRx4vVGEmir+fnmus8VIWOANV6g==
   template:
     metadata:
-      annotations:
-        argocd.argoproj.io/sync-wave: "2"
       creationTimestamp: null
       name: k3s-etcd-snapshot-s3-config
       namespace: kube-system
