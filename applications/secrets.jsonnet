@@ -24,11 +24,7 @@ local appSpec(namespace, repo, revision) = {
             server: "https://kubernetes.default.svc",
             namespace: namespace,
         },
-        syncPolicy: {
-            automated: {
-                selfHeal: true,
-            },
-        },
+        syncPolicy: {},
     },
 };
 

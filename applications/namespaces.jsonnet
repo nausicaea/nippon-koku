@@ -19,10 +19,6 @@ function(source_repo, source_target_revision) {
         destination: {
             server: "https://kubernetes.default.svc",
         },
-        syncPolicy: {
-            automated: {
-                selfHeal: true,
-            },
-        },
+        syncPolicy: {},
     },
 }
