@@ -2,11 +2,11 @@ function(source_repo, source_target_revision) {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "tor-snowflake",
+        name: "namespaces",
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
-            "argocd.argoproj.io/sync-wave": "3",
+            "argocd.argoproj.io/sync-wave": "1",
         },
     },
     spec: {
@@ -14,11 +14,10 @@ function(source_repo, source_target_revision) {
         source: {
             repoURL: source_repo,
             targetRevision: source_target_revision,
-            path: "manifests/tor-snowflake",
+            path: "manifests/namespaces",
         },
         destination: {
             server: "https://kubernetes.default.svc",
-            namespace: "torproject",
         },
     },
 }
