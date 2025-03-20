@@ -61,10 +61,10 @@
           - /usr/local/sbin/k3s-install
           - server
           - "--cluster-init"
-          - "--token-file"
-          - "/var/lib/rancher/k3s/server/token"
-          - "--tls-san"
-          - "{{ k3s_tls_san }}"
+          - "--token-file=/var/lib/rancher/k3s/server/token"
+          - "--tls-san={{ k3s_tls_san }}"
+          - "--etcd-s3"
+          - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -147,12 +147,11 @@
         argv:
           - /usr/local/sbin/k3s-install
           - server
-          - "--server"
-          - "{{ nausicaea.k3s.args.api_url }}"
-          - "--token-file"
-          - "/var/lib/rancher/k3s/server/token"
-          - "--tls-san"
-          - "{{ k3s_tls_san }}"
+          - "--server={{ nausicaea.k3s.args.api_url }}"
+          - "--token-file=/var/lib/rancher/k3s/server/token"
+          - "--tls-san={{ k3s_tls_san }}"
+          - "--etcd-s3"
+          - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
         creates: /usr/local/bin/k3s
       become: true
 
