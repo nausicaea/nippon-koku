@@ -2,8 +2,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: tailscale
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 ---
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
@@ -11,8 +9,6 @@ metadata:
   creationTimestamp: null
   name: operator-oauth
   namespace: tailscale
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
 spec:
   encryptedData:
     client_id: AgAV8Z5r1UFOxRbP0o2F4aUlJR/ZMaiheIay6BSCNXee1V7tpaUNTNeA13UylmAFBa5JdHpQ/n4OkFUPnmedo4sH8X5hFW2+9vEm8jZLXQI50VBWCfprXg7DThteDhR1IcaHjTh1tSW/rDpLiuaBMvK+mf2ZklP7U4cvQMgykwHSlCC7z7HeqahaoIjsynL6sBg8z3vFQmkoLqrMIvi5y+OHgaTwF5jbfvFoAFSbeZHGCgFE4q2yMIo+Wtajn9L9RhYVoBYfKcqUmL1OPMnBizXmncEfsg/b11sbq17LmhT4hPG1nBfMBAvoGsBktCobLxGFe3bisxphJkwkRkUDhURkLUgCRppSOZj3jKwZ7AVBJ9nUCvkYcmXBvMOCXB0x533YVHL2GTn8vXySZFVSJryzy6oGtAmO33SzIv5/8qNHGujs6LMV9AmlC476uiufWY8ccWJuPcpsXhqRBmdLjjjdqFQTNkD85ljMKQUQgZEkmEICmY1pUqGxPyn31nacKkIQSwwbaRE67ToSpSBhBloT4PHaIKlhE+0IaEvepP3kPlrudjdfmq7PAwwvwc69GKaI1rDnFYE09HzrcOWPLOzxVESs4agHVa96mlBix4qezNqKsN6JrbrZ4huMiWvQYt3tkpsVKsMNOjRaBHpJjnINDqBAV0yyojGlM6eoj5My0W6D4TdgeHGbvcsLVJsA6uTuewz6738PYY/uTatI3cXHRg==
@@ -29,8 +25,6 @@ kind: Application
 metadata:
   name: tailscale-operator
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
 spec:
   project: appproj-nippon-koku
   source:
