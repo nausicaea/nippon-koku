@@ -2,7 +2,7 @@ function(source_repo, source_target_revision) {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "tor-snowflake",
+        name: "3-tor-snowflake",
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
