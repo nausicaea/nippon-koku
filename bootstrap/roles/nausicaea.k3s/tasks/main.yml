@@ -1,4 +1,10 @@
 ---
+- name: Install the Kubernetes helper package
+  ansible.builtin.package:
+    name: python3-kubernetes
+    state: present
+  become: true
+
 - name: Configure firewalld
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
@@ -13,13 +19,9 @@
     mode: "0500"
   become: true
 
-- name: Determine the network parameters 
+- name: Determine the network parameters
   ansible.builtin.set_fact:
     k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
-    k3s_bind_address: "{{ tailscale_address_ipv4 }}"
-    k3s_advertise_address: "{{ tailscale_address_ipv4 }}"
-    k3s_node_ip: "{{ tailscale_address_ipv4 }}"
-    k3s_flannel_iface: tailscale0
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
@@ -59,18 +61,10 @@
           - /usr/local/sbin/k3s-install
           - server
           - "--cluster-init"
-          - "--token-file"
-          - "/var/lib/rancher/k3s/server/token"
-          - "--tls-san"
-          - "{{ k3s_tls_san }}"
-          - "--bind-address"
-          - "{{ k3s_bind_address }}"
-          - "--advertise-address"
-          - "{{ k3s_advertise_address }}"
-          - "--node-ip"
-          - "{{ k3s_node_ip }}"
-          - "--flannel-iface"
-          - "{{ k3s_flannel_iface }}"
+          - "--token-file=/var/lib/rancher/k3s/server/token"
+          - "--tls-san={{ k3s_tls_san }}"
+          - "--etcd-s3"
+          - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -80,6 +74,39 @@
         state: started
         enabled: true
       become: true
+
+    - name: Create the Kubeconfig directory
+      ansible.builtin.file:
+        path: "{{ nausicaea.common.ansible_home }}/.kube"
+        state: directory
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0700"
+      become: true
+
+    - name: Copy the K3s kubeconfig to the Ansible user
+      ansible.builtin.copy:
+        remote_src: true
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0600"
+      become: true
+
+    - name: Wait for the node to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        kind: Node
+        name: "{{ tailscale_host_fqdn }}"
+        label_selectors:
+          - node-role.kubernetes.io/control-plane=true
+          - node-role.kubernetes.io/etcd=true
+          - node-role.kubernetes.io/master=true
+        wait: true
+        wait_condition:
+          type: Ready
+          status: "True"
 
 - name: Provision the other server nodes
   when: not nausicaea.k3s.args.cluster_init
@@ -120,20 +147,11 @@
         argv:
           - /usr/local/sbin/k3s-install
           - server
-          - "--server"
-          - "{{ nausicaea.k3s.args.api_url }}"
-          - "--token-file"
-          - "/var/lib/rancher/k3s/server/token"
-          - "--tls-san"
-          - "{{ k3s_tls_san }}"
-          - "--bind-address"
-          - "{{ k3s_bind_address }}"
-          - "--advertise-address"
-          - "{{ k3s_advertise_address }}"
-          - "--node-ip"
-          - "{{ k3s_node_ip }}"
-          - "--flannel-iface"
-          - "{{ k3s_flannel_iface }}"
+          - "--server={{ nausicaea.k3s.args.api_url }}"
+          - "--token-file=/var/lib/rancher/k3s/server/token"
+          - "--tls-san={{ k3s_tls_san }}"
+          - "--etcd-s3"
+          - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
         creates: /usr/local/bin/k3s
       become: true
 
@@ -143,3 +161,36 @@
         state: started
         enabled: true
       become: true
+
+    - name: Create the Kubeconfig directory
+      ansible.builtin.file:
+        path: "{{ nausicaea.common.ansible_home }}/.kube"
+        state: directory
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0700"
+      become: true
+
+    - name: Copy the K3s kubeconfig to the Ansible user
+      ansible.builtin.copy:
+        remote_src: true
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        owner: "{{ nausicaea.common.ansible_user }}"
+        group: "{{ nausicaea.common.ansible_group }}"
+        mode: "0600"
+      become: true
+
+    - name: Wait for the node to be ready
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+        kind: Node
+        name: "{{ tailscale_host_fqdn }}"
+        label_selectors:
+          - node-role.kubernetes.io/control-plane=true
+          - node-role.kubernetes.io/etcd=true
+          - node-role.kubernetes.io/master=true
+        wait: true
+        wait_condition:
+          type: Ready
+          status: "True"

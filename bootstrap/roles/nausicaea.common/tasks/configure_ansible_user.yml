@@ -1,3 +1,4 @@
+---
 - name: Create the Ansible system group
   ansible.builtin.group:
     name: "{{ nausicaea.common.ansible_group }}"
@@ -25,7 +26,7 @@
     recurse: true
     owner: "{{ nausicaea.common.ansible_user }}"
     group: "{{ nausicaea.common.ansible_group }}"
-    #mode: 'u=rwX,go='
+    # mode: 'u=rwX,go='
   become: true
 
 - name: Allow passwordless sudo for Ansible

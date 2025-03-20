@@ -1,3 +1,21 @@
+---
+- name: Configure the default environment file
+  block:
+    - name: Does the file already exist?
+      ansible.builtin.stat:
+        path: /etc/default/ansible-pull
+      register: default_env_file
+
+    - name: Copy the default template
+      ansible.builtin.template:
+        src: default-env-file.j2
+        dest: /etc/default/ansible-pull
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+      when: not (default_env_file.stat is defined and default_env_file.stat.exists)
+
 - name: Configure the ansible.cfg file
   ansible.builtin.template:
     src: ansible.cfg.j2
@@ -15,14 +33,9 @@
     owner: root
     group: root
     mode: "0644"
-  notify: Etckeeper commit
-  become: true
-
-- name: Install updated Ansible galaxy requirements
-  community.general.ansible_galaxy_install:
-    requirements_file: "{{ nausicaea.common.ansible_requirements_file }}"
-    type: collection
-    state: present
+  notify:
+    - Etckeeper commit
+    - Update Ansible Galaxy Collections
   become: true
 
 - name: Ensure the vault password file has correct permissions
@@ -59,7 +72,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: 
+  notify:
     - Reload Systemd
     - Etckeeper commit
   become: true
@@ -74,7 +87,7 @@
     src: /etc/systemd/system/ansible-pull.timer
     dest: /etc/systemd/system/timers.target.wants/ansible-pull.timer
     state: link
-  notify: 
+  notify:
     - Reload Systemd
     - Etckeeper commit
   become: true

@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubetail-tailscale
+  namespace: kubetail-system
+  annotations:
+    tailscale.com/tags: "tag:kubetail,tag:k8s"
+spec:
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - kubetail
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: w3-kubetail-dashboard
+                port:
+                  number: 8080

@@ -1,3 +1,4 @@
+---
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
@@ -12,6 +13,7 @@
     interface: tailscale0
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -24,6 +26,26 @@
   become: true
   notify: Reload Firewalld
 
+- name: Allow forwarding in the tailscale zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
+    forward: true
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Allow masquerading in the tailscale zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
+    masquerade: true
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
 - name: Create the Tailscale service
   ansible.builtin.command:
     argv:
@@ -31,17 +53,11 @@
       - "--permanent"
       - "--new-service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
     creates: "/etc/firewalld/services/{{ nausicaea.tailscale.vars.firewalld_p2p_service }}.xml"
-  register: firewalld_new_service
   become: true
   notify: Reload Firewalld
 
-- name: Reload firewalld after creating the service
-  ansible.builtin.command:
-    argv:
-      - firewall-cmd
-      - "--reload"
-  become: true
-  when: firewalld_new_service.changed
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Was the UDP P2P port already assigned to the Tailscale service?
   ansible.builtin.command:
@@ -64,14 +80,16 @@
       - "--service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
       - "--add-port={{ nausicaea.tailscale.vars.firewalld_p2p_port }}"
   become: true
+  changed_when: true
   when: firewalld_tailscale_port.rc == 1
   notify: Reload Firewalld
 
-- name: Accept traffic on the Tailscale port in the public zone
+- name: Accept traffic on the Tailscale port in the block zone
   ansible.posix.firewalld:
-    zone: public
+    zone: block
     service: "{{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld

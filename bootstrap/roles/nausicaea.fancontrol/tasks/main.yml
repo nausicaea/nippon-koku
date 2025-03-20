@@ -1,0 +1,10 @@
+---
+- name: Add special configuration for late 2018 macs
+  ansible.builtin.include_tasks:
+    file: configure_macmini_8_1.yml
+  when: ansible_product_name == 'Macmini8,1'
+
+- name: Add special configuration for late 2014 macs
+  ansible.builtin.include_tasks:
+    file: configure_macmini_7_1.yml
+  when: ansible_product_name == 'Macmini7,1'

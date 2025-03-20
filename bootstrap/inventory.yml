@@ -1,23 +1,42 @@
+---
 all:
   hosts:
     shizuoka: {}
     osaka: {}
     kagawa: {}
+    test01: {}
+    test02: {}
   children:
     harden:
       hosts:
         shizuoka: {}
         osaka: {}
         kagawa: {}
+        test01: {}
+        test02: {}
+    longhorn:
+      hosts:
+        shizuoka: {}
+        osaka: {}
+        kagawa: {}
+        test01: {}
+        test02: {}
     tailscale:
       hosts:
         shizuoka: {}
         osaka: {}
         kagawa: {}
+        test01: {}
+        test02: {}
     k3s_cluster_init_server:
       hosts:
         shizuoka: {}
+        test01: {}
     k3s_server:
       hosts:
         osaka: {}
         kagawa: {}
+        test02: {}
+    argocd:
+      hosts:
+        shizuoka: {}

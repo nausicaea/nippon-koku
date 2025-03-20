@@ -1,3 +1,4 @@
+---
 - name: Create the K3s zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
@@ -12,6 +13,17 @@
     source: 10.42.0.0/16
     state: enabled
     permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Bind the K3s zone to the cni interface
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    interface: cni0
+    state: enabled
+    permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -21,6 +33,7 @@
     source: 10.43.0.0/16
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -30,5 +43,58 @@
     target: ACCEPT
     state: enabled
     permanent: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Allow forwarding in the K3s zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    forward: true
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Allow masquerading in the K3s zone
+  ansible.posix.firewalld:
+    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    masquerade: true
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
+- name: Create the K3s service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--new-service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.k3s.vars.firewalld_k3s_service }}.xml"
+  become: true
+  notify: Reload Firewalld
+
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Assign ports to the K3s service
+  ansible.builtin.include_tasks:
+    file: configure_firewalld_k3s_service_ports.incl.yml
+  loop:
+    - 2379/tcp
+    - 2380/tcp
+    - 6443/tcp
+    - 10250/tcp
+    - 8472/udp
+
+- name: Accept traffic on the K3s service in the block zone
+  ansible.posix.firewalld:
+    zone: block
+    service: "{{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+    state: enabled
+    permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld

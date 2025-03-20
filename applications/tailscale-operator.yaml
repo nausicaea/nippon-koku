@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: w3-tailscale-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: appproj-nippon-koku
+  source:
+    chart: tailscale-operator
+    repoURL: https://pkgs.tailscale.com/helmcharts
+    targetRevision: 1.80.0
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: tailscale
+  syncPolicy: {}

@@ -1,11 +1,12 @@
 ---
 galaxy_info:
-  role_name: mbpfan
+  role_name: argocd
   namespace: nausicaea
   author: Eleanor Young
-  description: Installs and configures mbpfan, to regulate Apple hardware fan speeds
+  description: Installs ArgoCD core into the K3s cluster
   company: Nausicaea AS
   license: MIT
   min_ansible_version: "2.1"
   galaxy_tags: []
-dependencies: []
+dependencies:
+  - nausicaea.common

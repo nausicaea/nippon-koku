@@ -1,0 +1,96 @@
+---
+- name: Install the Kubernetes helper package
+  ansible.builtin.package:
+    name: python3-kubernetes
+    state: present
+  become: true
+
+- name: Create the ArgoCD namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    kind: Namespace
+    name: argocd
+    state: present
+
+- name: Download and deploy the ArgoCD manifest
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/install.yaml"
+    namespace: argocd
+    state: present
+
+- name: Define the Nippon-Koku repository
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      stringData:
+        url: "{{ nausicaea.common.repo }}"
+        project: "{{ nausicaea.common.project_name }}"
+
+- name: Define the governance policy for the cluster bootstrap application
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: AppProject
+      metadata:
+        name: "appproj-{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        finalizers:
+          - resources-finalizer.argocd.argoproj.io
+      spec:
+        sourceRepos:
+          - "{{ nausicaea.common.repo }}"
+          - https://bitnami-labs.github.io/sealed-secrets
+          - https://pkgs.tailscale.com/helmcharts
+          - https://charts.longhorn.io
+          - https://kubetail-org.github.io/helm-charts
+        destinations:
+          - server: https://kubernetes.default.svc
+            namespace: "*"
+          - server: https://kubernetes.default.svc
+            namespace: ""
+        clusterResourceWhitelist:
+          - group: '*'
+            kind: '*'
+
+- name: Define the cluster bootstrap application
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    state: present
+    resource_definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: "w1-app-{{ nausicaea.common.project_name }}"
+        namespace: argocd
+        finalizers:
+          - resources-finalizer.argocd.argoproj.io
+        annotations:
+          argocd.argoproj.io/sync-wave: "1"
+      spec:
+        project: "appproj-{{ nausicaea.common.project_name }}"
+        source:
+          repoURL: "{{ nausicaea.common.repo }}"
+          targetRevision: "{{ nausicaea.common.branch }}"
+          path: applications
+          directory:
+            jsonnet:
+              tlas:
+                - name: source_repo
+                  value: "{{ nausicaea.common.repo }}"
+                - name: source_target_revision
+                  value: "{{ nausicaea.common.branch }}"
+        destination:
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated: {}

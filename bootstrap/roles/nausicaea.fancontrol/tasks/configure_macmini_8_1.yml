@@ -1,0 +1,85 @@
+---
+- name: Configure APT pinning for the T2 repo
+  ansible.builtin.blockinfile:
+    path: "/etc/apt/preferences.d/{{ nausicaea.fancontrol.vars.repo_filename }}.pref"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+    block: |
+      Package: *
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 100
+
+      Package: applesmc-t2
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 1001
+
+      Package: t2fanrd
+      Pin: origin adityagarg8.github.io
+      Pin-Priority: 1001
+  become: true
+  notify: Reload APT cache
+
+- name: Ensure the keyrings directory exists
+  ansible.builtin.file:
+    path: "{{ nausicaea.fancontrol.vars.operator_keyrings }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Calculate the keyring path
+  ansible.builtin.set_fact:
+    fancontrol_keyring_path: "{{ nausicaea.fancontrol.vars.operator_keyrings }}/{{ nausicaea.fancontrol.vars.keyring_name }}"
+
+- name: Ensure presence of the T2 Ubuntu Repo keyring
+  ansible.builtin.get_url:
+    url: https://adityagarg8.github.io/t2-ubuntu-repo/KEY.gpg
+    checksum: sha256:7c9e7cd9927a36de8eee2fb472ecdd5c36d87d9f501248fda795f077d4aa43cb
+    dest: "{{ fancontrol_keyring_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+# yamllint disable rule:line-length
+
+- name: Ensure presence of the T2 Ubuntu generic repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./"
+    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}"
+    state: present
+  become: true
+
+- name: Ensure presence of the T2 Ubuntu release-specific repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }} ./"
+    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
+    state: absent
+  become: true
+# yamllint enable rule:line-length
+
+- name: Install
+  ansible.builtin.package:
+    name:
+      - applesmc-t2
+      - t2fanrd
+    state: present
+  become: true
+
+- name: Modprobe
+  community.general.modprobe:
+    name: applesmc
+    persistent: present
+    state: present
+  become: true
+
+- name: Enable and start the t2fanrd service
+  ansible.builtin.service:
+    name: t2fanrd
+    state: started
+    enabled: true
+  become: true
