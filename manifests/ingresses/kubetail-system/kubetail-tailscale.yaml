@@ -17,6 +17,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: kubetail-dashboard
+                name: w3-kubetail-dashboard
                 port:
                   number: 8080
