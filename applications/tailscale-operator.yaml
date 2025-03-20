@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: 3-tailscale-operator
+  name: w3-tailscale-operator
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "3"
