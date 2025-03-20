@@ -10,7 +10,7 @@ Group={{ nausicaea.common.ansible_group }}
 EnvironmentFile=-/etc/default/ansible-pull
 ExecStart=/usr/bin/ansible-pull \
     -U "{{ nausicaea.common.repo }}" \
-    -C "{{ nausicaea.common.branch }}" \
+    -C "$BOOTSTRAP_BRANCH" \
     --clean \
     --verify-commit \
     -d "{{ nausicaea.common.checkout_dir }}" \
