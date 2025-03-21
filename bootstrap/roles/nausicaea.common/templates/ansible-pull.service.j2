@@ -12,7 +12,6 @@ ExecStart=/usr/bin/ansible-pull \
     -U "{{ nausicaea.common.repo }}" \
     -C "$BOOTSTRAP_BRANCH" \
     --clean \
-    --verify-commit \
     -d "{{ nausicaea.common.checkout_dir }}" \
     -c local \
     -i bootstrap/inventory.yml \
