@@ -12,22 +12,22 @@
     name: argocd
     state: present
 
-- name: Create the ArgoCD command line configmap
-  kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    state: present
-    resource_definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: argocd-cmd-params-cm
-        namespace: argocd
-        labels:
-          app.kubernetes.io/name: argocd-cmd-params-cm
-          app.kubernetes.io/part-of: argocd
-      data:
-        # This is OK because we will create a TLS connection again at the Ingress level
-        server.insecure: "true"
+    # - name: Create the ArgoCD command line configmap
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    #     state: present
+    #     resource_definition:
+    #       apiVersion: v1
+    #       kind: ConfigMap
+    #       metadata:
+    #         name: argocd-cmd-params-cm
+    #         namespace: argocd
+    #         labels:
+    #           app.kubernetes.io/name: argocd-cmd-params-cm
+    #           app.kubernetes.io/part-of: argocd
+    #       data:
+    #         # This is OK because we will create a TLS connection again at the Ingress level
+    #         server.insecure: "true"
 
 - name: Download and deploy the ArgoCD manifest
   kubernetes.core.k8s:

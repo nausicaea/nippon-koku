@@ -9,7 +9,7 @@ spec:
   ingressClassName: tailscale
   tls:
     - hosts:
-        - grpc.argocd
+        - argocd
   rules:
     - http:
         paths:
