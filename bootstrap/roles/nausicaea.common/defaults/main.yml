@@ -12,3 +12,4 @@ nausicaea:
     branch: main
     git_allowed_signers_file: /etc/git/allowed_signers
     git_gitconfig_file: /etc/gitconfig
+    home_lv_size: 5G

@@ -37,3 +37,14 @@
 - name: Gather extra facts
   ansible.builtin.import_tasks:
     file: gather_extra_facts.yml
+
+- name: Shrink the home partition
+  community.general.lvol:
+    vg: "{{ lvm_first_vg }}"
+    lv: home
+    size: "{{ nausicaea.common.home_lv_size }}"
+    shrink: true
+    resizefs: true
+    state: present
+  become: true
+
