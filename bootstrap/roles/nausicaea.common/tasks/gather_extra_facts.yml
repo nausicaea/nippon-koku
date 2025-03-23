@@ -11,8 +11,3 @@
     - name: Get the name of the first volume group
       ansible.builtin.set_fact:
         lvm_first_vg: "{{ (lvm_vgs.stdout | from_json).report[0].vg[0].vg_name }}"
-
-- name: DEBUG
-  ansible.builtin.fail:
-    msg: "Volume group: {{ lvm_first_vg }}"
-
