@@ -29,7 +29,6 @@
     label_selectors:
       - app.kubernetes.io/component=server
       - app.kubernetes.io/instance=argocd
-    state: present
     wait: true
     wait_sleep: 10
     wait_timeout: 360
