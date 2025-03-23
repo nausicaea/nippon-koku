@@ -62,8 +62,8 @@
           - server: https://kubernetes.default.svc
             namespace: ""
         clusterResourceWhitelist:
-          - group: '*'
-            kind: '*'
+          - group: "*"
+            kind: "*"
 
 - name: Define the cluster bootstrap application
   kubernetes.core.k8s:

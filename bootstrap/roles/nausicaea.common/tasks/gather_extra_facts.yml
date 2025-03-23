@@ -1,3 +1,4 @@
+---
 - name: Get the available LVM volume groups
   block:
     - name: Execute vgs to report the volume groups

@@ -56,7 +56,8 @@
 
 - name: Ensure presence of the T2 Ubuntu release-specific repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }} ./"
+    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }}
+      ./"
     filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
     state: absent
   become: true
