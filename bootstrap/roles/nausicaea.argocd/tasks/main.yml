@@ -21,17 +21,6 @@
         create_namespace: true
         #valuesContent: {}
 
-- name: Wait for ArgoCD to be ready
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    kind: Pod
-    namespace: kube-system
-    label_selectors:
-      - helmcharts.helm.cattle.io/chart=argocd
-    wait: true
-    wait_condition:
-      type: 
-
 - name: Define the Nippon-Koku repository
   kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
