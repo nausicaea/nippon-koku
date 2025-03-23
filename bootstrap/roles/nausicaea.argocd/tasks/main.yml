@@ -17,8 +17,8 @@
       spec:
         chart: oci://registry-1.docker.io/bitnamicharts/argo-cd
         version: 7.3.0
-        target_namespace: argocd
-        create_namespace: true
+        targetNamespace: argocd
+        createNamespace: true
         #valuesContent: {}
 
 - name: Define the Nippon-Koku repository
