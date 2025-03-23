@@ -1,0 +1,4 @@
+nausicaea:
+  longhorn:
+    vars:
+      data_lv_name: longhorn

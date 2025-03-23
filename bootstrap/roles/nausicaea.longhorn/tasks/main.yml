@@ -31,3 +31,38 @@
   become: true
   when: "'os_ubuntu' in groups"
 
+- name: Create the logical volume for Longhorn data
+  community.general.lvol:
+    vg: "{{ lvm_first_vg }}"
+    lv: "{{ nausicaea.longhorn.vars.data_lv_name }}"
+    size: "{{ nausicaea.longhorn.data_lv_min_size }}"
+    shrink: false
+    resizefs: true
+    state: present
+  become: true
+
+- name: Create an ext4 filesystem for the Longhorn data volume
+  community.general.filesystem:
+    src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.longhorn.vars.data_lv_name }}"
+    fstype: ext4
+    resizefs: true
+    state: present
+  become: true
+
+- name: Create the Longhorn data directory
+  ansible.builtin.file:
+    path: /var/lib/longhorn
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+    mode: "u=rwX,go="
+  become: true
+
+- name: Mount the Longhorn data volume
+  ansible.posix.mount:
+    path: /var/lib/longhorn
+    src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.longhorn.vars.data_lv_name }}"
+    state: mounted
+  become: true
+
