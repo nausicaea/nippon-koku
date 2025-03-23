@@ -20,6 +20,5 @@ function(source_repo, source_target_revision) {
             server: "https://kubernetes.default.svc",
             namespace: "torproject",
         },
-        syncPolicy: {},
     },
 }
