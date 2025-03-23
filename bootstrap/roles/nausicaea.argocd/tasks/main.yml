@@ -5,36 +5,21 @@
     state: present
   become: true
 
-- name: Create the ArgoCD namespace
+- name: Deploy the Bitnami ArgoCD Helm chart
   kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    kind: Namespace
-    name: argocd
-    state: present
-
-    # - name: Create the ArgoCD command line configmap
-    #   kubernetes.core.k8s:
-    #     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    #     state: present
-    #     resource_definition:
-    #       apiVersion: v1
-    #       kind: ConfigMap
-    #       metadata:
-    #         name: argocd-cmd-params-cm
-    #         namespace: argocd
-    #         labels:
-    #           app.kubernetes.io/name: argocd-cmd-params-cm
-    #           app.kubernetes.io/part-of: argocd
-    #       data:
-    #         # This is OK because we will create a TLS connection again at the Ingress level
-    #         server.insecure: "true"
-
-- name: Download and deploy the ArgoCD manifest
-  kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ nausicaea.argocd.version }}/manifests/install.yaml"
-    namespace: argocd
-    state: present
+    resource_definition:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChart
+      metadata:
+        name: argocd
+        namespace: kube-system
+      spec:
+        chart: oci://registry-1.docker.io/bitnamicharts/argo-cd
+        version: 7.3.0
+        target_namespaces: argocd
+        create_namespace: true
+        #valuesContent: {}
 
 - name: Define the Nippon-Koku repository
   kubernetes.core.k8s:
