@@ -43,7 +43,7 @@
 
 - name: Create an ext4 filesystem for the Longhorn data volume
   community.general.filesystem:
-    src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.longhorn.vars.data_lv_name }}"
+    dev: "/dev/{{ lvm_first_vg }}/{{ nausicaea.longhorn.vars.data_lv_name }}"
     fstype: ext4
     resizefs: true
     state: present

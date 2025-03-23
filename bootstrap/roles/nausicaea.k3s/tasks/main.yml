@@ -38,7 +38,7 @@
 
     - name: Create an ext4 filesystem for the K3s server data volume
       community.general.filesystem:
-        src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
+        dev: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
         fstype: ext4
         resizefs: true
         state: present
@@ -158,7 +158,7 @@
 
     - name: Create an ext4 filesystem for the K3s server data volume
       community.general.filesystem:
-        src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
+        dev: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
         fstype: ext4
         resizefs: true
         state: present
