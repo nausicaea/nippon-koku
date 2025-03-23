@@ -63,6 +63,7 @@
   ansible.posix.mount:
     path: /var/lib/longhorn
     src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.longhorn.vars.data_lv_name }}"
+    fstype: ext4
     state: mounted
   become: true
 

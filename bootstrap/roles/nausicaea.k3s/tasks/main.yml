@@ -58,6 +58,7 @@
       ansible.posix.mount:
         path: /var/lib/rancher/k3s/server
         src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
+        fstype: ext4
         state: mounted
       become: true
 
@@ -178,6 +179,7 @@
       ansible.posix.mount:
         path: /var/lib/rancher/k3s/server
         src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
+        fstype: ext4
         state: mounted
       become: true
 
