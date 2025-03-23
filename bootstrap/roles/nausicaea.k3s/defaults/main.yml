@@ -1,0 +1,4 @@
+---
+nausicaea:
+  k3s:
+    server_lv_min_size: 20G
