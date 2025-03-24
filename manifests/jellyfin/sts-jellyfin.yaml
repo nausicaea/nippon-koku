@@ -52,18 +52,18 @@ spec:
         accessModes: [ReadWriteOnce]
         resources:
           requests:
-            storage: 1Gi
+            storage: 2Gi
     - metadata:
         name: cache
       spec:
         accessModes: [ReadWriteOnce]
         resources:
           requests:
-            storage: 5Gi
+            storage: 10Gi
     - metadata:
         name: media
       spec:
         accessModes: [ReadWriteOnce]
         resources:
           requests:
-            storage: 20Gi
+            storage: 200Gi
