@@ -1,6 +1,6 @@
 function(source_repo, source_target_revision) 
 
-local namespaces = ["argocd", "kubetail-system", "longhorn-system"];
+local namespaces = ["argocd", "kubetail-system", "longhorn-system", "jellyfin"];
 
 local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
