@@ -20,7 +20,8 @@
         targetNamespace: argocd
         createNamespace: true
         valuesContent: |-
-          server.insecure: true
+          server:
+            insecure: true
 
 - name: Wait for ArgoCD to be ready
   kubernetes.core.k8s_info:
