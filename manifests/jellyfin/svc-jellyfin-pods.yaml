@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin-pods
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: jellyfin
+spec:
+  selector:
+    app.kubernetes.io/name: jellyfin
+  clusterIP: None
+  ports:
+    - name: web
+      port: 80
+      protocol: TCP
+      targetPort: jellyfin
