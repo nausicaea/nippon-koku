@@ -37,6 +37,4 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
-      serviceAccount: tor-snowflake-proxy
-      serviceAccountName: tor-snowflake-proxy
       terminationGracePeriodSeconds: 30

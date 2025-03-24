@@ -1,12 +1,12 @@
 function(source_repo, source_target_revision) 
 
-local namespaces = ["argocd", "kubetail-system", "longhorn-system", "jellyfin"];
+local namespaces = ["argocd", "kubetail-system", "longhorn-system"];
 
 local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "w4-ingresses-" + namespace,
+        name: "w4-extry-ingresses-" + namespace,
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
@@ -18,7 +18,7 @@ local appSpec(namespace, repo, revision) = {
         source: {
             repoURL: repo,
             targetRevision: revision,
-            path: "manifests/ingresses/" + namespace,
+            path: "manifests/extra-ingresses/" + namespace,
         },
         destination: {
             server: "https://kubernetes.default.svc",

@@ -2,7 +2,7 @@ function(source_repo, source_target_revision) {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "w1-namespaces",
+        name: "w1-extra-namespaces",
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
@@ -14,7 +14,7 @@ function(source_repo, source_target_revision) {
         source: {
             repoURL: source_repo,
             targetRevision: source_target_revision,
-            path: "manifests/namespaces",
+            path: "manifests/extra-namespaces",
         },
         destination: {
             server: "https://kubernetes.default.svc",
