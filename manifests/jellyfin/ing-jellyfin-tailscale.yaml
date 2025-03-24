@@ -7,16 +7,12 @@ metadata:
     tailscale.com/tags: "tag:jellyfin,tag:k8s"
 spec:
   ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: jellyfin
+      port:
+        name: http
   tls:
     - hosts:
         - jellyfin
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: jellyfin
-                port:
-                  number: 80
+        - jellyfin.takaya-map.ts.net

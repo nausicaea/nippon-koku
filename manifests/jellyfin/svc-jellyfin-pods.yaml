@@ -10,7 +10,7 @@ spec:
     app.kubernetes.io/name: jellyfin
   clusterIP: None
   ports:
-    - name: web
+    - name: http
       port: 80
       protocol: TCP
       targetPort: jellyfin

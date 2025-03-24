@@ -7,16 +7,12 @@ metadata:
     tailscale.com/tags: "tag:kubetail,tag:k8s"
 spec:
   ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: kubetail-dashboard
+      port:
+        number: 8080
   tls:
     - hosts:
         - kubetail
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: kubetail-dashboard
-                port:
-                  number: 8080
+        - kubetail.takaya-map.ts.net
