@@ -5,3 +5,4 @@ nausicaea:
       server_lv_name: k3sserver
       firewalld_zone: k3s
       firewalld_k3s_service: k3s
+      k3s_bin: /usr/local/bin/k3s
