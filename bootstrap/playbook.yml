@@ -49,10 +49,6 @@
         msg: "{{ msg.split('\n') }}"
 # yamllint enable rule:line-length
 
-    - name: Print all available facts
-      ansible.builtin.debug:
-        var: ansible_facts
-
 - name: Perform setup tasks for bootstrapping hosts
   hosts: dyn_stage_bootstrap
   tags:
