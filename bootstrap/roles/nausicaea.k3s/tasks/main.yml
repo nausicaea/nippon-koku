@@ -1,4 +1,9 @@
 ---
+- name: Show a message about a pending K8s cluster upgrade
+  ansible.builtin.debug:
+    msg: "WARNING: Going to perform a cluster upgrade"
+  when: nausicaea.k3s.args.cluster_upgrade
+
 - name: Install the Kubernetes helper package
   ansible.builtin.package:
     name: python3-kubernetes
@@ -41,9 +46,16 @@
     mode: "0500"
   become: true
 
-- name: Determine the network parameters
+- name: Does the K3s binary already exist?
+  ansible.builtin.stat:
+    path: "{{ nausicaea.k3s.vars.k3s_bin }}"
+  register: k3s_bin
+  failed_when: k3s_bin.stat is not defined
+
+- name: Determine the network parameters and cluster upgrade facts
   ansible.builtin.set_fact:
     k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
+    run_k3s_installer: "{{ (k3s_bin.stat is defined and not k3s_bin.stat.exists) or nausicaea.k3s.args.cluster_upgrade }}"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
@@ -94,7 +106,7 @@
           - "--tls-san={{ k3s_tls_san }}"
           - "--etcd-s3"
           - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
-        creates: /usr/local/bin/k3s
+      when: "{{ run_k3s_installer }}"
       become: true
 
     - name: Make sure the K3s server service is running
@@ -178,7 +190,7 @@
           - "--tls-san={{ k3s_tls_san }}"
           - "--etcd-s3"
           - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
-        creates: /usr/local/bin/k3s
+      when: "{{ run_k3s_installer }}"
       become: true
 
     - name: Make sure the K3s server service is running
