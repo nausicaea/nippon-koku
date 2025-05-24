@@ -9,19 +9,14 @@
   ansible.builtin.import_tasks:
     file: configure_firewalld.yml
 
-- name: Download the K3s installer script
-  ansible.builtin.get_url:
-    url: https://get.k3s.io
-    checksum: sha256:9d5fc42bf825d3e8dcc8682c8bac071b1de18019af81f85519ccbe5c919e0896
-    dest: /usr/local/sbin/k3s-install
+- name: Create the K3s directory
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s
+    state: directory
     owner: root
     group: root
-    mode: "0500"
+    mode: "u=rwx,go="
   become: true
-
-- name: Determine the network parameters
-  ansible.builtin.set_fact:
-    k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
 
 - name: Provision volumes always needed by K3s
   ansible.builtin.include_tasks: configure_k3s_volumes.yml
@@ -35,6 +30,20 @@
     - name: k3sdata
       mount_dir: data
       size: "{{ nausicaea.k3s.data_lv_min_size }}"
+
+- name: Download the K3s installer script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    checksum: sha256:9d5fc42bf825d3e8dcc8682c8bac071b1de18019af81f85519ccbe5c919e0896
+    dest: /usr/local/sbin/k3s-install
+    owner: root
+    group: root
+    mode: "0500"
+  become: true
+
+- name: Determine the network parameters
+  ansible.builtin.set_fact:
+    k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
 
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
