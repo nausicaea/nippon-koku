@@ -40,7 +40,7 @@
         set -xe
         mkdir /tmp/staging
         mount {{ device }} /tmp/staging
-        mv {{ mount_dir }}/ /tmp/staging/
+        find {{ mount_dir }} -mindepth 1 -maxdepth 1 -exec mv -t /tmp/staging/ -- {} +
         umount /tmp/staging
         rmdir /tmp/staging
       become: true
