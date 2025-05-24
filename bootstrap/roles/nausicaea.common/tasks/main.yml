@@ -18,6 +18,10 @@
   become: true
   notify: Etckeeper commit
 
+- name: Configure logging
+  ansible.builtin.import_tasks:
+    file: configure_logging.yml
+
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
     file: configure_ansible_user.yml

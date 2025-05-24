@@ -1,0 +1,35 @@
+---
+- name: Create a volume for logs
+  community.general.lvol:
+    vg: "{{ lvm_first_vg }}"
+    lv: log
+    size: "{{ nausicaea.common.var_log_lv_size }}"
+    shrink: false
+    resizefs: false
+    state: present
+  become: true
+
+- name: Create an ext4 filesystem for the logging volume
+  community.general.filesystem:
+    dev: "/dev/{{ lvm_first_vg }}/log"
+    fstype: ext4
+    resizefs: true
+    state: present
+  become: true
+
+- name: Create the logging mount directory
+  ansible.builtin.file:
+    path: /var/log
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,go=rx"
+  become: true
+
+- name: Mount the logging volume
+  ansible.posix.mount:
+    path: /var/log
+    src: "/dev/{{ lvm_first_vg }}/log"
+    fstype: ext4
+    state: mounted
+  become: true
