@@ -5,10 +5,6 @@
     state: present
   become: true
 
-- name: DEBUG
-  ansible.builtin.debug:
-    var: nausicaea.sealed_secrets.secrets.sealing_keys
-
 - name: Deploy the Sealed Secrets keys
   kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
