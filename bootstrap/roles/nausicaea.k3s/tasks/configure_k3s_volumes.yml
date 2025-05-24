@@ -38,13 +38,12 @@
     - name: Do the work
       ansible.builtin.shell: |
         set -xe
-        umount /tmp/staging
+        umount /tmp/staging || true
         rm -rf /tmp/staging
         mkdir /tmp/staging
         mount {{ device }} /tmp/staging
         find {{ mount_dir }} -mindepth 1 -maxdepth 1 -exec mv -t /tmp/staging/ -- {} +
         umount /tmp/staging
-        rmdir /tmp/staging
       become: true
 
 - name: "Mount the volume {{ device }} to {{ mount_dir }}"
