@@ -18,10 +18,6 @@
   become: true
   notify: Etckeeper commit
 
-- name: Configure logging
-  ansible.builtin.import_tasks:
-    file: configure_logging.yml
-
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
     file: configure_ansible_user.yml
@@ -41,6 +37,10 @@
 - name: Gather extra facts
   ansible.builtin.import_tasks:
     file: gather_extra_facts.yml
+
+- name: Configure logging
+  ansible.builtin.import_tasks:
+    file: configure_logging.yml
 
 # - name: Shrink the home partition
 #   community.general.lvol:
