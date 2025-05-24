@@ -43,6 +43,7 @@
         mv {{ mount_dir }}/* /tmp/staging/
         umount /tmp/staging
         rmdir /tmp/staging
+      become: true
 
 - name: Mount the volume
   ansible.posix.mount:
