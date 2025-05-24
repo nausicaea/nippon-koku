@@ -6,7 +6,7 @@ local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "w4-extry-ingresses-" + namespace,
+        name: "w4-extra-ingresses-" + namespace,
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
