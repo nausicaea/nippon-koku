@@ -40,3 +40,6 @@ all:
     argocd:
       hosts:
         shizuoka: {}
+    sealed_secrets:
+      hosts:
+        shizuoka: {}

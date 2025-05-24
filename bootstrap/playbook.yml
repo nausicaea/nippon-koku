@@ -28,6 +28,7 @@
         - k3s_cluster_init_server
         - k3s_server
         - argocd
+        - sealed_secrets
 
 - name: Show additional information on a host
   hosts: all
@@ -153,6 +154,13 @@
           cluster_init: false
   roles:
     - nausicaea.k3s
+
+- name: Provision Sealed secrets
+  hosts: dyn_stage_live_and_sealed_secrets
+  tags:
+    - sealed_secrets
+  roles:
+    - nausicaea.sealed_secrets
 
 - name: Provision Argocd
   hosts: dyn_stage_live_and_argocd
