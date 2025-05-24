@@ -23,44 +23,28 @@
   ansible.builtin.set_fact:
     k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
 
+- name: Provision volumes always needed by K3s
+  ansible.builtin.include_tasks: configure_k3s_volumes.yml
+  loop:
+    - name: k3sstorage
+      mount_dir: storage
+      size: "{{ nausicaea.k3s.storage_lv_min_size }}"
+    - name: k3sagent
+      mount_dir: agent
+      size: "{{ nausicaea.k3s.agent_lv_min_size }}"
+    - name: k3sdata
+      mount_dir: data
+      size: "{{ nausicaea.k3s.data_lv_min_size }}"
+
 - name: Provision the cluster-init node
   when: nausicaea.k3s.args.cluster_init
   block:
-    - name: Create the logical volume for the K3s server data
-      community.general.lvol:
-        vg: "{{ lvm_first_vg }}"
-        lv: "{{ nausicaea.k3s.vars.server_lv_name }}"
-        size: "{{ nausicaea.k3s.server_lv_min_size }}"
-        shrink: false
-        resizefs: true
-        state: present
-      become: true
-
-    - name: Create an ext4 filesystem for the K3s server data volume
-      community.general.filesystem:
-        dev: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
-        fstype: ext4
-        resizefs: true
-        state: present
-      become: true
-
-    - name: Create the server directory
-      ansible.builtin.file:
-        path: /var/lib/rancher/k3s/server
-        state: directory
-        recurse: true
-        owner: root
-        group: root
-        mode: "u=rwX,go="
-      become: true
-
-    - name: Mount the K3s server data volume
-      ansible.posix.mount:
-        path: /var/lib/rancher/k3s/server
-        src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
-        fstype: ext4
-        state: mounted
-      become: true
+    - name: Provision the K3s server volume
+      ansible.builtin.include_tasks: configure_k3s_volumes.yml
+      loop:
+        - name: "{{ nausicaea.k3s.vars.server_lv_name }}"
+          mount_dir: server
+          size: "{{ nausicaea.k3s.server_lv_min_size }}"
 
     - name: Create the TLS directory
       ansible.builtin.file:
@@ -147,41 +131,12 @@
 - name: Provision the other server nodes
   when: not nausicaea.k3s.args.cluster_init
   block:
-    - name: Create the logical volume for the K3s server data
-      community.general.lvol:
-        vg: "{{ lvm_first_vg }}"
-        lv: "{{ nausicaea.k3s.vars.server_lv_name }}"
-        size: "{{ nausicaea.k3s.server_lv_min_size }}"
-        shrink: false
-        resizefs: true
-        state: present
-      become: true
-
-    - name: Create an ext4 filesystem for the K3s server data volume
-      community.general.filesystem:
-        dev: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
-        fstype: ext4
-        resizefs: true
-        state: present
-      become: true
-
-    - name: Create the server directory
-      ansible.builtin.file:
-        path: /var/lib/rancher/k3s/server
-        state: directory
-        recurse: true
-        owner: root
-        group: root
-        mode: "u=rwX,go="
-      become: true
-
-    - name: Mount the K3s server data volume
-      ansible.posix.mount:
-        path: /var/lib/rancher/k3s/server
-        src: "/dev/{{ lvm_first_vg }}/{{ nausicaea.k3s.vars.server_lv_name }}"
-        fstype: ext4
-        state: mounted
-      become: true
+    - name: Provision the K3s server volume
+      ansible.builtin.include_tasks: configure_k3s_volumes.yml
+      loop:
+        - name: "{{ nausicaea.k3s.vars.server_lv_name }}"
+          mount_dir: server
+          size: "{{ nausicaea.k3s.server_lv_min_size }}"
 
     - name: Copy the K3s token file
       ansible.builtin.copy:

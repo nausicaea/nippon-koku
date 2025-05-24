@@ -1,0 +1,53 @@
+---
+- name: Set the full mount directory
+  ansible.builtin.set_fact:
+    device: "/dev/{{ lvm_first_vg }}/{{ item.name }}"
+    mount_dir: "/var/lib/rancher/k3s/{{ item.mount_dir }}"
+
+- name: Create the volume
+  community.general.lvol:
+    vg: "{{ lvm_first_vg }}"
+    lv: "{{ item.name }}"
+    size: "{{ item.size }}"
+    shrink: false
+    resizefs: false
+    state: present
+  become: true
+
+- name: Create an ext4 filesystem for the volume
+  community.general.filesystem:
+    dev: "{{ device }}"
+    fstype: ext4
+    resizefs: true
+    state: present
+  become: true
+
+- name: Create the mount directory
+  ansible.builtin.file:
+    path: "{{ mount_dir }}"
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+    mode: "u=rwX,go="
+  become: true
+
+- name: Copy over old data from before the volume
+  when: "mount_dir not in [item.mount for item in ansible_mounts]"
+  block:
+    - name: Do the work
+      ansible.builtin.shell: |
+        set -xe
+        mkdir /tmp/staging
+        mount {{ device }} /tmp/staging
+        mv {{ mount_dir }}/* /tmp/staging/
+        umount /tmp/staging
+        rmdir /tmp/staging
+
+- name: Mount the volume
+  ansible.posix.mount:
+    path: "{{ mount_dir }}"
+    src: "{{ device }}"
+    fstype: ext4
+    state: mounted
+  become: true
