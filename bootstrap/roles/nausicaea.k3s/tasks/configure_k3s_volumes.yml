@@ -33,7 +33,7 @@
   become: true
 
 - name: Copy over old data from before the volume
-  when: "mount_dir not in [item.mount for item in ansible_mounts]"
+  when: "mount_dir not in (ansible_mounts | map(attribute='mount') | list)"
   block:
     - name: Do the work
       ansible.builtin.shell: |
