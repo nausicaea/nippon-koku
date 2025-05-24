@@ -27,14 +27,14 @@
         set:
           fullnameOverride: sealed-secrets-controller
 
-# - name: Wait for Sealed Secrets to be ready
-#   kubernetes.core.k8s_info:
-#     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-#     namespace: kube-system
-#     kind: Deployment
-#     label_selectors:
-#       - app.kubernetes.io/component=server
-#       - app.kubernetes.io/instance=argocd
-#     wait: true
-#     wait_sleep: 10
-#     wait_timeout: 360
+- name: Wait for Sealed Secrets to be ready
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    namespace: kube-system
+    kind: Deployment
+    label_selectors:
+      - app.kubernetes.io/instance=sealed-secrets
+      - app.kubernetes.io/name=sealed-secrets
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360
