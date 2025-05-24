@@ -1,10 +1,10 @@
 ---
-- name: Set the full mount directory
+- name: Set some utility facts
   ansible.builtin.set_fact:
     device: "/dev/{{ lvm_first_vg }}/{{ item.name }}"
     mount_dir: "/var/lib/rancher/k3s/{{ item.mount_dir }}"
 
-- name: Create the volume
+- name: "Create the volume {{ item.name }}"
   community.general.lvol:
     vg: "{{ lvm_first_vg }}"
     lv: "{{ item.name }}"
@@ -14,7 +14,7 @@
     state: present
   become: true
 
-- name: Create an ext4 filesystem for the volume
+- name: "Create an ext4 filesystem for the volume {{ device }}"
   community.general.filesystem:
     dev: "{{ device }}"
     fstype: ext4
@@ -22,7 +22,7 @@
     state: present
   become: true
 
-- name: Create the mount directory
+- name: "Create the mount directory {{ mount_dir }}"
   ansible.builtin.file:
     path: "{{ mount_dir }}"
     state: directory
@@ -45,7 +45,7 @@
         rmdir /tmp/staging
       become: true
 
-- name: Mount the volume
+- name: "Mount the volume {{ device }} to {{ mount_dir }}"
   ansible.posix.mount:
     path: "{{ mount_dir }}"
     src: "{{ device }}"
