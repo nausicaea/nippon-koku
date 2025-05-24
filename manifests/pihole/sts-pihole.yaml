@@ -19,15 +19,17 @@ spec:
         app.kubernetes.io/name: pihole
     spec:
       containers:
-        - env:
-            - name: FTLCONF_dns_listeningMode
-              value: all
-            - name: FTLCONF_webserver_api_password
-              value: correct horse battery staple
-            - name: TZ
-              value: Europe/Zurich
+        - name: pihole
           image: docker.io/pihole/pihole:2025.04.0
-          name: pihole
+          envFrom:
+            - configMapRef:
+                name: pihole
+          env:
+            - name: FTLCONF_webserver_api_password
+              valueFrom:
+                secretKeyRef:
+                  name: webserver-api-password
+                  key: password
           ports:
             - name: pihole-dns
               containerPort: 53
