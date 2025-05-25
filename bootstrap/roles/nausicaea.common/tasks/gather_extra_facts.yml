@@ -9,6 +9,9 @@
       register: lvm_vgs
       changed_when: false
       become: true
+    - name: DEBUG
+      ansible.builtin.debug:
+        var: lvm_vgs
     - name: Get the name of the first volume group
       ansible.builtin.set_fact:
         lvm_first_vg: "{{ (lvm_vgs.stdout | from_json).report[0].vg[0].vg_name }}"
