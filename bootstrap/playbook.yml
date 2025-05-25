@@ -49,10 +49,6 @@
         msg: "{{ msg.split('\n') }}"
 # yamllint enable rule:line-length
 
-    - name: Print all available facts
-      ansible.builtin.debug:
-        var: ansible_facts
-
 - name: Perform setup tasks for bootstrapping hosts
   hosts: dyn_stage_bootstrap
   tags:
@@ -96,6 +92,7 @@
       net.ipv4.ip_forward: 1
       net.ipv6.conf.all.forwarding: 1
     ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }}"
+    os_ignore_users: ["ansible"]
   handlers:
     - name: Update GRUB
       ansible.builtin.command:

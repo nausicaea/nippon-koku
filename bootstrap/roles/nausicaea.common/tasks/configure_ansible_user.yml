@@ -15,7 +15,7 @@
     create_home: true
     password_lock: true
     system: true
-    shell: /usr/sbin/nologin
+    shell: /usr/bin/bash
     state: present
   become: true
 

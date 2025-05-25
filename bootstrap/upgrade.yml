@@ -1,0 +1,8 @@
+---
+- name: Run upgrade tasks
+  ansible.builtin.import_playbook: playbook.yml
+  vars:
+    nausicaea:
+      k3s:
+        args:
+          cluster_upgrade: true
