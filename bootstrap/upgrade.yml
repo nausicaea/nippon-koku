@@ -3,6 +3,5 @@
   ansible.builtin.import_playbook: playbook.yml
   vars:
     nausicaea:
-      k3s:
-        args:
-          cluster_upgrade: true
+      k3s_common:
+        cluster_upgrade: true

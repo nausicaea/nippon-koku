@@ -1,6 +1,5 @@
----
 nausicaea:
-  k3s:
+  k3s_common:
     vars:
       server_lv_name: k3sserver
       firewalld_zone: k3s

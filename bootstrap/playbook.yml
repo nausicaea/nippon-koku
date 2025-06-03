@@ -132,25 +132,14 @@
 - name: Provision the K3s cluster init server node
   hosts: dyn_stage_live_and_k3s_cluster_init_server
   tags: k3s_cluster_init_server
-  vars:
-    nausicaea:
-      k3s:
-        args:
-          cluster_init: true
   roles:
-    - nausicaea.k3s
+    - nausicaea.k3s_cluster_init_server
 
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
-  tags:
-    - k3s_server
-  vars:
-    nausicaea:
-      k3s:
-        args:
-          cluster_init: false
+  tags: k3s_server
   roles:
-    - nausicaea.k3s
+    - nausicaea.k3s_server
 
 - name: Provision Sealed secrets
   hosts: dyn_stage_live_and_sealed_secrets

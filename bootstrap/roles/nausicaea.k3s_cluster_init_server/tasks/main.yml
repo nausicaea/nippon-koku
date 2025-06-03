@@ -1,0 +1,90 @@
+---
+- name: Show a message about a pending K3s reinstall
+  ansible.builtin.debug:
+    msg: "WARNING: Rerunning the K3s installer"
+  changed_when: true
+  when: run_k3s_installer
+
+- name: Create the TLS directory
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/tls
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+    mode: "u=rwX,go="
+  become: true
+
+- name: Extract the custom TLS certificates
+  ansible.builtin.unarchive:
+    src: k3s-server-tls.tgz
+    dest: /var/lib/rancher/k3s/server/tls
+    creates: /var/lib/rancher/k3s/server/tls/root-ca.crt
+    owner: root
+    group: root
+    mode: "u=rwX,go="
+  become: true
+
+- name: Copy the K3s token file
+  ansible.builtin.copy:
+    src: k3s-token
+    dest: /var/lib/rancher/k3s/server/token
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+
+- name: Run the K3s installer with cluster-init for a server (control pane)
+  ansible.builtin.command:
+    argv:
+      - /usr/local/sbin/k3s-install
+      - server
+      - "--cluster-init"
+      - "--token-file=/var/lib/rancher/k3s/server/token"
+      - "--tls-san={{ k3s_tls_san }}"
+      - "--etcd-s3"
+      - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
+  changed_when: true
+  when: run_k3s_installer
+  become: true
+
+- name: Make sure the K3s server service is running
+  ansible.builtin.service:
+    name: k3s
+    state: started
+    enabled: true
+  become: true
+
+- name: Create the Kubeconfig directory
+  ansible.builtin.file:
+    path: "{{ nausicaea.common.ansible_home }}/.kube"
+    state: directory
+    owner: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
+    mode: "0700"
+  become: true
+
+- name: Copy the K3s kubeconfig to the Ansible user
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    owner: "{{ nausicaea.common.ansible_user }}"
+    group: "{{ nausicaea.common.ansible_group }}"
+    mode: "0600"
+  become: true
+
+- name: Wait for the node to be ready
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    kind: Node
+    name: "{{ tailscale_host_fqdn }}"
+    label_selectors:
+      - node-role.kubernetes.io/control-plane=true
+      - node-role.kubernetes.io/etcd=true
+      - node-role.kubernetes.io/master=true
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"
+

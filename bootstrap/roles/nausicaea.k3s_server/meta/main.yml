@@ -1,0 +1,11 @@
+galaxy_info:
+  role_name: k3s_cluster_init_server
+  namespace: nausicaea
+  author: Eleanor Young
+  description: Installs and configures the K3s kubernetes distribution for a control pane and creates a new cluster
+  company: Nausicaea AS
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags: []
+dependencies:
+  - role: nausicaea.k3s_common
