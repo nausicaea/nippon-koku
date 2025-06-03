@@ -1,6 +1,7 @@
 ---
 - name: Run APT updates and upgrades
   hosts: all
+  tags: apt_upgrade
   tasks:
     - name: Update the APT cache
       ansible.builtin.apt:
