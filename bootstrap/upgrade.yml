@@ -1,5 +1,23 @@
 ---
-- name: Run upgrade tasks
+- name: Run APT updates and upgrades
+  hosts: all
+  tasks:
+    - name: Update the APT cache
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+
+    - name: Run APT upgrade
+      ansible.builtin.apt:
+        upgrade: yes
+      become: true
+
+    - name: Remove dependencies that are no longer required
+      ansible.builtin.apt:
+        autoremove: true
+      become: true
+
+- name: Run the normal playbook with cluster upgrade
   ansible.builtin.import_playbook: playbook.yml
   vars:
     nausicaea:
