@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/instance: snowflake-install
     app.kubernetes.io/managed-by: argocd
     app.kubernetes.io/name: tor-snowflake-proxy
-    app.kubernetes.io/version: v2.10.0
+    app.kubernetes.io/version: v2.11.0
 spec:
   progressDeadlineSeconds: 600
   replicas: 2
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: tor-snowflake-proxy
-          image: containers.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake:v2.10.0
+          image: containers.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake:v2.11.0
           imagePullPolicy: IfNotPresent
           args:
             - -metrics
