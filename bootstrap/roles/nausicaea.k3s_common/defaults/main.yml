@@ -1,7 +1,7 @@
----
 nausicaea:
-  k3s:
+  k3s_common:
     server_lv_min_size: 2G
     storage_lv_min_size: 100M
     agent_lv_min_size: 20G
     data_lv_min_size: 512M
+    cluster_upgrade: false

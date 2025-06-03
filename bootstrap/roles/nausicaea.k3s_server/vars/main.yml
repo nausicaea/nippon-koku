@@ -1,0 +1,3 @@
+nausicaea:
+  k3s_server:
+    vars: {}

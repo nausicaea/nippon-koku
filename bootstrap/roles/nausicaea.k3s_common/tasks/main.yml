@@ -1,0 +1,62 @@
+- name: Show a message about a pending K8s cluster upgrade
+  ansible.builtin.debug:
+    msg: "WARNING: Going to perform a cluster upgrade"
+  changed_when: true
+  when: nausicaea.k3s_common.cluster_upgrade
+
+- name: Install the Kubernetes helper package
+  ansible.builtin.package:
+    name: python3-kubernetes
+    state: present
+  become: true
+
+- name: Configure firewalld
+  ansible.builtin.import_tasks:
+    file: configure_firewalld.yml
+
+- name: Create the K3s directory
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,go="
+  become: true
+
+- name: Provision volumes always needed by K3s
+  ansible.builtin.include_tasks: configure_k3s_volumes.yml
+  loop:
+    - name: k3sstorage
+      mount_dir: storage
+      size: "{{ nausicaea.k3s_common.storage_lv_min_size }}"
+    - name: k3sagent
+      mount_dir: agent
+      size: "{{ nausicaea.k3s_common.agent_lv_min_size }}"
+    - name: k3sdata
+      mount_dir: data
+      size: "{{ nausicaea.k3s_common.data_lv_min_size }}"
+    - name: k3sserver
+      mount_dir: server
+      size: "{{ nausicaea.k3s_common.server_lv_min_size }}"
+
+- name: Download the K3s installer script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    checksum: sha256:9d5fc42bf825d3e8dcc8682c8bac071b1de18019af81f85519ccbe5c919e0896
+    dest: /usr/local/sbin/k3s-install
+    owner: root
+    group: root
+    mode: "0500"
+  become: true
+
+- name: Does the K3s binary already exist?
+  ansible.builtin.stat:
+    path: "{{ nausicaea.k3s_common.vars.k3s_bin }}"
+  register: k3s_bin
+  failed_when: k3s_bin.stat is not defined
+
+- name: Determine the network parameters and cluster upgrade facts
+  ansible.builtin.set_fact:
+    k3s_tls_san: "{{ [tailscale_host_fqdn, tailscale_address_ipv4, tailscale_address_ipv6] | join(',') }}"
+    run_k3s_installer: "{{ (k3s_bin.stat is defined and not k3s_bin.stat.exists) or nausicaea.k3s_common.cluster_upgrade }}"
+

@@ -6,14 +6,13 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
-    additionalArguments:
-      - "--api"
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
-      - "--log.level=DEBUG"
-    providers:
-      kubernetesCRD:
-        allowCrossNamespace: true
-    ports:
-      traefik:
-        expose: true
+    ingressRoute:
+      dashboard:
+        enabled: true
+    listeners:
+      dns:
+        port: 53
+        protocol: TCP
+      dnsudp:
+        port: 53
+        protocol: UDP

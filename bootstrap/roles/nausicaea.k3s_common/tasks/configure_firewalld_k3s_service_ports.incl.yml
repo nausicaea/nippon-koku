@@ -4,7 +4,7 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+      - "--service={{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
       - "--query-port={{ item }}"
   register: firewalld_k3s_port
   failed_when: not (firewalld_k3s_port.rc == 0 or firewalld_k3s_port.rc == 1)
@@ -17,7 +17,7 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+      - "--service={{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
       - "--add-port={{ item }}"
   become: true
   changed_when: true

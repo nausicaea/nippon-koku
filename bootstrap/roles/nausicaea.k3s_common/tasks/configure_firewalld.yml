@@ -1,7 +1,7 @@
 ---
 - name: Create the K3s zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     state: present
     permanent: true
   become: true
@@ -9,7 +9,7 @@
 
 - name: Bind the K3s zone to the pod IP addresses
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     source: 10.42.0.0/16
     state: enabled
     permanent: true
@@ -19,7 +19,7 @@
 
 - name: Bind the K3s zone to the cni interface
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     interface: cni0
     state: enabled
     permanent: true
@@ -29,7 +29,7 @@
 
 - name: Bind the K3s zone to the service IP addresses
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     source: 10.43.0.0/16
     state: enabled
     permanent: true
@@ -39,7 +39,7 @@
 
 - name: Accept all traffic in the K3s zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     target: ACCEPT
     state: enabled
     permanent: true
@@ -48,7 +48,7 @@
 
 - name: Allow forwarding in the K3s zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     forward: true
     state: enabled
     permanent: true
@@ -58,7 +58,7 @@
 
 - name: Allow masquerading in the K3s zone
   ansible.posix.firewalld:
-    zone: "{{ nausicaea.k3s.vars.firewalld_zone }}"
+    zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
     masquerade: true
     state: enabled
     permanent: true
@@ -71,8 +71,8 @@
     argv:
       - firewall-cmd
       - "--permanent"
-      - "--new-service={{ nausicaea.k3s.vars.firewalld_k3s_service }}"
-    creates: "/etc/firewalld/services/{{ nausicaea.k3s.vars.firewalld_k3s_service }}.xml"
+      - "--new-service={{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.k3s_common.vars.firewalld_k3s_service }}.xml"
   become: true
   notify: Reload Firewalld
 
@@ -92,7 +92,7 @@
 - name: Accept traffic on the K3s service in the block zone
   ansible.posix.firewalld:
     zone: block
-    service: "{{ nausicaea.k3s.vars.firewalld_k3s_service }}"
+    service: "{{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
     state: enabled
     permanent: true
     immediate: true

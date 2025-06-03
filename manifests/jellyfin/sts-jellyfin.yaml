@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: argocd
     app.kubernetes.io/name: jellyfin
-    app.kubernetes.io/version: v10.10.6
+    app.kubernetes.io/version: v10.10.7
 spec:
   replicas: 1
   selector:
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: jellyfin
-          image: ghcr.io/jellyfin/jellyfin:10.10.6
+          image: ghcr.io/jellyfin/jellyfin:10.10.7
           ports:
             - name: jellyfin
               containerPort: 8096

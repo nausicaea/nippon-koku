@@ -16,7 +16,7 @@
         namespace: kube-system
       spec:
         chart: oci://registry-1.docker.io/bitnamicharts/argo-cd
-        version: 7.3.0
+        version: 9.0.15
         targetNamespace: argocd
         createNamespace: true
         valuesContent: |-
