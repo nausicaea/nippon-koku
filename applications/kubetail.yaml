@@ -10,7 +10,7 @@ spec:
   source:
     chart: kubetail
     repoURL: https://kubetail-org.github.io/helm-charts
-    targetRevision: 0.9.6
+    targetRevision: 0.13.0
     helm:
       releaseName: kubetail
   destination:
