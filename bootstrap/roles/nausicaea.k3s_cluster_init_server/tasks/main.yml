@@ -1,8 +1,7 @@
 ---
 - name: Show a message about a pending K3s reinstall
   ansible.builtin.debug:
-    msg: "WARNING: Rerunning the K3s installer"
-  changed_when: true
+    msg: "INFO: Rerunning the K3s installer"
   when: run_k3s_installer
 
 - name: Create the TLS directory
