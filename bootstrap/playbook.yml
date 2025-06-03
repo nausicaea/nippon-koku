@@ -95,7 +95,7 @@
     sysctl_overwrite:
       net.ipv4.ip_forward: 1
       net.ipv6.conf.all.forwarding: 1
-    os_ignore_users: "{{ nausicaea.common.ansible_user }}"
+    os_ignore_users: ["{{ nausicaea.common.ansible_user }}"]
     ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} {{ nausicaea.common.ansible_user }}"
   handlers:
     - name: Update GRUB
