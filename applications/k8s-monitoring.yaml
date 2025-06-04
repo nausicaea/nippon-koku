@@ -11,8 +11,10 @@ spec:
     chart: k8s-monitoring
     repoURL: https://grafana.github.io/helm-charts
     targetRevision: 2.1.4
-    # helm:
-    #   valuesObject: {}
+    helm:
+      valuesObject:
+        cluster:
+          name: nippon-koku
   destination:
     server: "https://kubernetes.default.svc"
     namespace: grafana
