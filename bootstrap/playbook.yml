@@ -137,6 +137,7 @@
 
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
+  serial: 1
   tags: k3s_server
   roles:
     - nausicaea.k3s_server
