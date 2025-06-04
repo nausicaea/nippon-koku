@@ -20,5 +20,10 @@ function(source_repo, source_target_revision) {
             server: "https://kubernetes.default.svc",
             namespace: "pihole",
         },
+        syncPolicy: {
+            syncOptions: [
+                "CreateNamespace=true",
+            ],
+        },
     },
 }
