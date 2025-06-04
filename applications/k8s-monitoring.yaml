@@ -15,6 +15,8 @@ spec:
       valuesObject:
         cluster:
           name: nippon-koku
+        clusterMetrics:
+          enabled: true
   destination:
     server: "https://kubernetes.default.svc"
     namespace: grafana
