@@ -40,6 +40,8 @@ spec:
                   - loki
                   - loki.takaya-map.ts.net
         mimir:
+          gateway:
+            enabled: false
           ingress:
             enabled: true
             ingressClassName: tailscale
