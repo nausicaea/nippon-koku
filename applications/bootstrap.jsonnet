@@ -6,11 +6,11 @@ local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "w2-extra-secrets-" + namespace,
+        name: "w1-extra-secrets-" + namespace,
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
-            "argocd.argoproj.io/sync-wave": "2",
+            "argocd.argoproj.io/sync-wave": "1",
         },
     },
     spec: {
@@ -18,7 +18,7 @@ local appSpec(namespace, repo, revision) = {
         source: {
             repoURL: repo,
             targetRevision: revision,
-            path: "manifests/extra-secrets/" + namespace,
+            path: "manifests/bootstrap/" + namespace,
         },
         destination: {
             server: "https://kubernetes.default.svc",
