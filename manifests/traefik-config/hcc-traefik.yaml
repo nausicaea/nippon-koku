@@ -9,10 +9,3 @@ spec:
     ingressRoute:
       dashboard:
         enabled: true
-    listeners:
-      dns:
-        port: 53
-        protocol: TCP
-      dnsudp:
-        port: 53
-        protocol: UDP
