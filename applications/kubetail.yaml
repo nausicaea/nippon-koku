@@ -13,6 +13,21 @@ spec:
     targetRevision: 0.13.0
     helm:
       releaseName: kubetail
+      valuesObject:
+        kubetail:
+          dashboard:
+            ingress:
+              enabled: true
+              annotations:
+                tailscale.com/tags: "tag:kubetail,tag:k8s"
+              className: tailscale
+              tls:
+                - hosts:
+                    - kubetail
+                    - kubetail.takaya-map.ts.net
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kubetail-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
