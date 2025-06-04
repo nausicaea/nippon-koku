@@ -27,6 +27,7 @@
               annotations:
                 tailscale.com/tags: "tag:argocd,tag:k8s"
               ingressClassName: tailscale
+              hostname: argocd
               extraTls:
                 - hosts:
                     - argocd

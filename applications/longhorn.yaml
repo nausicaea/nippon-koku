@@ -19,6 +19,7 @@ spec:
             tailscale.com/tags: "tag:longhorn,tag:k8s"
           ingressClassName: tailscale 
           host: longhorn
+          tls: true
         preUpgradeChecker:
           jobEnabled: false
         persistence:
