@@ -20,6 +20,7 @@ spec:
               enabled: true
               annotations:
                 tailscale.com/tags: "tag:kubetail,tag:k8s"
+              name: kubetail
               className: tailscale
               tls:
                 - hosts:
