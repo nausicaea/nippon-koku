@@ -27,8 +27,7 @@ spec:
                   - grafana.takaya-map.ts.net
         loki:
           gateway:
-            ingress:
-              enabled: false
+            enabled: false
           ingress:
             enabled: true
             ingressClassName: tailscale
