@@ -20,8 +20,18 @@ spec:
               enabled: true
               annotations:
                 tailscale.com/tags: "tag:kubetail,tag:k8s"
-              name: kubetail
               className: tailscale
+              rules:
+                - host: kubetail
+                  http:
+                    paths:
+                      - backend:
+                          service:
+                            name: kubetail-dashboard
+                            port:
+                              name: XXX
+                        path: /
+                        pathType: ImplementationSpecific
               tls:
                 - hosts:
                     - kubetail
