@@ -22,11 +22,15 @@
         valuesContent: |-
           server:
             insecure: true
-            ingress: true
-            hostname: argocd.takaya-map.ts.net
-            annotations:
-              tailscale.com/tags: "tag:argocd,tag:k8s"
-            ingressClassName: tailscale
+            ingress: 
+              enabled: true
+              annotations:
+                tailscale.com/tags: "tag:argocd,tag:k8s"
+              ingressClassName: tailscale
+              extraTls:
+                - hosts:
+                    - argocd
+                    - argocd.takaya-map.ts.net
 
 - name: Wait for ArgoCD to be ready
   kubernetes.core.k8s_info:
