@@ -13,6 +13,12 @@ spec:
     targetRevision: 1.9.0
     helm:
       valuesObject:
+        ingress:
+          enabled: true
+          annotations:
+            tailscale.com/tags: "tag:longhorn,tag:k8s"
+          ingressClassName: tailscale 
+          host: longhorn
         preUpgradeChecker:
           jobEnabled: false
         persistence:
@@ -32,3 +38,6 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: longhorn-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
