@@ -11,8 +11,8 @@ spec:
     chart: lgtm-distributed
     repoURL: https://grafana.github.io/helm-charts
     targetRevision: 2.1.0
-    helm:
-      valuesObject: {}
+    # helm:
+    #   valuesObject: {}
   destination:
     server: "https://kubernetes.default.svc"
     namespace: grafana
