@@ -17,6 +17,21 @@ spec:
           name: nippon-koku
         clusterMetrics:
           enabled: true
+        alloy-metrics:
+          enabled: true
+        alloy-logs:
+          enabled: true
+        destinations: []
+          # - name: otlpGateway
+          #   type: otlp
+          #   url: https://otlp.example.com:4317/v1/traces
+          #   auth:
+          #     type: basic
+          #     username: "my-username"
+          #     password: "my-password"
+          #   metrics: { enabled: true }
+          #   logs:    { enabled: true }
+          #   traces:  { enabled: true }
   destination:
     server: "https://kubernetes.default.svc"
     namespace: grafana
