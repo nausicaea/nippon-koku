@@ -100,7 +100,7 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "w1-app-{{ nausicaea.common.project_name }}"
+        name: "app-{{ nausicaea.common.project_name }}"
         namespace: argocd
         finalizers:
           - resources-finalizer.argocd.argoproj.io
