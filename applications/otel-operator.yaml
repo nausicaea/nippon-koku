@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: w3-otel-operator
+  name: otel-operator
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "3"

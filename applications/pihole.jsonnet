@@ -2,7 +2,7 @@ function(source_repo, source_target_revision) {
     apiVersion: "argoproj.io/v1alpha1",
     kind: "Application",
     metadata: {
-        name: "w3-pihole",
+        name: "pihole",
         namespace: "argocd",
         finalizers: ["resources-finalizer.argocd.argoproj.io"],
         annotations: {
