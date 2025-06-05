@@ -22,6 +22,7 @@
         valuesContent: |-
           server:
             insecure: true
+            replicaCount: 1
             ingress: 
               enabled: true
               annotations:
@@ -32,6 +33,8 @@
                 - hosts:
                     - argocd
                     - argocd.takaya-map.ts.net
+          repoServer:
+            replicaCount: 2
 
 - name: Wait for ArgoCD to be ready
   kubernetes.core.k8s_info:
