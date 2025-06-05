@@ -21,17 +21,13 @@ spec:
           enabled: true
         alloy-logs:
           enabled: true
-        destinations: []
-          # - name: otlpGateway
-          #   type: otlp
-          #   url: https://otlp.example.com:4317/v1/traces
-          #   auth:
-          #     type: basic
-          #     username: "my-username"
-          #     password: "my-password"
-          #   metrics: { enabled: true }
-          #   logs:    { enabled: true }
-          #   traces:  { enabled: true }
+        destinations:
+          - name: local-collector
+            type: otlp
+            url: http://k8s-monitoring-collector:4317/
+            metrics: { enabled: true }
+            logs:    { enabled: true }
+            traces:  { enabled: true }
   destination:
     server: "https://kubernetes.default.svc"
     namespace: k8s-monitoring
