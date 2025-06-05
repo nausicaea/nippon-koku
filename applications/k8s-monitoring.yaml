@@ -34,7 +34,7 @@ spec:
           #   traces:  { enabled: true }
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: grafana
+    namespace: k8s-monitoring
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
