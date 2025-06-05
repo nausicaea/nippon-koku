@@ -81,6 +81,7 @@
           - https://charts.longhorn.io
           - https://kubetail-org.github.io/helm-charts
           - https://grafana.github.io/helm-charts
+          - https://open-telemetry.github.io/opentelemetry-helm-charts
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
