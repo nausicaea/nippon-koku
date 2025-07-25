@@ -93,6 +93,7 @@
       net.ipv6.conf.all.forwarding: 1
     os_ignore_users: ["ansible"]
     ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} ansible"
+    ssh_max_auth_retries: 6
   handlers:
     - name: Update GRUB
       ansible.builtin.command:
