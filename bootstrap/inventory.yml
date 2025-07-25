@@ -4,6 +4,7 @@ all:
     shizuoka: {}
     osaka: {}
     kagawa: {}
+    hokkaido: {}
   children:
     harden:
       hosts:
@@ -33,3 +34,6 @@ all:
     sealed_secrets:
       hosts:
         shizuoka: {}
+    backups:
+      hosts:
+        hokkaido: {}

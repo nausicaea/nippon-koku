@@ -7,11 +7,13 @@
       ansible.builtin.group_by:
         key: "dyn_os_{{ ansible_distribution | lower }}"
       changed_when: false
+      when: ansible_distribution is defined
 
     - name: Classify the host based on its system vendor
       ansible.builtin.group_by:
         key: "dyn_sys_{{ ansible_system_vendor | lower | regex_replace('\\W', ' ') | split(' ') | first }}"
       changed_when: false
+      when: ansible_system_vendor is defined
 
     - name: Classify the host based on whether we're running Ansible inside a chroot
       ansible.builtin.group_by:
@@ -29,6 +31,7 @@
         - k3s_server
         - argocd
         - sealed_secrets
+        - backups
 
 - name: Show additional information on a host
   hosts: all
@@ -38,7 +41,7 @@
     - name: Show host distribution, release name, and version
       vars:
         msg: |
-          Hardware Vendor: {{ ansible_system_vendor }}, {{ ansible_product_name }}, {{ ansible_product_version }}
+          Hardware Vendor: {{ ansible_system_vendor | default('unknown vendor') }}, {{ ansible_product_name }}, {{ ansible_product_version | default('unknown product version') }}
           Arch: ansible_architecture={{ ansible_architecture }}, ansible_machine={{ ansible_machine }}
           OS Fam.: {{ ansible_os_family }}, {{ ansible_system }}
           OS Dist.: {{ ansible_distribution }}, {{ ansible_distribution_release }}, {{ ansible_distribution_version }}
@@ -155,3 +158,10 @@
     - argocd
   roles:
     - nausicaea.argocd
+
+- name: Provision backups
+  hosts: dyn_stage_live_and_backups
+  tags:
+    - backups
+  roles:
+    - nausicaea.backups
