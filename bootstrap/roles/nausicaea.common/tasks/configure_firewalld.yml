@@ -64,6 +64,16 @@
   become: true
   notify: Reload Firewalld
 
+- name: Allow SSH traffic across the block zone
+  ansible.posix.firewalld:
+    zone: block
+    service: ssh
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  notify: Reload Firewalld
+
 - name: Allow forwarding in the block zone
   ansible.posix.firewalld:
     zone: block
