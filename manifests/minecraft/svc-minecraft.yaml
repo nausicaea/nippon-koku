@@ -20,3 +20,7 @@ spec:
       port: 30000
       protocol: UDP
       targetPort: discovery
+    - name: jolokia
+      port: 9422
+      protocol: TCP
+      targetPort: jolokia

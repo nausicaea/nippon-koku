@@ -63,6 +63,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: minecraft-environment
+          env:
+            - name: JOLOKIA_BIND_ADDRESS
+              value: 0.0.0.0:9422
+
           volumeMounts:
             - name: minecraft-server-config
               mountPath: /var/lib/minecraft/server-config
@@ -105,9 +109,9 @@ spec:
             - name: discovery
               containerPort: 30000
               protocol: UDP
-            - name: voicechat
-              containerPort: 30001
-              protocol: UDP
+            - name: jolokia
+              containerPort: 9422
+              protocol: TCP
           livenessProbe:
             exec:
               command:

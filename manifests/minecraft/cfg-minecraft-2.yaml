@@ -14,12 +14,12 @@ data:
     allow-flight=false
     allow-nether=true
     broadcast-console-to-ops=true
-    broadcast-rcon-to-ops=true
-    bug-report-link=
+    broadcast-rcon-to-ops=false
+    bug-report-link=https://github.com/nausicaea/minecraft/issues
     debug=false
     difficulty=easy
     enable-command-block=false
-    enable-jmx-monitoring=false
+    enable-jmx-monitoring=true
     enable-query=true
     enable-rcon=false
     enable-status=true
@@ -53,7 +53,7 @@ data:
     query.port=30000
     rate-limit=0
     rcon.password=
-    rcon.port=25575
+    rcon.port=
     region-file-compression=deflate
     require-resource-pack=false
     resource-pack=

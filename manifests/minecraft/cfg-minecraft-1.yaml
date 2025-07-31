@@ -7,6 +7,6 @@ metadata:
   labels:
     app.kubernetes.io/name: minecraft
 data:
-  MINECRAFT_SERVER_ID: "nausicaea"
+  MINECRAFT_SERVER_ID: "minecraft"
   JAVA_INITIAL_MEM: "256M"
   JAVA_MAX_MEM: "4G"
