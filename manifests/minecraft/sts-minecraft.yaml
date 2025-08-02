@@ -67,6 +67,14 @@ spec:
             - name: JOLOKIA_BIND_ADDRESS
               value: 0.0.0.0:9422
 
+          resources:
+            requests:
+              cpu: "4"
+              memory: 4Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+
           volumeMounts:
             - name: minecraft-server-config
               mountPath: /var/lib/minecraft/server-config
