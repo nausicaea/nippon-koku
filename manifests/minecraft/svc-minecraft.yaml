@@ -6,6 +6,9 @@ metadata:
   namespace: minecraft
   labels:
     app.kubernetes.io/name: minecraft
+  annotations:
+    tailscale.com/hostname: "minecraft"
+    tailscale.com/tags: tag:minecraft,tag:k8s,tag:public
 spec:
   selector:
     app.kubernetes.io/name: minecraft
@@ -13,14 +16,6 @@ spec:
   loadBalancerClass: tailscale
   ports:
     - name: minecraft
-      port: 30000
+      port: 25565
       protocol: TCP
       targetPort: minecraft
-    - name: discovery
-      port: 30000
-      protocol: UDP
-      targetPort: discovery
-    - name: jolokia
-      port: 9422
-      protocol: TCP
-      targetPort: jolokia
