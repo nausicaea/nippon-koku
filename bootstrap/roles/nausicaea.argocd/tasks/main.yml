@@ -15,14 +15,20 @@
         name: argocd
         namespace: kube-system
       spec:
-        chart: oci://registry-1.docker.io/bitnamicharts/argo-cd
-        version: 9.0.33
+        chart: oci://ghcr.io/argoproj/argo-helm/argo-cd
+        version: 8.2.5
         targetNamespace: argocd
         createNamespace: true
         valuesContent: |-
+          global:
+            domain: argocd.takaya-map.ts.net
+          configs:
+            params:
+              server.insecure: true
           server:
-            insecure: true
-            replicaCount: 1
+            autoscaling:
+              enabled: true
+              minReplicas: 2
             ingress: 
               enabled: true
               annotations:
@@ -34,7 +40,15 @@
                     - argocd
                     - argocd.takaya-map.ts.net
           repoServer:
-            replicaCount: 2
+            autoscaling:
+              enabled: true
+              minReplicas: 2
+          redis-ha:
+            enabled: true
+          controller:
+            replicas: 1
+          applicationSet:
+            replicas: 2
 
 - name: Wait for ArgoCD to be ready
   kubernetes.core.k8s_info:
