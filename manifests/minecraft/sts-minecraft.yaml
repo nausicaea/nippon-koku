@@ -1,0 +1,126 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minecraft
+  namespace: minecraft
+  labels:
+    app.kubernetes.io/name: minecraft
+spec:
+  serviceName: minecraft-sts
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minecraft
+  volumeClaimTemplates:
+    - metadata:
+        name: minecraft-data
+      spec:
+        storageClassName: longhorn
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: minecraft-cache
+      spec:
+        storageClassName: longhorn
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 2Gi
+    - metadata:
+        name: minecraft-backup
+      spec:
+        storageClassName: longhorn
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 10Gi
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minecraft
+    spec:
+      imagePullSecrets:
+        - name: ghcr-nausicaea-minecraft
+      volumes:
+        - name: minecraft-server-config
+          configMap:
+            name: minecraft-server-config
+            items:
+              - key: eula.txt
+                path: eula.txt
+              - key: server.properties
+                path: server.properties
+              - key: opentelemetry.properties
+                path: opentelemetry.properties
+              - key: log4j2.xml
+                path: log4j2.xml
+      containers:
+        - name: main
+          image: ghcr.io/nausicaea/minecraft:v0.11.5+1.21.4
+          envFrom:
+            - configMapRef:
+                name: minecraft-environment
+          env:
+            - name: JOLOKIA_BIND_ADDRESS
+              value: 0.0.0.0:9422
+
+          volumeMounts:
+            - name: minecraft-server-config
+              mountPath: /var/lib/minecraft/server-config
+            - name: minecraft-backup
+              mountPath: /var/lib/minecraft/backups
+            - name: minecraft-data
+              mountPath: /var/lib/minecraft/universe
+              subPath: universe
+            - name: minecraft-data
+              mountPath: /var/lib/minecraft/mods/luckperms
+              subPath: luckperms
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/.cache
+              subPath: cache
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/.fabric
+              subPath: fabric
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/crash-reports
+              subPath: crash-reports
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/logs
+              subPath: logs
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/libraries
+              subPath: libraries
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/versions
+              subPath: versions
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/polymer
+              subPath: polymer
+            - name: minecraft-cache
+              mountPath: /var/lib/minecraft/stackdeobf_mappings
+              subPath: stackdeobf_mappings
+          ports:
+            - name: minecraft
+              containerPort: 30000
+              protocol: TCP
+            - name: discovery
+              containerPort: 30000
+              protocol: UDP
+            - name: jolokia
+              containerPort: 9422
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - /bin/healthcheck
+            periodSeconds: 30
+            failureThreshold: 3
+          startupProbe:
+            exec:
+              command:
+                - /bin/healthcheck
+            periodSeconds: 5
+            failureThreshold: 70
