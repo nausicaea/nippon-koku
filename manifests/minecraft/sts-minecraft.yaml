@@ -45,9 +45,9 @@ spec:
       imagePullSecrets:
         - name: ghcr-nausicaea-minecraft
       volumes:
-        - name: minecraft-server-config
+        - name: server-config
           configMap:
-            name: minecraft-server-config
+            name: server-config
             items:
               - key: eula.txt
                 path: eula.txt
@@ -117,7 +117,7 @@ spec:
           image: *minecraft_img
           envFrom:
             - configMapRef:
-                name: minecraft-environment
+                name: env-vars
           env:
             - name: JOLOKIA_BIND_ADDRESS
               value: 0.0.0.0:9422
@@ -131,7 +131,7 @@ spec:
               memory: 4Gi
 
           volumeMounts:
-            - name: minecraft-server-config
+            - name: server-config
               mountPath: /var/lib/minecraft/server-config
             - name: minecraft-backup
               mountPath: /var/lib/minecraft/backups

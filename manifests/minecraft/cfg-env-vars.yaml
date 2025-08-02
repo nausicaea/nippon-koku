@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: minecraft-environment
+  name: env-vars
   namespace: minecraft
   labels:
     app.kubernetes.io/name: minecraft
