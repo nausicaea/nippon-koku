@@ -21,7 +21,7 @@
         namespace: kube-system
       spec:
         chart: oci://registry-1.docker.io/bitnamicharts/sealed-secrets
-        version: 2.5.12
+        version: 2.5.16
         targetNamespace: kube-system
         createNamespace: false
         set:
