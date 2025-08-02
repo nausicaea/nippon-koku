@@ -57,9 +57,64 @@ spec:
                 path: opentelemetry.properties
               - key: log4j2.xml
                 path: log4j2.xml
+      initContainers:
+        - name: init
+          image: &minecraft_img ghcr.io/nausicaea/minecraft:v0.11.5-1.21.4
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -xe;
+              cp -r /var/lib/minecraft/.cache /tmp/minecraft/.cache;
+              cp -r /var/lib/minecraft/.fabric /tmp/minecraft/.fabric;
+              cp -r /var/lib/minecraft/backups /tmp/minecraft/backups;
+              cp -r /var/lib/minecraft/config /tmp/minecraft/config;
+              cp -r /var/lib/minecraft/libraries /tmp/minecraft/libraries;
+              cp -r /var/lib/minecraft/mods/luckperms /tmp/minecraft/mods/luckperms;
+              cp -r /var/lib/minecraft/polymer /tmp/minecraft/polymer;
+              cp -r /var/lib/minecraft/stackdeobf_mappings /tmp/minecraft/stackdeobf_mappings;
+              cp -r /var/lib/minecraft/universe /tmp/minecraft/universe;
+              cp -r /var/lib/minecraft/versions /tmp/minecraft/versions;
+              chown -R 10001:10001 /tmp/minecraft;
+
+          volumeMounts:
+            - name: minecraft-backup
+              mountPath: /tmp/minecraft/backups
+            - name: minecraft-data
+              mountPath: /tmp/minecraft/universe
+              subPath: universe
+            - name: minecraft-data
+              mountPath: /tmp/minecraft/mods/luckperms
+              subPath: luckperms
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/.cache
+              subPath: cache
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/.fabric
+              subPath: fabric
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/crash-reports
+              subPath: crash-reports
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/logs
+              subPath: logs
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/libraries
+              subPath: libraries
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/versions
+              subPath: versions
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/polymer
+              subPath: polymer
+            - name: minecraft-cache
+              mountPath: /tmp/minecraft/stackdeobf_mappings
+              subPath: stackdeobf_mappings
       containers:
         - name: main
-          image: ghcr.io/nausicaea/minecraft:v0.11.5-1.21.4
+          image: *minecraft_img
           envFrom:
             - configMapRef:
                 name: minecraft-environment
