@@ -141,7 +141,7 @@ spec:
 
               cd /tmp/minecraft/persistent;
               mkdir -vp backups luckperms universe/world/datapacks;
-              cp -vr /var/lib/minecraft/persistent/universe/world/datapacks/*.zip ./;
+              cp -vr /var/lib/minecraft/persistent/universe/world/datapacks/*.zip universe/world/datapacks/;
 
               chown -vR 10001:10001 /tmp/minecraft;
 
