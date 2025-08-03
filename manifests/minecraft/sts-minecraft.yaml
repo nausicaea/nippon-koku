@@ -29,6 +29,12 @@ spec:
       imagePullSecrets:
         - name: ghcr-nausicaea-minecraft
       volumes:
+        - name: emptydir-config
+          emptyDir: {}
+        - name: emptydir-cache
+          emptyDir: {}
+        - name: emptydir-log
+          emptyDir: {}
         - name: config
           projected:
             sources:
