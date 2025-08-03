@@ -1,0 +1,561 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mod-config
+  namespace: minecraft
+  labels:
+    app.kubernetes.io/name: minecraft
+data:
+  indigo-renderer.properties: |
+    always-tesselate-blocks=auto
+    ambient-occlusion-mode=hybrid
+    debug-compare-lighting=auto
+    fix-exterior-vertex-lighting=auto
+    fix-luminous-block-ambient-occlusion=auto
+    fix-mean-light-calculation=auto
+    fix-smooth-lighting-offset=auto
+  # Docs: https://luckperms.net/wiki
+  luckperms.conf: |
+    server = "global"
+    use-server-uuid-cache = false
+    storage-method = "h2"
+    data {
+      address = "localhost"
+      database = "minecraft"
+      username = "root"
+      password = ""
+      pool-settings {
+        maximum-pool-size = 10
+        minimum-idle = 10
+        maximum-lifetime = 1800000 # 30 minutes
+        keepalive-time = 0
+        connection-timeout = 5000 # 5 seconds
+        properties {
+          useUnicode = true
+          characterEncoding = "utf8"
+        }
+      }
+      table-prefix = "luckperms_"
+      mongodb-collection-prefix = ""
+      mongodb-connection-uri = ""
+    }
+    split-storage {
+      enabled = false
+      methods {
+        user = "h2"
+        group = "h2"
+        track = "h2"
+        uuid = "h2"
+        log = "h2"
+      }
+    }
+    sync-minutes = -1
+    watch-files = true
+    messaging-service = "auto"
+    auto-push-updates = true
+    push-log-entries = true
+    broadcast-received-log-entries = true
+    redis {
+      enabled = false
+      address = "localhost"
+      username = ""
+      password = ""
+    }
+    nats {
+      enabled = false
+      address = "localhost"
+      username = ""
+      password = ""
+    }
+    rabbitmq {
+      enabled = false
+      address = "localhost"
+      vhost = "/"
+      username = "guest"
+      password = "guest"
+    }
+    temporary-add-behaviour = "deny"
+    primary-group-calculation = "parents-by-weight"
+    argument-based-command-permissions = false
+    require-sender-group-membership-to-modify = false
+    log-notify = true
+    log-notify-filtered-descriptions = []
+    auto-install-translations = true
+    meta-formatting {
+      prefix {
+        format = ["highest"]
+        duplicates = "first-only"
+        start-spacer = ""
+        middle-spacer = " "
+        end-spacer = ""
+      }
+      suffix {
+        format = ["highest"]
+        duplicates = "first-only"
+        start-spacer = ""
+        middle-spacer = " "
+        end-spacer = ""
+      }
+    }
+    inheritance-traversal-algorithm = "depth-first-pre-order"
+    post-traversal-inheritance-sort = false
+    context-satisfy-mode = "at-least-one-value-per-key"
+    disabled-contexts = []
+    include-global = true
+    include-global-world = true
+    apply-global-groups = true
+    apply-global-world-groups = true
+    meta-value-selection-default = "inheritance"
+    meta-value-selection {}
+    apply-wildcards = true
+    apply-sponge-implicit-wildcards = true
+    apply-regex = true
+    apply-shorthand = true
+    integrated-server-owner-bypasses-checks = true
+    disabled-context-calculators = []
+    world-rewrite {}
+    group-weight {}
+    enable-ops = true
+    auto-op = false
+    debug-logins = false
+    allow-invalid-usernames = false
+    skip-bulkupdate-confirmation = false
+    disable-bulkupdate = false
+    prevent-primary-group-removal = false
+    update-client-command-list = true
+    resolve-command-selectors = false
+  auto-host.json: |
+    {
+      "_c1": "Enables Polymer's ResourcePack Auto Hosting",
+      "enabled": true,
+      "_c2": "Marks resource pack as required",
+      "required": true,
+      "_c7": "Mods may override the above setting and make the resource pack required, set this to false to disable that.",
+      "mod_override": true,
+      "_c3": "Type of resource pack provider. Default: 'polymer:automatic'",
+      "type": "polymer:automatic",
+      "_c4": "Configuration of type, see provider's source for more details",
+      "settings": {
+        "forced_address": ""
+      },
+      "_c5": "Message sent to clients before pack is loaded",
+      "message": "This server uses resource pack to enhance gameplay with custom textures and models. It might be unplayable without them.",
+      "_c6": "Disconnect message in case of failure",
+      "disconnect_message": "Couldn't apply server resourcepack!",
+      "_c8": "Allows to define more external resource packs. It's an object with 'id' for uuid, 'url' for the pack url and 'hash' for the SHA1 hash.",
+      "external_resource_packs": [],
+      "_c9": "Moves resource pack generation earlier when running on server. Might break some mods.",
+      "setup_early": false
+    }
+  client.json: |
+    {
+      "_c4": "Toggles visibility of F3 debug info",
+      "displayF3Info": true,
+      "_c5": "Enables logging of invalid registry ids (BlockStates, Blocks, Items, etc) sent by server",
+      "logInvalidServerEntryIds": false,
+      "_c6": "Disables Polymer's QoL changes that effects non-visual things",
+      "disableNonVisualQualityOfLifeChanges": false,
+      "_c7": "Enables experimental support for less standard modded containers, allowing them to display polymer items",
+      "experimentalModdedContainerSupport": true,
+      "_c11": "Makes polymer report time it's handshake took",
+      "logHandshakeTime": false
+    }
+  common.json: |
+    {
+      "_c1": "Keep this one at 0, unless you credit this library in another way",
+      "coreCommandOperatorLevel": 0,
+      "_c2": "Enabled developer utilities",
+      "enableDevTools": false,
+      "_c3": "Uses simpler about display for /polymer command",
+      "minimalisticAbout": false,
+      "_c4": "Logs warnings while creating template/filter entities",
+      "enableTemplateEntityWarnings": true,
+      "_c5": "Enables logging of more exceptions. Useful when debugging",
+      "logAllExceptions": false,
+      "_c6": "Forces all player resource pack checks to always return true (detect resource pack on client)",
+      "force_resource_pack_state_to_enabled": false
+    }
+  resource-pack.json: |
+    {
+      "_c0": "UUID of default/main resource pack.",
+      "main_uuid": "bd7d6411-0723-43b2-9b51-b04ceb160262",
+      "_c1": "Marks resource pack as required, only effects clients and mods using api to check it",
+      "markResourcePackAsRequiredByDefault": false,
+      "_c5": "Included resource packs from mods!",
+      "include_mod_assets": [],
+      "_c6": "Included resource packs from zips!",
+      "include_zips": [
+        "world/resources.zip"
+      ],
+      "_c7": "Path used for creation of default resourcepack!",
+      "resource_pack_location": "polymer/resource_pack.zip",
+      "_c8": "Prevents selected paths from being added to resource pack, if they start with provided text.",
+      "prevent_path_with": []
+    }
+  server.json: |
+    {
+      "_c7": "Displays vanilla/modded creatives tabs in /polymer creative",
+      "displayNonPolymerCreativeTabs": true,
+      "_c9": "Makes server send additional block updates around clicked area",
+      "sendBlocksAroundClicked": true,
+      "_c11": "Makes polymer report time it's handshake took",
+      "logHandshakeTime": false,
+      "_c12": "Enables logging of BlockState ids rebuilds",
+      "logBlockStateRebuilds": true,
+      "_c1": "Enables syncing of non-polymer entries as polymer ones, when PolyMc is present",
+      "polyMcSyncModdedEntries": true,
+      "_c2": "Delay from last light updates to syncing it to clients, in ticks",
+      "lightUpdateTickDelay": 1,
+      "_c14": "Amount of recipes that get split into seperate packets instead of being sent all at once. Should help avoiding packet size limit. -1 disables it",
+      "split_recipe_book_packet_amount": -1,
+      "_c15": "Changes stonecutter a bit to fix custom recipes not working with it.",
+      "force_enable_stonecutter_fix": false,
+      "_c13": "Replaces PolyMc's block and item interaction handling with Polymer ones",
+      "override_polymc_mining_check": false
+    }
+  AdvancedBackups-client.properties: |
+    config.advancedbackups.showProgress=true
+    config.advancedbackups.colours.progress.red=82
+    config.advancedbackups.colours.progress.green=255
+    config.advancedbackups.colours.progress.blue=82
+    config.advancedbackups.colours.error.red=255
+    config.advancedbackups.colours.error.green=50
+    config.advancedbackups.colours.error.blue=50
+    config.advancedbackups.darkToasts=true
+    config.advancedbackups.colours.bar.red=88
+    config.advancedbackups.colours.bar.green=242
+    config.advancedbackups.colours.bar.blue=82
+    config.advancedbackups.colours.background.red=255
+    config.advancedbackups.colours.background.green=255
+    config.advancedbackups.colours.background.blue=255
+  AdvancedBackups.properties: |
+    config.advancedbackups.enabled=true
+    config.advancedbackups.save=true
+    config.advancedbackups.togglesave=true
+    config.advancedbackups.buffer=1048576
+    config.advancedbackups.flush=false
+    config.advancedbackups.activity=true
+    config.advancedbackups.type=differential
+    config.advancedbackups.blacklist=session.lock,*_old
+    config.advancedbackups.path=./backups
+    config.advancedbackups.frequency.min=0.25
+    config.advancedbackups.frequency.max=24.0
+    config.advancedbackups.frequency.uptime=true
+    config.advancedbackups.frequency.schedule=1:00
+    config.advancedbackups.frequency.shutdown=false
+    config.advancedbackups.frequency.startup=false
+    config.advancedbackups.frequency.delay=30
+    config.advancedbackups.logging.clients=ops
+    config.advancedbackups.logging.clientfrequency=500
+    config.advancedbackups.logging.console=true
+    config.advancedbackups.logging.consolefrequency=5000
+    config.advancedbackups.purge.size=50.0
+    config.advancedbackups.purge.days=0
+    config.advancedbackups.purge.count=0
+    config.advancedbackups.purge.incrementals=true
+    config.advancedbackups.purge.incrementalchains=1
+    config.advancedbackups.zips.compression=4
+    config.advancedbackups.chains.length=50
+    config.advancedbackups.chains.compress=true
+    config.advancedbackups.chains.smart=true
+    config.advancedbackups.chains.maxpercent=50.0
+  ArcanaNovum.properties: |
+    doConcentrationDamage = true
+    announceAchievements = true
+    ingredientReduction = 1
+    xpStormcallerAltarActivate = 1000
+    xpCelestialAltarActivate = 1000
+    xpStarpathAltarActivate = 1000
+    xpIgneousColliderProduce = 10
+    xpContinuumAnchorPerMinute = 15
+    xpFractalSpongeAbsorbBlock = 1
+    xpWingsOfEnderiaFly = 2
+    xpRadiantFletcheryTipArrows = 100
+    xpStellarCoreSalvage = 100
+    xpStellarCoreSmelt = 1
+    xpPickaxeOfCeptyusMineBlock = 1
+    xpPickaxeOfCeptyusVeinMineBlock = 5
+    xpRunicArrowShoot = 50
+    xpShieldOfFortitudeAbsorbDamage = 10
+    xpTotemOfVengeanceActivate = 1000
+    xpTotemOfVengeanceSurvive = 4000
+    xpDamageAmpPer10 = 10
+    xpDamageAmpCap = 200
+    xpAlchemicalArbalestShoot = 25
+    xpTransmutationAltarTransmute = 100
+    xpTransmutationAltarTransmutePerItem = 10
+    xpMidnightEnchanterDisenchantPerEssence = 10
+    xpStardustInfusionPerStardust = 10
+    xpTwilightAnvilPer10 = 10
+    xpTwilightAnvilCap = 1000
+    xpAncientDowsingRodPerDebris = 15
+    xpAncientDowsingRodCap = 1500
+    xpAquaticEversourceUse = 1
+    xpMagmaticEversourceUse = 25
+    xpBrainJarMendPerXp = 5
+    xpChestTranslocatorUse = 25
+    xpContainmentCircletUse = 10
+    xpEssenceEggSpawn = 2500
+    xpEssenceEggConvert = 500
+    xpEverlastingRocketUse = 100
+    xpLevitationHarnessPerSecond = 25
+    xpNulMementoDeallocate = 50000
+    xpNulMementoProtect = 5000
+    xpPearlOfRecallUse = 1000
+    xpPlaneshifterUse = 1000
+    xpStasisPearlUse = 250
+    xpQuiverRefill = 50
+    xpShadowStalkersGlaiveStalk = 500
+    xpShadowStalkersGlaiveBlink = 100
+    xpShulkerCorePerSoul = 50
+    xpSojournersBootsRunPerSecond = 10
+    xpSoulstoneLevelUpPerSoul = 50
+    xpSpawnerHarnessUse = 20000
+    xpTelescopingBeaconPerBlock = 1
+    xpCindersCharmIgniteBlock = 15
+    xpCindersCharmIgniteTNT = 50
+    xpCindersCharmIgniteEntity = 15
+    xpCindersCharmIgniteCreeper = 50
+    xpCindersCharmLightBlock = 15
+    xpCindersCharmSmeltPerCinder = 4
+    xpCindersCharmConePerTarget = 5
+    xpCindersCharmPyroblastPerTarget = 5
+    xpCindersCharmWebPerTarget = 5
+    xpFeastingCharmPerFoodValue = 50
+    xpLightCharmNovaPerLight = 1
+    xpLightCharmAutomatic = 10
+    xpLightCharmManual = 15
+    xpMagnetismCharmPerItem = 2
+    xpMagnetismCharmPerItemCap = 25
+    xpWildGrowthCharm = 25
+    xpWildGrowthCharmPerReapedCrop = 1
+    xpWildGrowthCharmPassive = 1
+    xpFelidaeCharmFall = 10
+    xpFelidaeCharmFallCap = 1000
+    xpFelidaeCharmScarePhantom = 2
+    xpFelidaeCharmScareCreeper = 10
+    xpWingsOfEnderiaCushion = 10
+    xpWingsOfEnderiaCushionCap = 1000
+    xpAequalisScientiaCatalystTransmute = 1000
+    xpAequalisScientiaSkillTransmute = 1000
+    xpAequalisScientiaAttunedTransmute = 500
+    xpBinaryBladesMaxEnergyPerSecond = 50
+    xpCetaceaCharmPerSecond = 10
+    xpCleansingCharmCleanse = 150
+    xpGravitonMaulImpactDamage = 5
+    xpGravitonMaulImpactDamageCap = 250
+    xpGreavesOfGaialtusRefillBlock = 5
+    xpSpearOfTenbrousImpale = 50
+  c2me.toml: |
+    version = 3
+    defaultGlobalExecutorParallelismExpression = "default"
+    threadPoolPriority = "default"
+    globalExecutorParallelism = "default"
+    [fixes]
+    disableLoggingShutdownHook = "default"
+    enforceSafeWorldRandomAccess = "default"
+    [noTickViewDistance]
+    enabled = "default"
+    maxConcurrentChunkLoads = "default"
+    compatibilityMode = "default"
+    enableExtRenderDistanceProtocol = "default"
+    ensureChunkCorrectness = "default"
+    [ioSystem]
+    chunkDataCacheSoftLimit = "default"
+    chunkDataCacheLimit = "default"
+    gcFreeChunkSerializer = "default"
+    replaceImpl = "default"
+    [vanillaWorldGenOptimizations]
+    useDensityFunctionCompiler = "default"
+    optimizeAquifer = "default"
+    useEndBiomeCache = "default"
+    optimizeStructureWeightSampler = "default"
+    [generalOptimizations]
+    midTickChunkTasksInterval = "default"
+    [generalOptimizations.autoSave]
+    mode = "default"
+    [chunkSystem]
+    asyncSerialization = "default"
+    recoverFromErrors = "default"
+    allowPOIUnloading = "default"
+    suppressGhostMushrooms = "default"
+    syncPlayerTickets = "default"
+    fluidPostProcessingToScheduledTick = "default"
+    lowMemoryMode = "default"
+  cardinal-components-api.properties: |
+    log-deserialization-warnings = true
+    max-deserialization-warnings = 5
+    config-version = 2
+  dynamiclights.json: |
+    {
+      "enable": "WORLD",
+      "enable_on_fire": "WORLD",
+      "enable_glowing": "WORLD",
+      "enable_ghast": "WORLD",
+      "enable_enchanted_items": "WORLD",
+      "enable_amethyst_trimmed": "WORLD",
+      "enable_fire_aspect": "WORLD",
+      "enable_riptide": "WORLD",
+      "enable_channeling": "WORLD",
+      "enable_water_sensitive": "WORLD",
+      "enable_sound": "WORLD",
+      "enable_rain_sensitive": "WORLD"
+    }
+  ferritecore.mixin.properties: |
+    replaceNeighborLookup = true
+    replacePropertyMap = true
+    cacheMultipartPredicates = true
+    modelResourceLocations = true
+    multipartDeduplication = true
+    blockstateCacheDeduplication = true
+    bakedQuadDeduplication = true
+    modelSides = true
+    useSmallThreadingDetector = false
+    compactFastMap = false
+    populateNeighborTable = false
+  forgeconfigapiport.toml: |
+    disableConfigWatcher = false
+    logUntranslatedConfigurationWarnings = true
+    defaultConfigsPath = "defaultconfigs"
+  getoffmylawn.json: |
+    {
+      "makeshiftRadius": 10,
+      "reinforcedRadius": 25,
+      "glisteningRadius": 50,
+      "crystalRadius": 75,
+      "emeradicRadius": 125,
+      "witheredRadius": 200,
+      "maxClaimsPerPlayer": -1,
+      "enablePvPinClaims": false,
+      "allowDamagingUnnamedHostileMobs": true,
+      "allowDamagingNamedHostileMobs": false,
+      "claimProtectsFullWorldHeight": false,
+      "claimAreaHeightMultiplier": 1.0,
+      "makeClaimAreaChunkBound": false,
+      "allowClaimOverlappingIfSameOwner": false,
+      "allowFakePlayersToModify": false,
+      "protectAgainstHostileExplosionsActivatedByTrustedPlayers": false,
+      "dimensionBlacklist": [],
+      "regionBlacklist": {},
+      "enabledAugments": {
+        "goml:angelic_aura": true,
+        "goml:heaven_wings": true,
+        "goml:chaos_zone": true,
+        "goml:explosion_controller": true,
+        "goml:withering_seal": true,
+        "goml:lake_spirit_grace": true,
+        "goml:greeter": true,
+        "goml:pvp_arena": true,
+        "goml:ender_binding": true,
+        "goml:force_field": true,
+        "goml:village_core": true
+      },
+      "allowedBlockInteraction": [],
+      "allowedEntityInteraction": [],
+      "messagePrefix": "<dark_gray>[<#a1ff59>GOML</color>]",
+      "placeholderNoClaimInfo": "<gray><italic>Wilderness",
+      "placeholderNoClaimOwners": "<gray><italic>Nobody",
+      "placeholderNoClaimTrusted": "<gray><italic>Nobody",
+      "placeholderClaimCanBuildInfo": "${owners} <gray>(<green>${anchor}</green>)",
+      "placeholderClaimCantBuildInfo": "${owners} <gray>(<red>${anchor}</red>)",
+      "claimColorSource": "location"
+    }
+  leavesbegone-server.toml: |
+    maximum_decay_ticks = 20
+    minimum_decay_ticks = 5
+    ignore_other_leave_types = false
+  letmedespawn.json: |
+    {
+      "mobNames": [
+        "corpse:corpse"
+      ],
+      "persistenceEnablers": []
+    }
+  lithostitched.json: |
+    {
+      "breaks_seed_parity": false
+    }
+  midnightlib.json: |
+    {
+      "config_screen_list": "TRUE"
+    }
+  pal.properties: |
+    alwaysLogTamperWarnings=false
+  polydex.json: |
+    {
+      "enable_search": true,
+      "enable_language_support_in_search": true,
+      "enable_hover_display": true,
+      "hover_display_update_rate": 4,
+      "hover_display_entity_absorption": true,
+      "default_hover_settings": {
+        "display_type": "polydex:bossbar",
+        "display_mode": "TARGET",
+        "visible_components": {
+          "polydex:fuel": "NEVER",
+          "polyfactory:debug_data": "NEVER",
+          "polydex:input": "NEVER",
+          "polydex:progress": "ALWAYS",
+          "polydex:name": "ALWAYS",
+          "polyfactory:filled_amount": "ALWAYS",
+          "polydex:mod_source": "NEVER",
+          "polydex:armor": "ALWAYS",
+          "polydex:raw_id": "NEVER",
+          "polyfactory:machine_state": "ALWAYS",
+          "polydex:effects": "ALWAYS",
+          "polydex:output": "NEVER",
+          "polydex:health": "ALWAYS"
+        }
+      },
+      "disabled_hover_information": [],
+      "display_can_show_requirement": {
+        "type": "has_player"
+      },
+      "displayCantMine": true,
+      "displayModSource": true,
+      "displayAdditional": true,
+      "displayMiningProgress": true,
+      "displayEntity": true,
+      "displayEntityHealth": true
+    }
+  polyfactory.json: |
+    {
+      "use_fast_stete_limited_blocks": true
+    }
+  sessility.properties: |
+    detect-action=true
+    detect-rotation=true
+    hide-sessile-in-server-list=false
+    hide-sessile-in-tab-list=false
+    message-motile=
+    message-sessile=
+    sessile-display-color=gray
+    sessile-timeout=240
+    skip-sessile-in-player-count=false
+    skip-sessile-in-sleep-count=true
+  stackdeobf.json: |
+    {
+      "config-version-dont-touch-this": 2,
+      "inject-logger": true,
+      "rewrite-every-log-message": false,
+      "mapping-type": "yarn"
+    }
+  tectonic.json: |
+    {
+      "enabled": true,
+      "feature_toggles": {
+        "desert_dunes": true,
+        "increased_height": false,
+        "lava_rivers": true,
+        "monument_offset": true,
+        "underground_rivers": true
+      },
+      "snow_start_offset": 128,
+      "terrain_scales": {
+        "deep_ocean_depth": -0.45,
+        "erosion_scale": 0.25,
+        "ocean_depth": -0.15,
+        "vertical_multiplier": 1.125
+      }
+    }

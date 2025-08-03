@@ -14,29 +14,13 @@ spec:
       app.kubernetes.io/name: minecraft
   volumeClaimTemplates:
     - metadata:
-        name: minecraft-data
+        name: persistent
       spec:
         storageClassName: longhorn
         accessModes: [ReadWriteOnce]
         resources:
           requests:
-            storage: 5Gi
-    - metadata:
-        name: minecraft-cache
-      spec:
-        storageClassName: longhorn
-        accessModes: [ReadWriteOnce]
-        resources:
-          requests:
-            storage: 2Gi
-    - metadata:
-        name: minecraft-backup
-      spec:
-        storageClassName: longhorn
-        accessModes: [ReadWriteOnce]
-        resources:
-          requests:
-            storage: 10Gi
+            storage: 20Gi
   template:
     metadata:
       labels:
@@ -45,21 +29,89 @@ spec:
       imagePullSecrets:
         - name: ghcr-nausicaea-minecraft
       volumes:
-        - name: server-config
-          configMap:
-            name: server-config
-            items:
-              - key: eula.txt
-                path: eula.txt
-              - key: server.properties
-                path: server.properties
-              - key: opentelemetry.properties
-                path: opentelemetry.properties
-              - key: log4j2.xml
-                path: log4j2.xml
+        - name: config
+          projected:
+            sources:
+              - configMap:
+                  name: server-config
+                  items:
+                    - key: server.properties
+                      path: server/server.properties
+                    - key: eula.txt
+                      path: server/eula.txt
+                    - key: opentelemetry.properties
+                      path: server/opentelemetry.properties
+                    - key: log4j2.xml
+                      path: server/log4j2.xml
+              - configMap:
+                  name: player-config
+                  items:
+                    - key: banned-ips.json
+                      path: player/banned-ips.json
+                    - key: banned-players.json
+                      path: player/banned-players.json
+                    - key: ops.json
+                      path: player/ops.json
+                    - key: whitelist.json
+                      path: player/whitelist.json
+              - configMap:
+                  name: mod-config
+                  items:
+                    - key: indigo-renderer.properties
+                      path: mods/fabric/indigo-renderer.properties
+                    - key: luckperms.conf
+                      path: mods/luckperms/luckperms.conf
+                    - key: auto-host.json
+                      path: mods/polymer/auto-host.json
+                    - key: client.json
+                      path: mods/polymer/client.json
+                    - key: common.json
+                      path: mods/polymer/common.json
+                    - key: resource-pack.json
+                      path: mods/polymer/resource-pack.json
+                    - key: server.json
+                      path: mods/polymer/server.json
+                    - key: AdvancedBackups-client.properties
+                      path: mods/AdvancedBackups-client.properties
+                    - key: AdvancedBackups.properties
+                      path: mods/AdvancedBackups.properties
+                    - key: ArcanaNovum.properties
+                      path: mods/ArcanaNovum.properties
+                    - key: c2me.toml
+                      path: mods/c2me.toml
+                    - key: cardinal-components-api.properties
+                      path: mods/cardinal-components-api.properties
+                    - key: dynamiclights.json
+                      path: mods/dynamiclights.json
+                    - key: ferritecore.mixin.properties
+                      path: mods/ferritecore.mixin.properties
+                    - key: forgeconfigapiport.toml
+                      path: mods/forgeconfigapiport.toml
+                    - key: getoffmylawn.json
+                      path: mods/getoffmylawn.json
+                    - key: leavesbegone-server.toml
+                      path: mods/leavesbegone-server.toml
+                    - key: letmedespawn.json
+                      path: mods/letmedespawn.json
+                    - key: lithostitched.json
+                      path: mods/lithostitched.json
+                    - key: midnightlib.json
+                      path: mods/midnightlib.json
+                    - key: pal.properties
+                      path: mods/pal.properties
+                    - key: polydex.json
+                      path: mods/polydex.json
+                    - key: polyfactory.json
+                      path: mods/polyfactory.json
+                    - key: sessility.properties
+                      path: mods/sessility.properties
+                    - key: stackdeobf.json
+                      path: mods/stackdeobf.json
+                    - key: tectonic.json
+                      path: mods/tectonic.json
       initContainers:
         - name: init
-          image: &minecraft_img ghcr.io/nausicaea/minecraft:v0.11.6-1.21.4
+          image: &minecraft_img ghcr.io/nausicaea/minecraft:v0.11.7-1.21.4
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -67,51 +119,32 @@ spec:
           args:
             - |
               set -xe;
-              cp -r /var/lib/minecraft/.cache /tmp/minecraft/.cache;
-              cp -r /var/lib/minecraft/.fabric /tmp/minecraft/.fabric;
-              cp -r /var/lib/minecraft/backups /tmp/minecraft/backups;
-              cp -r /var/lib/minecraft/config /tmp/minecraft/config;
-              cp -r /var/lib/minecraft/libraries /tmp/minecraft/libraries;
-              cp -r /var/lib/minecraft/mods/luckperms /tmp/minecraft/mods/luckperms;
-              cp -r /var/lib/minecraft/polymer /tmp/minecraft/polymer;
-              cp -r /var/lib/minecraft/stackdeobf_mappings /tmp/minecraft/stackdeobf_mappings;
-              cp -r /var/lib/minecraft/universe /tmp/minecraft/universe;
-              cp -r /var/lib/minecraft/versions /tmp/minecraft/versions;
-              chown -R 10001:10001 /tmp/minecraft;
+              cp -vr /tmp/config-src/* /tmp/minecraft/etc/;
+              cp -vr /etc/minecraft/luckperms/translations /tmp/minecraft/etc/luckperms/translations;
+              cp -vr /etc/minecraft/messages /tmp/minecraft/etc/messages;
+              cd /tmp/minecraft/etc;
+              mkdir -v default;
+              cd /tmp/minecraft/cache;
+              mkdir -v .cache .fabric .polydex cache polymer stackdeobf_mappings;
+              cd /tmp/minecraft/log;
+              mkdir -v crash-reports;
+              cd /tmp/minecraft/persistent;
+              mkdir -vp backups luckperms universe/world/datapacks;
+              cp -vr /var/lib/minecraft/persistent/universe/world/datapacks/*.zip ./;
+              chown -vR 10001:10001 /tmp/minecraft;
 
           volumeMounts:
-            - name: minecraft-backup
-              mountPath: /tmp/minecraft/backups
-            - name: minecraft-data
-              mountPath: /tmp/minecraft/universe
-              subPath: universe
-            - name: minecraft-data
-              mountPath: /tmp/minecraft/mods/luckperms
-              subPath: luckperms
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/.cache
-              subPath: cache
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/.fabric
-              subPath: fabric
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/crash-reports
-              subPath: crash-reports
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/logs
-              subPath: logs
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/libraries
-              subPath: libraries
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/versions
-              subPath: versions
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/polymer
-              subPath: polymer
-            - name: minecraft-cache
-              mountPath: /tmp/minecraft/stackdeobf_mappings
-              subPath: stackdeobf_mappings
+            - name: config
+              mountPath: /tmp/config-src
+              readOnly: true
+            - name: persistent
+              mountPath: /tmp/minecraft/persistent
+            - name: emptydir-config
+              mountPath: /tmp/minecraft/etc
+            - name: emptydir-cache
+              mountPath: /tmp/minecraft/cache
+            - name: emptydir-log
+              mountPath: /tmp/minecraft/log
       containers:
         - name: main
           image: *minecraft_img
@@ -131,40 +164,14 @@ spec:
               memory: 4Gi
 
           volumeMounts:
-            - name: server-config
-              mountPath: /var/lib/minecraft/server-config
-            - name: minecraft-backup
-              mountPath: /var/lib/minecraft/backups
-            - name: minecraft-data
-              mountPath: /var/lib/minecraft/universe
-              subPath: universe
-            - name: minecraft-data
-              mountPath: /var/lib/minecraft/mods/luckperms
-              subPath: luckperms
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/.cache
-              subPath: cache
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/.fabric
-              subPath: fabric
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/crash-reports
-              subPath: crash-reports
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/logs
-              subPath: logs
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/libraries
-              subPath: libraries
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/versions
-              subPath: versions
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/polymer
-              subPath: polymer
-            - name: minecraft-cache
-              mountPath: /var/lib/minecraft/stackdeobf_mappings
-              subPath: stackdeobf_mappings
+            - name: persistent
+              mountPath: /var/lib/minecraft/persistent
+            - name: emptydir-config
+              mountPath: /etc/minecraft
+            - name: emptydir-cache
+              mountPath: /var/cache/minecraft
+            - name: emptydir-log
+              mountPath: /var/log/minecraft
           ports:
             - name: minecraft
               containerPort: 30000
@@ -178,12 +185,12 @@ spec:
           livenessProbe:
             exec:
               command:
-                - /bin/healthcheck
+                - /usr/local/bin/healthcheck
             periodSeconds: 30
             failureThreshold: 3
           startupProbe:
             exec:
               command:
-                - /bin/healthcheck
+                - /usr/local/bin/healthcheck
             periodSeconds: 5
             failureThreshold: 70
