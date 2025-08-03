@@ -125,18 +125,22 @@ spec:
           args:
             - |
               set -xe;
-              cp -vr /tmp/config-src/* /tmp/minecraft/etc/;
-              cp -vr /etc/minecraft/luckperms/translations /tmp/minecraft/etc/luckperms/translations;
-              cp -vr /etc/minecraft/messages /tmp/minecraft/etc/messages;
               cd /tmp/minecraft/etc;
-              mkdir -v default;
+              mkdir -vp default luckperms/translations messages;
+              cp -vr /tmp/config-src/* ./;
+              cp -vr /etc/minecraft/luckperms/translations/* /tmp/minecraft/etc/luckperms/translations/;
+              cp -vr /etc/minecraft/messages/* /tmp/minecraft/etc/messages/;
+
               cd /tmp/minecraft/cache;
               mkdir -v .cache .fabric .polydex cache polymer stackdeobf_mappings;
+
               cd /tmp/minecraft/log;
               mkdir -v crash-reports;
+
               cd /tmp/minecraft/persistent;
               mkdir -vp backups luckperms universe/world/datapacks;
               cp -vr /var/lib/minecraft/persistent/universe/world/datapacks/*.zip ./;
+
               chown -vR 10001:10001 /tmp/minecraft;
 
           volumeMounts:
