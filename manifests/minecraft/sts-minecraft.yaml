@@ -126,10 +126,12 @@ spec:
             - |
               set -xe;
               cd /tmp/minecraft/etc;
-              mkdir -vp default mods/luckperms/translations mods/messages;
-              cp -vr /tmp/config-src/* ./;
-              cp -vr /etc/minecraft/mods/luckperms/translations/* /tmp/minecraft/etc/mods/luckperms/translations/;
-              cp -vr /etc/minecraft/mods/messages/* /tmp/minecraft/etc/mods/messages/;
+              mkdir -vp default server player mods/luckperms/translations mods/messages;
+              cp -vr /tmp/config-src/server/* server/;
+              cp -vr /tmp/config-src/player/* player/;
+              cp -vr /tmp/config-src/mods/* mods/;
+              cp -vr /etc/minecraft/mods/luckperms/translations/* mods/luckperms/translations/;
+              cp -vr /etc/minecraft/mods/messages/* mods/messages/;
 
               cd /tmp/minecraft/cache;
               mkdir -v .cache .fabric .polydex cache polymer stackdeobf_mappings;
