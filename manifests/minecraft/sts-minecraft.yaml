@@ -118,6 +118,7 @@ spec:
       initContainers:
         - name: init
           image: &minecraft_img ghcr.io/nausicaea/minecraft:pr-19
+          imagePullPolicy: Always
           securityContext:
             runAsUser: 0
             runAsGroup: 0
