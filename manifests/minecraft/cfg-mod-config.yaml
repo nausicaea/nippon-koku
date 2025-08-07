@@ -250,13 +250,13 @@ data:
     config.advancedbackups.logging.clientfrequency=500
     config.advancedbackups.logging.console=true
     config.advancedbackups.logging.consolefrequency=5000
-    config.advancedbackups.purge.size=50.0
-    config.advancedbackups.purge.days=0
+    config.advancedbackups.purge.size=0
+    config.advancedbackups.purge.days=7
     config.advancedbackups.purge.count=0
     config.advancedbackups.purge.incrementals=true
     config.advancedbackups.purge.incrementalchains=1
     config.advancedbackups.zips.compression=4
-    config.advancedbackups.chains.length=50
+    config.advancedbackups.chains.length=7
     config.advancedbackups.chains.compress=true
     config.advancedbackups.chains.smart=true
     config.advancedbackups.chains.maxpercent=50.0
