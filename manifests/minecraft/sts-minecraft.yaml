@@ -117,7 +117,7 @@ spec:
                       path: mods/tectonic.json
       initContainers:
         - name: init
-          image: &minecraft_img ghcr.io/nausicaea/minecraft:v0.11.10-1.21.4
+          image: &minecraft_img ghcr.io/nausicaea/minecraft:pr-19
           securityContext:
             runAsUser: 0
             runAsGroup: 0
