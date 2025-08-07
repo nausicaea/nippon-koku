@@ -135,7 +135,7 @@ spec:
               cp -vr /etc/minecraft/mods/messages/* mods/messages/;
 
               cd /tmp/minecraft/cache;
-              mkdir -v .cache .fabric .polydex cache polymer stackdeobf_mappings;
+              mkdir -v .cache .fabric .polydex cache libraries polymer stackdeobf_mappings versions;
 
               cd /tmp/minecraft/log;
               mkdir -v crash-reports;
