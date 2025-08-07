@@ -39,6 +39,10 @@
       mount_dir: server
       size: "{{ nausicaea.k3s_common.server_lv_min_size }}"
 
+- name: Apply the CIS Hardening Benchmark
+  ansible.builtin.import_tasks: 
+    file: configure_hardening.yml
+
 - name: Download the K3s installer script
   ansible.builtin.get_url:
     url: https://get.k3s.io
