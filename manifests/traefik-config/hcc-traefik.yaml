@@ -9,3 +9,17 @@ spec:
     ingressRoute:
       dashboard:
         enabled: true
+    ports:
+      minecraft:
+        port: 25565
+        protocol: TCP
+        exposedPort: 25565
+        expose:
+          default: true
+      radicle:
+        port: 8776
+        protocol: TCP
+        exposedPort: 8776
+        expose:
+          default: true
+      
