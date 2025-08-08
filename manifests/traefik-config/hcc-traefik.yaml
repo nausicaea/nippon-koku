@@ -6,9 +6,6 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
-    ingressRoute:
-      dashboard:
-        enabled: true
     ports:
       minecraft:
         port: 25565
