@@ -113,6 +113,8 @@ spec:
                       path: mods/stackdeobf.json
                     - key: tectonic.json
                       path: mods/tectonic.json
+      imagePullSecrets:
+        - name: ghcr-nausicaea-minecraft
       initContainers:
         - name: init
           image: &minecraft_img ghcr.io/nausicaea/dvergr:v0.1.0-1_21_4
