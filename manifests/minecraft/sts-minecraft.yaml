@@ -183,14 +183,11 @@ spec:
               mountPath: /var/log/minecraft
           ports:
             - name: minecraft
-              containerPort: 30000
+              containerPort: 25565
               protocol: TCP
-            - name: discovery
-              containerPort: 30000
+            - name: query
+              containerPort: 25566
               protocol: UDP
-            - name: jolokia
-              containerPort: 9422
-              protocol: TCP
           livenessProbe:
             exec:
               command:
