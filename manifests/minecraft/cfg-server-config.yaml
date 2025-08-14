@@ -14,12 +14,12 @@ data:
     allow-flight=false
     allow-nether=true
     broadcast-console-to-ops=true
-    broadcast-rcon-to-ops=false
+    broadcast-rcon-to-ops=true
     bug-report-link=https://github.com/nausicaea/minecraft/issues
     debug=false
     difficulty=easy
     enable-command-block=false
-    enable-jmx-monitoring=true
+    enable-jmx-monitoring=false
     enable-query=true
     enable-rcon=false
     enable-status=true
@@ -36,7 +36,7 @@ data:
     initial-disabled-packs=
     initial-enabled-packs=vanilla
     level-name=world
-    level-seed=
+    level-seed=-3866381874430228132
     level-type=minecraft\:normal
     log-ips=true
     max-chained-neighbor-updates=1000000
@@ -50,7 +50,7 @@ data:
     player-idle-timeout=0
     prevent-proxy-connections=false
     pvp=true
-    query.port=30000
+    query.port=25566
     rate-limit=0
     rcon.password=
     rcon.port=
@@ -61,7 +61,7 @@ data:
     resource-pack-prompt=
     resource-pack-sha1=
     server-ip=0.0.0.0
-    server-port=30000
+    server-port=25565
     simulation-distance=10
     spawn-animals=true
     spawn-monsters=true
