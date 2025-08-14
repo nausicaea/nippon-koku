@@ -36,7 +36,7 @@ data:
     initial-disabled-packs=
     initial-enabled-packs=vanilla
     level-name=world
-    level-seed=
+    level-seed=-3866381874430228132
     level-type=minecraft\:normal
     log-ips=true
     max-chained-neighbor-updates=1000000
