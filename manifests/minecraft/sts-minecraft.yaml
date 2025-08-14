@@ -170,7 +170,8 @@ spec:
             limits:
               cpu: "6"
               memory: 4Gi
-
+          stdin: true
+          tty: true
           volumeMounts:
             - name: persistent
               mountPath: /var/lib/minecraft/persistent
