@@ -26,8 +26,6 @@ spec:
       labels:
         app.kubernetes.io/name: minecraft
     spec:
-      imagePullSecrets:
-        - name: ghcr-nausicaea-minecraft
       volumes:
         - name: emptydir-config
           emptyDir: {}
