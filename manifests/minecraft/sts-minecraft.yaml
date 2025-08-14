@@ -163,10 +163,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: env-vars
-          env:
-            - name: JOLOKIA_BIND_ADDRESS
-              value: 0.0.0.0:9422
-
           resources:
             requests:
               cpu: "6"
