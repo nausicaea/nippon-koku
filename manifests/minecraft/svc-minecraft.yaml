@@ -19,3 +19,7 @@ spec:
       port: 25565
       protocol: TCP
       targetPort: minecraft
+    - name: query
+      port: 25566
+      protocol: UDP
+      targetPort: query
