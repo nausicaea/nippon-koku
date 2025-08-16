@@ -47,7 +47,7 @@ spec:
                       path: server/opentelemetry.properties
                     - key: log4j2.xml
                       path: server/log4j2.xml
-              - configMap:
+              - secret:
                   name: player-config
                   items:
                     - key: banned-ips.json
