@@ -100,6 +100,7 @@
           - https://grafana.github.io/helm-charts
           - https://open-telemetry.github.io/opentelemetry-helm-charts
           - https://charts.jetstack.io
+          - https://victoriametrics.github.io/helm-charts
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
