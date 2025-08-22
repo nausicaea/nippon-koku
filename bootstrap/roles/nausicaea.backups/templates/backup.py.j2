@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import argparse
+import re
+import subprocess
+from pathlib import Path
+
+VAR_NAME_RE = re.compile(r'[a-zA-Z][_a-zA-Z0-9]+')
+
+
+def read_env_file(p: Path) -> dict[str, str]:
+    env = {}
+    with p.open('rt') as env_file:
+        for line_no, env_line in enumerate(env_file):
+            # Strip whitespace
+            env_line = env_line.strip()
+
+            # Ignore any lines that start with the comment symbol
+            if env_line.startswith('#'):
+                continue
+
+            # Ignore any characters after the comment symbol
+            env_line = env_line.split('#', maxsplit=1)
+            env_line = next(iter(env_line), None)
+
+            # Ignore any empty lines
+            if env_line is None or len(env_line) == 0:
+                continue
+
+            # Split the line into an assignment statement
+            env_assignment = env_line.split('=', maxsplit=1)
+            if len(env_assignment) < 2:
+                print(f'Incomplete environment variable assigmnent at line {line_no}: "{env_line}"')
+                continue
+
+            # Retrieve the variable name and assignment value
+            env_var = env_assignment[0].strip()
+            env_value = env_assignment[1].strip().strip("'\"")
+
+            if VAR_NAME_RE.fullmatch(env_var) is None:
+                print(f'Invalid variable name at line {line_no}: "{env_var}"')
+                continue
+
+            env[env_var] = env_value
+
+    return env
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', '--env-file', type=Path, default=Path('{{ nausicaea.backups.vars.backup_home }}/production.env'), help='Provide the path to the credentials file')
+    matches = parser.parse_args()
+
+    env_file: Path = matches.env_file
+
+    env = read_env_file(env_file)
+
+    # Always override the HOME variable
+    env['HOME'] = '{{ nausicaea.backups.vars.backup_home }}'
+
+    subprocess.run([
+        '/opt/homebrew/bin/restic',
+        '-v',
+        'backup',
+        '--exclude-caches',
+        '/Users/kitsune/Crypt',
+        ], env=env)
+
+
+if __name__ == '__main__':
+    main()
+
+# vim: set ft=python:

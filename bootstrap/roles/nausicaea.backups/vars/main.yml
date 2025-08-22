@@ -1,0 +1,7 @@
+nausicaea:
+  backups:
+    vars:
+      backup_group: _backupd
+      backup_user: _backupd
+      backup_home: /var/db/backupd  # only for Macos
+      # backup_home: /var/backups  # only for Linux

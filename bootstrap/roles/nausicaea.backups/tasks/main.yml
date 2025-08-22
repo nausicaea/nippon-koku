@@ -1,0 +1,43 @@
+- name: Set up the backup group
+  ansible.builtin.group:
+    name: "{{ nausicaea.backups.vars.backup_group }}"
+    system: true
+    state: present
+  become: true
+
+- name: Set up the backup user
+  ansible.builtin.user:
+    name: "{{ nausicaea.backups.vars.backup_user }}"
+    group: "{{ nausicaea.backups.vars.backup_group }}"
+    comment: backup
+    home: "{{ nausicaea.backups.vars.backup_home }}"
+    create_home: true
+    password_lock: true
+    system: true
+    state: present
+  become: true
+
+- name: Install the environment file (with credentials)
+  ansible.builtin.blockinfile:
+    path: "{{ nausicaea.backups.vars.backup_home }}/production.env"
+    owner: "{{ nausicaea.backups.vars.backup_user }}"
+    group: "{{ nausicaea.backups.vars.backup_group }}"
+    mode: "0600"
+    create: true
+    state: present
+    block: |
+      RESTIC_REPOSITORY="{{ nausicaea.backups.secrets.restic_repository }}"
+      RESTIC_PASSWORD="{{ nausicaea.backups.secrets.restic_password }}"
+      B2_ACCOUNT_ID="{{ nausicaea.backups.secrets.b2_account_id }}"
+      B2_ACCOUNT_KEY={{ nausicaea.backups.secrets.b2_account_key }}"
+  become: true
+
+- name: Install the backup script
+  ansible.builtin.template:
+    src: backup.py.j2
+    dest: "{{ nausicaea.backups.vars.backup_home }}/backup"
+    owner: "{{ nausicaea.backups.vars.backup_user }}"
+    group: "{{ nausicaea.backups.vars.backup_group }}"
+    mode: "0700"
+  become: true
+

@@ -17,6 +17,7 @@
     state: present
   become: true
   notify: Etckeeper commit
+  when: (ansible_os_family | lower) == 'debian'
 
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
