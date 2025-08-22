@@ -1,6 +1,6 @@
 function(source_repo, source_target_revision) 
 
-local namespaces = ["k8s-monitoring"];
+local namespaces = [];
 
 local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
