@@ -22,4 +22,13 @@ spec:
         exposedPort: 8776
         expose:
           default: true
+      websecure:
+        tls:
+          certResolver: leresolver
+    certificatesResolvers:
+      leresolver:
+        acme:
+          email: "developer@nausicaea.net"
+          storage: "acme.json"
+          tlsChallenge: {}
       
