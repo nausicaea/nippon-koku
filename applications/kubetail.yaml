@@ -29,7 +29,7 @@ spec:
                           service:
                             name: kubetail-dashboard
                             port:
-                              name: XXX
+                              name: http
                         path: /
                         pathType: ImplementationSpecific
               tls:
