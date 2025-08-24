@@ -117,7 +117,7 @@ spec:
         - name: ghcr-nausicaea-minecraft
       initContainers:
         - name: init
-          image: &minecraft_img ghcr.io/nausicaea/dvergr:v0.1.1-1_21_4
+          image: &minecraft_img ghcr.io/nausicaea/dvergr:v0.2.0-1-21-4
           securityContext:
             runAsUser: 0
             runAsGroup: 0
