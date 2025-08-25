@@ -22,10 +22,12 @@ spec:
 
     exporters:
       debug: {}
+      otlphttp:
+        logs_endpoint: http://victorialogs-victoria-logs-single-server.victoriametrics.svc.cluster.local:9428/insert/opentelemetry/v1/logs
 
     service:
       pipelines:
         logs:
           receivers: [otlp]
           processors: [batch]
-          exporters: [debug]
+          exporters: [debug, otlphttp]
