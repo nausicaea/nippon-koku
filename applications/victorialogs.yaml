@@ -17,6 +17,8 @@ spec:
           retentionPeriod: 7d
           persistentVolume:
             storageClassName: longhorn
+          service:
+            clusterIP: null
           ingress:
             enabled: true
             annotations:
