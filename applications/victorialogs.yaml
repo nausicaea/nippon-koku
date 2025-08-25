@@ -17,6 +17,20 @@ spec:
           retentionPeriod: 7d
           persistentVolume:
             storageClassName: longhorn
+          ingress:
+            enabled: true
+            annotations:
+              tailscale.com/tags: "tag:victorialogs,tag:k8s"
+            ingressClassName: tailscale
+            hosts:
+              - name: victorialogs
+                path: ['/']
+                port: http
+            tls:
+              - hosts:
+                  - victorialogs
+                  - victorialogs.takaya-map.ts.net
+
         vector:
           enabled: true
   destination:
