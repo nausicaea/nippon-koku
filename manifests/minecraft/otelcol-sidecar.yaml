@@ -19,6 +19,12 @@ spec:
 
     processors:
       batch: {}
+      filter:
+        error_mode: ignore
+        logs:
+          log_record:
+            - 'IsMatch(body, "^ IN: ")'
+            - 'IsMatch(body, "^OUT: ")'
 
     exporters:
       debug: {}
@@ -26,8 +32,13 @@ spec:
         logs_endpoint: http://victorialogs-victoria-logs-single-server.victoriametrics.svc.cluster.local:9428/insert/opentelemetry/v1/logs
 
     service:
+      telemetry:
+        logs:
+          level: info
       pipelines:
         logs:
           receivers: [otlp]
-          processors: [batch]
-          exporters: [debug, otlphttp]
+          processors: [filter, batch]
+          exporters:
+            - debug
+            - otlphttp
