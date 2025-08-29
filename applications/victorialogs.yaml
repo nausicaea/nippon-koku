@@ -40,10 +40,30 @@ spec:
               hostPath:
                 path: /run/log/journal
                 type: Directory
+            - name: journalctl-bin
+              emptyDir: {}
           extraVolumeMounts:
             - name: run-log-journal
               mountPath: /run/log/journal
               readOnly: true
+            - name: journalctl-bin
+              mountPath: /usr/bin/journalctl
+              subPath: journalctl
+          extraInitContainers:
+            - name: install-journalctl
+              image: docker.io/library/debian:bookworm-slim
+              command: [ "sh", "-c" ]
+              args:
+                - |
+                  set -xe;
+                  apt-get update;
+                  apt-get install -y --no-install-recommends systemd;
+                  apt-get clean;
+                  rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man /usr/share/locales;
+                  cp /usr/bin/journalctl /journalctl/journalctl;
+              volumeMounts:
+                - name: journalctl-bin
+                  mountPath: /journalctl
           customConfig:
             sources:
               journald_persistent:
