@@ -25,6 +25,11 @@ spec:
         limit_mib: 1024
         spike_limit_mib: 205
 
+      resource/add_attrs:
+        attributes:
+          job: otelcol
+          instance: minecraft
+
       filter:
         error_mode: ignore
         logs:
@@ -51,10 +56,17 @@ spec:
       telemetry:
         logs:
           level: info
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: '0.0.0.0'
+                    port: 9464
       pipelines:
         metrics:
           receivers: [otlp]
-          processors: [deltatocumulative, batch]
+          processors: [deltatocumulative, resource/add_attrs, batch]
           exporters: [debug, otlphttp/victoriametrics]
         logs:
           receivers: [otlp]
