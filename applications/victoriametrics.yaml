@@ -20,6 +20,8 @@ spec:
           retentionPeriod: 7d
           persistentVolume:
             storageClassName: longhorn
+          scrape:
+            enabled: true
           ingress:
             enabled: true
             annotations:
