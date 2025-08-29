@@ -17,6 +17,8 @@ spec:
           value: null
       valuesObject:
         server:
+          extraArgs:
+            opentelemetry.usePrometheusNaming: true
           retentionPeriod: 7d
           persistentVolume:
             storageClassName: longhorn
