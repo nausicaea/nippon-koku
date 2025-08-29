@@ -66,9 +66,9 @@ spec:
       pipelines:
         metrics:
           receivers: [otlp]
-          processors: [deltatocumulative, resource/add_attrs, batch]
+          processors: [memory_limiter, deltatocumulative, resource/add_attrs, batch]
           exporters: [otlphttp/victoriametrics]
         logs:
           receivers: [otlp]
-          processors: [filter, batch]
+          processors: [memory_limiter, filter, batch]
           exporters: [otlphttp/victoriametrics]
