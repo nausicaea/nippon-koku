@@ -71,12 +71,9 @@ spec:
               journald_persistent:
                 type: journald
                 journal_directory: "/var/log/journal"
-              journald_ephemeral:
-                type: journald
-                journal_directory: "/run/log/journal"
             sinks:
               vlogs:
-                inputs: [journald_persistent,journald_ephemeral,parser]
+                inputs: [journald_persistent,parser]
 
   destination:
     server: "https://kubernetes.default.svc"
