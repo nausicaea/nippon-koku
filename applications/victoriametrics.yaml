@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: victoriametrics
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: appproj-nippon-koku
+  source:
+    chart: victoria-metrics-single
+    repoURL: https://victoriametrics.github.io/helm-charts
+    targetRevision: 0.24.3
+    helm:
+      valuesObject:
+        server:
+          ingress:
+            enabled: true
+            annotations:
+              tailscale.com/tags: "tag:victoriametrics,tag:k8s"
+            ingressClassName: tailscale
+            hosts:
+              - name: victoriametrics
+                path: ['/']
+                port: http
+            tls:
+              - hosts:
+                  - victoriametrics
+                  - victoriametrics.takaya-map.ts.net
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: victoriametrics
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
