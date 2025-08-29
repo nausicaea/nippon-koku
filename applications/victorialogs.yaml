@@ -33,9 +33,26 @@ spec:
               - hosts:
                   - victorialogs
                   - victorialogs.takaya-map.ts.net
-
         vector:
           enabled: true
+          extraVolumes:
+            - name: run-log-journal
+              hostPath:
+                path: /run/log/journal
+                type: Directory
+          extraVolumeMounts:
+            - name: run-log-journal
+              mountPath: /run/log/journal
+              readOnly: true
+          customConfig:
+            sources:
+              journald:
+                type: journald
+                journal_directory: "/var/log/journal"
+            sinks:
+              vlogs:
+                inputs: [journald,parser]
+
   destination:
     server: "https://kubernetes.default.svc"
     namespace: victoriametrics
