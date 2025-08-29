@@ -54,6 +54,9 @@ spec:
             sinks:
               vlogs:
                 inputs: [journald_persistent,parser]
+                request:
+                  headers:
+                    VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace,_COMM,SYSLOG_IDENTIFIER,_TRANSPORT,host
 
   destination:
     server: "https://kubernetes.default.svc"
