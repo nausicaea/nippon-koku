@@ -12,6 +12,9 @@ spec:
     repoURL: https://victoriametrics.github.io/helm-charts
     targetRevision: 0.24.3
     helm:
+      parameters:
+        - name: "server.service.clusterIP"
+          value: null
       valuesObject:
         server:
           retentionPeriod: 7d
