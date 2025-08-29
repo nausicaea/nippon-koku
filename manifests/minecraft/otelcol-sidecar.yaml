@@ -43,9 +43,11 @@ spec:
         logs:
           level: info
       pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlphttp]
         logs:
           receivers: [otlp]
           processors: [filter, batch]
-          exporters:
-            - debug
-            - otlphttp
+          exporters: [otlphttp]
