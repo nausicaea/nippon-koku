@@ -25,10 +25,14 @@ spec:
         limit_mib: 1024
         spike_limit_mib: 205
 
-      resource/add_attrs:
-        attributes:
-          job: otelcol
-          instance: minecraft
+      attributes:
+        actions:
+          - key: job
+            value: otelcol
+            action: insert
+          - key: instance
+            value: minecraft
+            action: insert
 
       filter:
         error_mode: ignore
@@ -66,7 +70,7 @@ spec:
       pipelines:
         metrics:
           receivers: [otlp]
-          processors: [memory_limiter, deltatocumulative, resource/add_attrs, batch]
+          processors: [memory_limiter, deltatocumulative, attributes, batch]
           exporters: [otlphttp/victoriametrics]
         logs:
           receivers: [otlp]
