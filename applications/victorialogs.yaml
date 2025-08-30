@@ -59,11 +59,6 @@ spec:
                   .log = parse_json(.message) ?? parse_key_value(.message) ?? .message
                   del(.message)
             sinks:
-              debug:
-                type: console
-                encoding:
-                  codec: json
-                inputs: [journald_persistent]
               vlogs:
                 inputs: [parser,journald_parser]
                 request:
