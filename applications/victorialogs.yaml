@@ -53,11 +53,15 @@ spec:
                 journal_directory: "/var/log/journal"
             transforms:
               journald_parser:
+                type: remap
                 inputs: [journald_persistent]
                 source: |
                   .log = parse_json(.message) ?? parse_key_value(.message) ?? .message
                   del(.message)
             sinks:
+              debug:
+                type: console
+                input: [journald_persistent]
               vlogs:
                 inputs: [parser,journald_parser]
                 request:
