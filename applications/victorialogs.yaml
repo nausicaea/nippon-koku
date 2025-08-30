@@ -52,9 +52,9 @@ spec:
                 type: journald
                 journal_directory: "/var/log/journal"
             transforms:
-              journald_parser:
+              custom_parser:
                 type: remap
-                inputs: [journald_persistent]
+                inputs: [journald_persistent,k8s]
                 source: |
                   .log = 
                       parse_json(.message) ?? 
@@ -69,7 +69,7 @@ spec:
                   }
             sinks:
               vlogs:
-                inputs: [parser,journald_parser]
+                inputs: [custom_parser]
                 request:
                   headers:
                     VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace,_COMM,SYSLOG_IDENTIFIER,_TRANSPORT,host
