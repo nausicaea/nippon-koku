@@ -61,7 +61,7 @@ spec:
             sinks:
               debug:
                 type: console
-                input: [journald_persistent]
+                inputs: [journald_persistent]
               vlogs:
                 inputs: [parser,journald_parser]
                 request:
