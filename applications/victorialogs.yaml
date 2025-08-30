@@ -56,13 +56,16 @@ spec:
                 type: remap
                 inputs: [journald_persistent]
                 source: |
-                  structured = 
+                  .log = 
                       parse_json(.message) ?? 
                       parse_key_value(.message) ?? 
                       .message
-                  . = merge!(., structured)
-                  if exists(.msg) || exists(._msg) {
-                      del(.message)
+                  if exists(.log.msg) {
+                      .message = .log.msg
+                  } else if exists(.log._msg) {
+                      .message = .log._msg
+                  } else if exists(.log.message) {
+                      .message = .log.message
                   }
             sinks:
               vlogs:
