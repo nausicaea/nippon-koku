@@ -61,6 +61,8 @@ spec:
             sinks:
               debug:
                 type: console
+                encoding:
+                  codec: json
                 inputs: [journald_persistent]
               vlogs:
                 inputs: [parser,journald_parser]
