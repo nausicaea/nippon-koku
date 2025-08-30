@@ -171,7 +171,7 @@ spec:
               memory: 4Gi
             limits:
               cpu: "6"
-              memory: 4Gi
+              memory: 5Gi
           stdin: true
           tty: true
           volumeMounts:
