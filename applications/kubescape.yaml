@@ -19,6 +19,14 @@ spec:
           cloudSecret: cloud-secret
         persistence:
           storageClass: longhorn
+        nodeAgent:
+          resources:
+            limits:
+              cpu: 1200m
+              memory: 1577Mi
+            requests:
+              cpu: 300m
+              memory: 394Mi
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kubescape
