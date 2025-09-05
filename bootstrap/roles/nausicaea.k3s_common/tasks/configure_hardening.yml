@@ -1,0 +1,28 @@
+# https://docs.k3s.io/security/hardening-guide
+- name: Set kernel parameters for the Kubelet
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/90-kubelet.conf
+  become: true
+  loop:
+    - name: vm.panic_on_oom
+      value: "0"
+    - name: vm.overcommit_memory
+      value: "1"
+    - name: kernel.panic
+      value: "10"
+    - name: kernel.panic_on_oops
+      value: "1"
+
+- name: Copy the Pod Security Admissions (PSA) file
+  ansible.builtin.copy:
+    src: psa.yaml
+    dest: /var/lib/rancher/k3s/server/psa.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
