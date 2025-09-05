@@ -15,6 +15,10 @@ spec:
       valuesObject:
         clusterName: nippon-koku
         excludeNamespaces: "kubescape"
+        credentials:
+          cloudSecret: cloud-secret
+        persistence:
+          storageClass: longhorn
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kubescape
