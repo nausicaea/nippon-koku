@@ -36,7 +36,7 @@
       - "--etcd-s3-config-secret=k3s-etcd-snapshot-s3-config"
       - "--secrets-encryption"
       - "--protect-kernel-defaults"
-      - "--kube-apiserver-arg='admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml'"
+      #- "--kube-apiserver-arg='admission-control-config-file=/var/lib/rancher/k3s/server/psa.yaml'"
   changed_when: true
   when: run_k3s_installer
   become: true
