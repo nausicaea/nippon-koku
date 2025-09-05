@@ -1,6 +1,6 @@
 function(source_repo, source_target_revision) 
 
-local namespaces = ["kube-system", "longhorn-system", "tailscale"];
+local namespaces = ["kube-system", "longhorn-system", "tailscale", "kubescape"];
 
 local appSpec(namespace, repo, revision) = {
     apiVersion: "argoproj.io/v1alpha1",
