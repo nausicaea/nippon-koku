@@ -41,3 +41,12 @@
 - name: Configure logging
   ansible.builtin.import_tasks:
     file: configure_logging.yml
+
+- name: Increase the open file limit
+  ansible.posix.sysctl:
+    name: fs.file-max
+    value: "65535"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/90-common.conf
+  become: true
