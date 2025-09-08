@@ -39,6 +39,18 @@
       mount_dir: server
       size: "{{ nausicaea.k3s_common.server_lv_min_size }}"
 
+- name: Set kernel parameters for file descriptors
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/90-file-descriptors.conf
+  become: true
+  loop:
+    - name: fs.nr_open
+      value: "4194304"  # 2 ** 22 (four times the default limit)
+
 - name: Apply the CIS Hardening Benchmark
   ansible.builtin.import_tasks: 
     file: configure_hardening.yml
