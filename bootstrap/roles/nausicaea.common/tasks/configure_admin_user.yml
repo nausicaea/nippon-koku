@@ -28,3 +28,16 @@
     key: "{{ nausicaea.common.secrets.admin_ssh_pub }}"
     state: present
   become: true
+
+- name: Provision some administrator scripts
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/usr/local/sbin/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+  items:
+    - src: top-open-fds.sh
+      dest: top-open-fds
+
