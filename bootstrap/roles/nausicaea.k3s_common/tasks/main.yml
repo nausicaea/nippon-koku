@@ -52,8 +52,8 @@
       value: "4194304"  # 2 ** 22 (four times the default limit)
     # - name: fs.inotify.max_user_watches
     #   value: "524288"
-    # - name: fs.inotify.max_user_instances
-    #   value: "512"
+    - name: fs.inotify.max_user_instances
+      value: "512"
 
 - name: Apply the CIS Hardening Benchmark
   ansible.builtin.import_tasks: 
