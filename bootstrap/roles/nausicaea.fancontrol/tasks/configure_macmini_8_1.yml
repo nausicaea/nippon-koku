@@ -66,17 +66,17 @@
 - name: Install
   ansible.builtin.package:
     name:
-      - applesmc-t2
+      - linux-t2-lts
       - t2fanrd
     state: present
   become: true
 
-- name: Modprobe
-  community.general.modprobe:
-    name: applesmc
-    persistent: present
-    state: present
-  become: true
+# - name: Modprobe
+#   community.general.modprobe:
+#     name: applesmc
+#     persistent: present
+#     state: present
+#   become: true
 
 - name: Enable and start the t2fanrd service
   ansible.builtin.service:
