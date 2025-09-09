@@ -51,8 +51,8 @@ spec:
               journald_persistent:
                 type: journald
                 journal_directory: "/var/log/journal"
-              host:
-                type: host_metrics
+#              host:
+#                type: host_metrics
             transforms:
               custom_parser:
                 type: remap
@@ -70,12 +70,12 @@ spec:
                       .message = .log.message
                   }
             sinks:
-              vmetrics:
-                type: prometheus_remote_write
-                inputs: [host]
-                endpoint: "http://victoriametrics-victoria-metrics-single-server.victoriametrics.svc.cluster.local:8428/api/v1/write"
-                healthcheck:
-                  enabled: false
+#              vmetrics:
+#                type: prometheus_remote_write
+#                inputs: [host]
+#                endpoint: "http://victoriametrics-victoria-metrics-single-server.victoriametrics.svc.cluster.local:8428/api/v1/write"
+#                healthcheck:
+#                  enabled: false
 
               vlogs:
                 inputs: [custom_parser]
