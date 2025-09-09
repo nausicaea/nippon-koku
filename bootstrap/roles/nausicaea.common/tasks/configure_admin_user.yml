@@ -40,4 +40,6 @@
   loop:
     - src: top-open-fds.sh
       dest: top-open-fds
+    - src: inotify-consumers.bash
+      dest: inotify-consumers
 
