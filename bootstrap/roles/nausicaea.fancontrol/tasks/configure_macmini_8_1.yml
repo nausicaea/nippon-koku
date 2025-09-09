@@ -12,6 +12,10 @@
       Pin: origin adityagarg8.github.io
       Pin-Priority: 100
 
+      Package: linux-t2-lts
+      Pin: origin github.com
+      Pin-Priority: 1001
+
       Package: applesmc-t2
       Pin: origin adityagarg8.github.io
       Pin-Priority: 1001
@@ -59,22 +63,15 @@
     repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }}
       ./"
     filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
-    state: absent
+    state: present
   become: true
 # yamllint enable rule:line-length
 
 - name: Install
   ansible.builtin.package:
     name:
-      - applesmc-t2
+      - linux-t2-lts
       - t2fanrd
-    state: present
-  become: true
-
-- name: Modprobe
-  community.general.modprobe:
-    name: applesmc
-    persistent: present
     state: present
   become: true
 
