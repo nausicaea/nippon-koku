@@ -1,0 +1,30 @@
+---
+- name: Install the Kubernetes helper package
+  ansible.builtin.package:
+    name: python3-kubernetes
+    state: present
+  become: true
+
+- name: Deploy the Cilium Helm chart
+  kubernetes.core.k8s:
+    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+    resource_definition:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChart
+      metadata:
+        name: argocd
+        namespace: kube-system
+      spec:
+        chart: oci://helm.cilium.io/cilium/cilium
+        version: 1.18.1
+        targetNamespace: kube-system
+        createNamespace: false
+        bootstrap: true
+        failurePolicy: abort
+        set:
+          - kubeProxyReplacement=true
+          - k8sServiceHost=10.43.0.1
+          - k8sServicePort=443
+          - ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
+        # valuesContent: |-
+

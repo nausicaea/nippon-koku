@@ -33,3 +33,6 @@ all:
     sealed_secrets:
       hosts:
         shizuoka: {}
+    cilium:
+      hosts:
+        shizuoka: {}
