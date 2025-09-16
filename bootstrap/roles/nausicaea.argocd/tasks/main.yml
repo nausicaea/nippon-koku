@@ -5,7 +5,7 @@
     state: present
   become: true
 
-- name: Deploy the Bitnami ArgoCD Helm chart
+- name: Deploy the ArgoCD Helm chart
   kubernetes.core.k8s:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     resource_definition:
@@ -21,7 +21,7 @@
         createNamespace: true
         valuesContent: |-
           global:
-            domain: argocd.takaya-map.ts.net
+            domain: argocd.{{ tailscale_domain }}
           configs:
             params:
               server.insecure: true
@@ -38,7 +38,7 @@
               extraTls:
                 - hosts:
                     - argocd
-                    - argocd.takaya-map.ts.net
+                    - argocd.{{ tailscale_domain }}
           repoServer:
             autoscaling:
               enabled: true
@@ -101,7 +101,6 @@
           - https://open-telemetry.github.io/opentelemetry-helm-charts
           - https://charts.jetstack.io
           - https://victoriametrics.github.io/helm-charts
-          - https://kubescape.github.io/helm-charts/
         destinations:
           - server: https://kubernetes.default.svc
             namespace: "*"
