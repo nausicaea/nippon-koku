@@ -57,6 +57,28 @@
     state: file
   become: true
 
+- name: Configure Auditd to monitor the password file
+  ansible.builtin.blockinfile:
+    path: /etc/audit/rules.d/ansible.rules
+    create: true
+    state: present
+    owner: root
+    group: root
+    mode: "0600"
+    block: |
+      -w {{ nausicaea.common.ansible_vault_password_file }} -p war -k ansible_vault_access
+  become: true
+
+- name: Provision the Git etc directory
+  ansible.builtin.file:
+    path: /etc/git
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Etckeeper commit
+  become: true
+
 - name: Configure the allowed signers file
   ansible.builtin.template:
     src: git-allowed-signers.j2
