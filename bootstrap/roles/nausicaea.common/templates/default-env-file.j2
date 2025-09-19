@@ -1,3 +1,5 @@
 ANSIBLE_CONFIG=/etc/ansible/ansible.cfg
 BOOTSTRAP_BRANCH={{ nausicaea.common.branch }}
+{% if nausicaea.k3s is defined %}
 KUBE_APISERVER_URL={{ nausicaea.k3s.args.api_url }}
+{% endif %}
