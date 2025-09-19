@@ -16,6 +16,16 @@
       become: true
       when: not (default_env_file.stat is defined and default_env_file.stat.exists)
 
+- name: Provision the Ansible etc directory
+  ansible.builtin.file:
+    path: /etc/ansible
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Etckeeper commit
+  become: true
+
 - name: Configure the ansible.cfg file
   ansible.builtin.template:
     src: ansible.cfg.j2
