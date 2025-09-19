@@ -1,0 +1,4 @@
+nausicaea:
+  common:
+    enable_ip_forwarding: true
+    enable_ip_masquerading: true
