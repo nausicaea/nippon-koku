@@ -83,6 +83,7 @@
     immediate: true
   become: true
   notify: Reload Firewalld
+  when: nausicaea.common.enable_ip_forwarding
 
 - name: Allow masquerading in the block zone
   ansible.posix.firewalld:
@@ -93,3 +94,4 @@
     immediate: true
   become: true
   notify: Reload Firewalld
+  when: nausicaea.common.enable_ip_masquerading
