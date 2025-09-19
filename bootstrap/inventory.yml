@@ -4,12 +4,14 @@ all:
     shizuoka: {}
     osaka: {}
     kagawa: {}
+    gemini.nausicaea.net: {}
   children:
     harden:
       hosts:
         shizuoka: {}
         osaka: {}
         kagawa: {}
+        gemini.nausicaea.net: {}
     longhorn:
       hosts:
         shizuoka: {}
