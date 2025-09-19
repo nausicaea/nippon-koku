@@ -8,6 +8,7 @@
     resizefs: false
     state: present
   become: true
+  when: lvm_first_vg is defined
 
 - name: Create an ext4 filesystem for the logging volume
   community.general.filesystem:
@@ -16,6 +17,7 @@
     resizefs: true
     state: present
   become: true
+  when: lvm_first_vg is defined
 
 - name: Create the logging mount directory
   ansible.builtin.file:
@@ -33,3 +35,4 @@
     fstype: ext4
     state: mounted
   become: true
+  when: lvm_first_vg is defined
