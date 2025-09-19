@@ -47,7 +47,7 @@
 - name: Assign the block zone to the default interface
   ansible.posix.firewalld:
     zone: block
-    interface: "{{ ansible_facts.default_ipv4.interface }}"
+    interface: "{{ ansible_facts.default_ipv6.interface }}"
     state: enabled
     permanent: true
     immediate: true
