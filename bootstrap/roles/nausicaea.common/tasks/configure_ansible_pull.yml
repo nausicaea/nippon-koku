@@ -1,4 +1,10 @@
 ---
+- name: Install Ansible
+  ansible.builtin.package:
+    name: ansible-core
+    state: present
+  become: true
+
 - name: Configure the default environment file
   block:
     - name: Does the file already exist?
