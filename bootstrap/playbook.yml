@@ -111,13 +111,17 @@
         line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
       notify: Update GRUB
 
-    # - name: Import the OS hardening role
-    #   ansible.builtin.import_role:
-    #     name: devsec.hardening.os_hardening
+    - name: Import the common role
+      ansible.builtin.import_role:
+        name: nausicaea.common
 
-    # - name: Import the SSH hardening role
-    #   ansible.builtin.import_role:
-    #     name: devsec.hardening.ssh_hardening
+    - name: Import the OS hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.os_hardening
+
+    - name: Import the SSH hardening role
+      ansible.builtin.import_role:
+        name: devsec.hardening.ssh_hardening
 
 - name: Provision Longhorn (prerequisites)
   hosts: dyn_stage_live_and_longhorn
