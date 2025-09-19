@@ -20,7 +20,7 @@ set -e
 # Arguments with defaults
 ARCH="${ARCH:-amd64}"
 BOOT_DEVICE="${BOOT_DEVICE:-/dev/nvme0n1}"
-BOOTSTRAP_REPO="${BOOTSTRAP_REPO:-https://github.com/nausicaea/nippon-koku}"
+BOOTSTRAP_REPO="${BOOTSTRAP_REPO:-https://iris.radicle.xyz/zoBPQV6X2FH296n9gQxJr6suvSSi.git}"
 BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
 DEBIAN_MIRROR="${DEBIAN_MIRROR:-debian.ethz.ch}"
 DEBIAN_VERSION="${DEBIAN_VERSION:-12.9.0}"
@@ -56,7 +56,7 @@ Generates a Debian ISO image with a preseed configuration. The preseed images
 are saved to the ./artifacts/ directory, while the original unmodified images
 are saved to the ./cache/ directory.
 
-Project home page: https://github.com/nausicaea/nippon-koku
+Project home page: https://app.radicle.xyz/nodes/iris.radicle.xyz/rad:zoBPQV6X2FH296n9gQxJr6suvSSi
 
 USAGE:
   docker-entrypoint.sh [OPTIONS]

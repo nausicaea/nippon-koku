@@ -48,7 +48,7 @@ Eleanor Young <developer@nausicaea.net>
 
 Convenience script to generate Debian images for many hosts
 
-Project home page: https://github.com/nausicaea/nippon-koku
+Project home page: https://app.radicle.xyz/nodes/iris.radicle.xyz/rad:zoBPQV6X2FH296n9gQxJr6suvSSi
 
 USAGE:
   gen-images.sh [OPTIONS] HOST_DATA [HOST_DATA ...]
