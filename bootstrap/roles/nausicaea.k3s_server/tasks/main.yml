@@ -12,7 +12,7 @@
     mode: "0600"
   become: true
 
-- name: Wait for the cluster to be available
+- name: Wait for the cluster API to be available
   ansible.builtin.uri:
     url: "{{ nausicaea.k3s_server.api_url }}"
     validate_certs: false
@@ -70,7 +70,7 @@
     mode: "0600"
   become: true
 
-- name: Wait for the node to be ready
+- name: Wait for the node to be present (not ready)
   kubernetes.core.k8s_info:
     kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     kind: Node
@@ -82,4 +82,4 @@
     wait: true
     wait_condition:
       type: Ready
-      status: "True"
+      status: "False"
