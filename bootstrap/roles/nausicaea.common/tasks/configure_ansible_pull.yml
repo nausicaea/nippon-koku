@@ -1,7 +1,7 @@
 ---
 - name: Install Ansible
   ansible.builtin.package:
-    name: ansible-core
+    name: ansible
     state: present
   become: true
 
