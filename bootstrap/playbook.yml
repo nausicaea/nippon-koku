@@ -90,8 +90,8 @@
   become: true
   vars:
     sysctl_overwrite:
-      net.ipv4.ip_forward: "{{ 1 if nausicaea.common.enable_ip_forwarding else 0 }}"
-      net.ipv6.conf.all.forwarding: "{{ 1 if nausicaea.common.enable_ip_forwarding else 0 }}"
+      net.ipv4.ip_forward: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
+      net.ipv6.conf.all.forwarding: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
     os_ignore_users: ["ansible"]
     ssh_listen_to: ['0.0.0.0', '[::]']
     ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} ansible root"
