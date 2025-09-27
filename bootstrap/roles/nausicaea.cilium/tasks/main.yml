@@ -12,19 +12,20 @@
       apiVersion: helm.cattle.io/v1
       kind: HelmChart
       metadata:
-        name: argocd
+        name: cilium
         namespace: kube-system
       spec:
-        chart: oci://helm.cilium.io/cilium/cilium
-        version: 1.18.1
+        chart: cilium
+        repo: https://helm.cilium.io/
+        version: 1.18.2
         targetNamespace: kube-system
         createNamespace: false
         bootstrap: true
         failurePolicy: abort
         set:
-          - kubeProxyReplacement=true
-          - k8sServiceHost=10.43.0.1
-          - k8sServicePort=443
-          - ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
+          kubeProxyReplacement: 'true'
+          k8sServiceHost: '10.43.0.1'
+          k8sServicePort: '443'
+          ipam.operator.clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
         # valuesContent: |-
 
