@@ -117,8 +117,8 @@
   loop:
     - path: ansible-pull.service.j2
       dest: /etc/systemd/system/ansible-pull.service
-    - path: ansible-pull.timer.j2
-      dest: /etc/systemd/system/ansible-pull.timer
+    # - path: ansible-pull.timer.j2
+    #   dest: /etc/systemd/system/ansible-pull.timer
 
 - name: Enable the timer manually (this needs to work even without systemd available)
   ansible.builtin.file:
