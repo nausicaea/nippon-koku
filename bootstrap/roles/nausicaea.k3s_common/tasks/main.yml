@@ -77,5 +77,5 @@
 
 - name: Determine the network parameters and cluster upgrade facts
   ansible.builtin.set_fact:
-    k3s_tls_san: "{{ ([tailscale_host_fqdn] + tailscale_peer_fqdns) | join(',') }}"
+    k3s_tls_san: "{{ ([tailscale_host_fqdn, tailscale_host_ips] + tailscale_peer_fqdns + tailscale_peer_ips) | join(',') }}"
     run_k3s_installer: "{{ (k3s_bin.stat is defined and not k3s_bin.stat.exists) or nausicaea.k3s_common.cluster_upgrade }}"
