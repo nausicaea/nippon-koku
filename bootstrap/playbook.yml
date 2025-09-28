@@ -52,8 +52,7 @@
 
 - name: Perform setup tasks for bootstrapping hosts
   hosts: dyn_stage_bootstrap
-  tags:
-    - dyn_stage_bootstrap
+  tags: dyn_stage_bootstrap
   become: true
   tasks:
     - name: Find all APT repo files
@@ -78,8 +77,7 @@
 
 - name: Perform tasks specific to Apple hardware
   hosts: dyn_sys_apple
-  tags:
-    - mbpfan
+  tags: mbpfan
   roles:
     - nausicaea.fancontrol
 
@@ -125,15 +123,13 @@
 
 - name: Provision Longhorn prerequisites
   hosts: dyn_stage_live_and_longhorn
-  tags:
-    - longhorn
+  tags: longhorn
   roles:
     - nausicaea.longhorn
 
 - name: Provision Tailscale
   hosts: dyn_stage_live_and_tailscale
-  tags:
-    - tailscale
+  tags: tailscale
   roles:
     - nausicaea.tailscale
 
