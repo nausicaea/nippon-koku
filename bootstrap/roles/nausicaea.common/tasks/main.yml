@@ -1,43 +1,12 @@
 ---
-- name: Install packages
-  ansible.builtin.package:
-    name:
-      - sudo
-      - etckeeper
-      - acl
-      - unattended-upgrades
-      - firewalld
-      - resolvconf
-      - git
-      - curl
-      - vim
-      - tmux
-      - jq
-      - btop
-    state: present
-  become: true
-  notify: Etckeeper commit
-
-- name: Configure the Ansible user
+- name: Gather facts about LVM
   ansible.builtin.import_tasks:
-    file: configure_ansible_user.yml
+    file: gather_lvm_facts.yml
 
-- name: Configure automatic Ansible pull runs
+- name: Gather facts about networking
   ansible.builtin.import_tasks:
-    file: configure_ansible_pull.yml
+    file: gather_network_facts.yml
 
-- name: Configure the admin user
+- name: Gather facts about Tailscale
   ansible.builtin.import_tasks:
-    file: configure_admin_user.yml
-
-- name: Configure Firewalld
-  ansible.builtin.import_tasks:
-    file: configure_firewalld.yml
-
-- name: Gather extra facts
-  ansible.builtin.import_tasks:
-    file: gather_extra_facts.yml
-
-- name: Configure logging
-  ansible.builtin.import_tasks:
-    file: configure_logging.yml
+    file: gather_tailscale_facts.yml

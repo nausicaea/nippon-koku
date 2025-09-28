@@ -51,71 +51,29 @@
   tags: dyn_stage_bootstrap
   become: true
   tasks:
-    - name: Find all APT repo files
-      ansible.builtin.find:
-        paths:
-          - /etc/apt/sources.list.d
-        file_type: file
-        recurse: true
-      register: apt_repository_sources
+    - name: Clean up leftovers from bootstrapping
+      ansible.builtin.import_tasks:
+        file: tasks/bootstrap_cleanup.yml
 
-    - name: Comment out any cdrom APT repositories
-      ansible.builtin.lineinfile:
-        path: "{{ item }}"
-        line: "#\\1"
-        regexp: "^(deb cdrom:.*)$"
-        backrefs: true
-      loop: "{{ ['/etc/apt/sources.list', apt_repository_sources.files | map(attribute='path')] | flatten }}"
+    - name: Apply baseline tasks
+      ansible.builtin.import_tasks:
+        file: tasks/baseline.yml
 
-    - name: Run the common role once at the beginning to make sure Ansible is set up right
-      ansible.builtin.import_role:
-        name: nausicaea.common
+- name: Apply the baseline to all systems
+  hosts: dyn_stage_live
+  tags: 
+    - dyn_stage_live
+    - baseline
+  tasks:
+    - name: Apply baseline tasks
+      ansible.builtin.import_tasks:
+        file: tasks/baseline.yml
 
 - name: Perform tasks specific to Apple hardware
   hosts: dyn_sys_apple
   tags: mbpfan
   roles:
     - nausicaea.fancontrol
-
-- name: Perform OS hardening tasks
-  hosts: dyn_stage_live_and_harden
-  tags:
-    - harden
-  become: true
-  vars:
-    sysctl_overwrite:
-      net.ipv4.ip_forward: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
-      net.ipv6.conf.all.forwarding: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
-    os_ignore_users: ["ansible"]
-    ssh_listen_to: ['0.0.0.0', '[::]']
-    ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} ansible root"
-    ssh_max_auth_retries: 6
-    ssh_permit_root_login: "without-password"
-  handlers:
-    - name: Update GRUB
-      ansible.builtin.command:
-        argv:
-          - update-grub
-      changed_when: true
-  tasks:
-    - name: Ensure audit=1 is set in GRUB configuration
-      ansible.builtin.lineinfile:
-        path: /etc/default/grub
-        regexp: "^GRUB_CMDLINE_LINUX="
-        line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
-      notify: Update GRUB
-
-    - name: Import the common role
-      ansible.builtin.import_role:
-        name: nausicaea.common
-
-    - name: Import the OS hardening role
-      ansible.builtin.import_role:
-        name: devsec.hardening.os_hardening
-
-    - name: Import the SSH hardening role
-      ansible.builtin.import_role:
-        name: devsec.hardening.ssh_hardening
 
 - name: Provision Longhorn prerequisites
   hosts: dyn_stage_live_and_longhorn

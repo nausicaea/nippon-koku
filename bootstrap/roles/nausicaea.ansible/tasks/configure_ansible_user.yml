@@ -1,4 +1,10 @@
 ---
+- name: Install sudo
+  ansible.builtin.package:
+    name: sudo
+    state: present
+  become: true
+
 - name: Create the Ansible system group
   ansible.builtin.group:
     name: "{{ nausicaea.common.ansible_group }}"

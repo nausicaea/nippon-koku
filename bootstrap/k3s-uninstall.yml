@@ -1,0 +1,23 @@
+---
+- name: Uninstall K3s
+  hosts:
+    - k3s_cluster_init_server
+    - k3s_server
+  tags: k3s_uninstall
+  tasks:
+    - name: Is the K3s uninstall script present?
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s-uninstall.sh
+      register: k3s_uninstall_script
+
+    - name: Run the script k3s-uninstall.sh on every kubernetes node
+      ansible.builtin.command:
+        argv:
+          - /usr/local/bin/k3s-uninstall.sh
+      changed_when: true
+      become: true
+      when: k3s_uninstall_script.stat.exists
+
+    - name: Reboot the machine
+      ansible.builtin.reboot: {}
+      become: true

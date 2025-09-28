@@ -1,0 +1,4 @@
+---
+- name: Deploy the kube-vip manifest
+  kubernetes.core.k8s:
+    template: kube_vip.yaml.j2

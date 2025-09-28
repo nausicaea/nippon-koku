@@ -1,4 +1,15 @@
 ---
+- name: Install packages for manual administration
+  ansible.builtin.package:
+    name:
+      - curl
+      - vim
+      - tmux
+      - jq
+      - btop
+    state: present
+  become: true
+
 - name: Hash the admin password
   ansible.builtin.command:
     argv:

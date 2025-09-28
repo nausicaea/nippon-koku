@@ -1,0 +1,26 @@
+---
+- name: Get the Tailscale status again
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - status
+      - "--json"
+  register: tailscale_status_raw
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Parse the output of Tailscale status as JSON
+  ansible.builtin.set_fact:
+    tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
+
+- name: Collect a few important facts about the tailnet
+  ansible.builtin.set_fact:
+    tailscale_domain: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
+    tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
+    tailscale_host_ips: "{{ tailscale_status | json_query('TailscaleIPs') }}"
+    tailscale_peer_fqdns: "{{ (tailscale_status | json_query(\"Peer.* | [?Tags && contains(Tags[], 'tag:k8s-node')].DNSName\")) | map('trim', '.') }}"
+    tailscale_peer_ips: "{{ tailscale_status | json_query(\"Peer.* | [?Tags && contains(Tags[], 'tag:k8s-node')].TailscaleIPs[]\") }}"
+    tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv4 | first }}"
+    tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv6 | first }}"
+

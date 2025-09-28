@@ -1,0 +1,7 @@
+- name: Install Etckeeper
+  ansible.builtin.package:
+    name: etckeeper
+    state: present
+  become: true
+  notify: Etckeeper commit
+

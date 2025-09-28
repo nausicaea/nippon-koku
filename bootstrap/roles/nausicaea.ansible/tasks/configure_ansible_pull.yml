@@ -1,7 +1,9 @@
 ---
-- name: Install Ansible
+- name: Install packages needed for ansible-pull
   ansible.builtin.package:
-    name: ansible
+    name: 
+      - ansible
+      - git
     state: present
   become: true
 

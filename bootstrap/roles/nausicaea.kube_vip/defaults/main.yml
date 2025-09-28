@@ -1,0 +1,4 @@
+---
+nausicaea:
+  kube_vip:
+    version: "v1.0.0"

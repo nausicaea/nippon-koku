@@ -137,15 +137,10 @@
       ansible.builtin.set_fact:
         tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
 
-    - name: Collect a few important facts about the tailnet
+    - name: Determine the host's tailnet FQDN and the short hostname
       ansible.builtin.set_fact:
         tailscale_domain: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
         tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
-        tailscale_host_ips: "{{ tailscale_status | json_query('TailscaleIPs') }}"
-        tailscale_peer_fqdns: "{{ (tailscale_status | json_query(\"Peer.* | [?Tags && contains(Tags[], 'tag:k8s-node')].DNSName\")) | map('trim', '.') }}"
-        tailscale_peer_ips: "{{ tailscale_status | json_query(\"Peer.* | [?Tags && contains(Tags[], 'tag:k8s-node')].TailscaleIPs[]\") }}"
-        tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv4 | first }}"
-        tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv6 | first }}"
 
 - name: Update the host name
   ansible.builtin.hostname:

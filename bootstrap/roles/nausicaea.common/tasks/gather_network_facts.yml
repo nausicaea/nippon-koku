@@ -1,0 +1,4 @@
+---
+- name: Define the default interface (prefer IPv4, fall back to IPv6)
+  ansible.builtin.set_fact:
+    default_network_interface: "{{ ansible_facts.default_ipv4.interface | default(ansible_facts.default_ipv6.interface) }}"

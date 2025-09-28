@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  role_name: kube_vip
+  namespace: nausicaea
+  author: Eleanor Young
+  description: Installs and configures Kube-VIP
+  company: Nausicaea AS
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags: []
+dependencies:
+  - role: nausicaea.k3s_common

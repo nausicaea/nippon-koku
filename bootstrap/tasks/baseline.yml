@@ -1,0 +1,20 @@
+---
+- name: Configure Etckeeper
+  tags: etckeeper
+  ansible.builtin.import_role:
+    name: nausicaea.etckeeper
+
+- name: Configure Ansible (ansible-pull)
+  tags: ansible
+  ansible.builtin.import_role:
+    name: nausicaea.ansible
+
+- name: Enable manual administration
+  tags: manual_admin
+  ansible.builtin.import_role:
+    name: nausicaea.manual_admin
+
+- name: Apply system hardening
+  tags: hardening
+  ansible.builtin.import_role:
+    name: nausicaea.hardening

@@ -1,0 +1,49 @@
+---
+- name: Install security-related packages
+  ansible.builtin.package:
+    name:
+      - acl
+      - unattended-upgrades
+      - firewalld
+      - resolvconf
+    state: present
+  become: true
+  notify: Etckeeper commit
+
+- name: Configure logging
+  ansible.builtin.import_tasks:
+    file: configure_logging.yml
+
+- name: Configure Firewalld
+  ansible.builtin.import_tasks:
+    file: configure_firewalld.yml
+
+- name: Ensure audit=1 is set in GRUB configuration
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX="
+    line: 'GRUB_CMDLINE_LINUX="quiet audit=1"'
+  notify: Update GRUB
+  become: true
+
+- name: Apply operating system hardening
+  tags: devsec
+  vars:
+    sysctl_overwrite:
+      net.ipv4.ip_forward: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
+      net.ipv6.conf.all.forwarding: "{{ 1 if nausicaea.common.enable_ip_forwarding or 'tailscale' in group_names else 0 }}"
+    os_ignore_users: ["ansible"]
+  ansible.builtin.import_role:
+    name: devsec.hardening.os_hardening
+  become: true
+
+- name: Apply SSH hardening
+  tags: devsec
+  vars:
+    ssh_listen_to: ['0.0.0.0', '[::]']
+    ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} ansible root"
+    ssh_max_auth_retries: 6
+    ssh_permit_root_login: "without-password"
+  ansible.builtin.import_role:
+    name: devsec.hardening.ssh_hardening
+  become: true
