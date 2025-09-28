@@ -1,3 +1,2 @@
 nausicaea:
-  k3s_server:
-    api_url: null
+  k3s_server: {}

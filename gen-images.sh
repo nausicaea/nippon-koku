@@ -28,7 +28,6 @@ function build_image() {
 # Required environment variables (we assume that these environment variables are present)
 # GIT_AUTHOR_EMAIL=""
 # GIT_AUTHOR_SSH_PUB=""
-# KUBE_APISERVER_URL=""
 
 # Arguments with defaults
 BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"

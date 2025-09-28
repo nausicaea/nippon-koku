@@ -14,7 +14,7 @@
 
 - name: Wait for the cluster API to be available
   ansible.builtin.uri:
-    url: "{{ nausicaea.k3s_server.api_url }}"
+    url: "{{ k3s_apiserver_url }}"
     validate_certs: false
     status_code: [200, 401]
     method: GET
@@ -29,7 +29,7 @@
     argv:
       - /usr/local/sbin/k3s-install
       - server
-      - "--server={{ nausicaea.k3s_server.api_url }}"
+      - "--server={{ k3s_apiserver_url }}"
       - "--token-file=/var/lib/rancher/k3s/server/token"
       - "--tls-san={{ k3s_tls_san }}"
       - "--flannel-backend=none"

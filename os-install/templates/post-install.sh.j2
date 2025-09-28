@@ -17,7 +17,6 @@ GIT_SYSTEM_GITCONFIG="/etc/gitconfig"
 GIT_ALLOWED_SIGNERS_FILE="/etc/git/allowed_signers"
 GIT_AUTHOR_EMAIL="{{ email }}"
 GIT_AUTHOR_SSH_PUB="{{ ssh_pub }}"
-KUBE_APISERVER_URL="{{ kube_apiserver_url }}"
 
 echo "PI: Stage 1"
 if [ ! -e /dev/shm ]; then
@@ -65,7 +64,6 @@ EOF
 
 cat <<EOF > /etc/default/ansible-pull
 BOOTSTRAP_BRANCH="$BOOTSTRAP_BRANCH"
-KUBE_APISERVER_URL="$KUBE_APISERVER_URL"
 EOF
 
 echo "PI: Stage 2"
