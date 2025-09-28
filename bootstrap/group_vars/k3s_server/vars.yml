@@ -1,7 +1,5 @@
 ---
 nausicaea:
-  k3s_server:
-    api_url: "{{ lookup('env', 'KUBE_APISERVER_URL', default='https://shizuoka.takaya-map.ts.net:6443') }}"
   common:
     enable_ip_forwarding: true
     enable_ip_masquerading: true
