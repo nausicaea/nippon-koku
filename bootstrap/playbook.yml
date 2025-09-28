@@ -22,14 +22,10 @@
       ansible.builtin.include_tasks:
         file: tasks/special_dynamic_groups.yml
       loop:
-        - harden
         - longhorn
         - tailscale
         - k3s_cluster_init_server
         - k3s_server
-        - argocd
-        - sealed_secrets
-        - cilium
 
 - name: Show additional information on a host
   hosts: all

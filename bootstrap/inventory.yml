@@ -6,12 +6,6 @@ all:
     kagawa: {}
     gemini.nausicaea.net: {}
   children:
-    harden:
-      hosts:
-        shizuoka: {}
-        osaka: {}
-        kagawa: {}
-        gemini.nausicaea.net: {}
     longhorn:
       hosts:
         shizuoka: {}
@@ -30,12 +24,3 @@ all:
       hosts:
         osaka: {}
         kagawa: {}
-    argocd:
-      hosts:
-        shizuoka: {}
-    sealed_secrets:
-      hosts:
-        shizuoka: {}
-    cilium:
-      hosts:
-        shizuoka: {}
