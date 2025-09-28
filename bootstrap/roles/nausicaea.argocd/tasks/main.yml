@@ -1,13 +1,6 @@
 ---
-- name: Install the Kubernetes helper package
-  ansible.builtin.package:
-    name: python3-kubernetes
-    state: present
-  become: true
-
 - name: Deploy the ArgoCD Helm chart
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     resource_definition:
       apiVersion: helm.cattle.io/v1
       kind: HelmChart
@@ -52,7 +45,6 @@
 
 - name: Wait for ArgoCD to be ready
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     namespace: argocd
     kind: Deployment
     label_selectors:
@@ -64,7 +56,6 @@
 
 - name: Define the Nippon-Koku repository
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     state: present
     resource_definition:
       apiVersion: v1
@@ -80,7 +71,6 @@
 
 - name: Define the governance policy for the cluster bootstrap application
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     state: present
     resource_definition:
       apiVersion: argoproj.io/v1alpha1
@@ -112,7 +102,6 @@
 
 - name: Define the cluster bootstrap application
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     state: present
     resource_definition:
       apiVersion: argoproj.io/v1alpha1

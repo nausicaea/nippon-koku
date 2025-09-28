@@ -134,8 +134,38 @@
   tags: 
     - k3s
     - k3s_cluster_init_server
-  roles:
-    - nausicaea.k3s_cluster_init_server
+  module_defaults:
+    kubernetes.core.k8s:
+      kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+      validate_certs: true
+      # validate:
+      #   fail_on_error: true
+      #   strict: true
+  tasks:
+    - name: Install and configure K3s
+      tags: cluster_init
+      ansible.builtin.import_role:
+        name: nausicaea.k3s_cluster_init_server
+
+    - name: Install and configure Kube-VIP
+      tags: kube_vip
+      ansible.builtin.import_role:
+        name: nausicaea.kube_vip
+
+    - name: Install and configure Cilium
+      tags: cilium
+      ansible.builtin.import_role:
+        name: nausicaea.cilium
+
+    - name: Install and configure Sealed Secrets
+      tags: sealed_secrets
+      ansible.builtin.import_role:
+        name: nausicaea.sealed_secrets
+
+    - name: Install and configure ArgoCD
+      tags: argocd
+      ansible.builtin.import_role:
+        name: nausicaea.argocd
 
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
@@ -146,23 +176,3 @@
   roles:
     - nausicaea.k3s_server
 
-- name: Provision Cilium
-  hosts: dyn_stage_live_and_cilium
-  tags:
-    - cilium
-  roles:
-    - nausicaea.cilium
-
-- name: Provision Sealed secrets
-  hosts: dyn_stage_live_and_sealed_secrets
-  tags:
-    - sealed_secrets
-  roles:
-    - nausicaea.sealed_secrets
-
-- name: Provision Argocd
-  hosts: dyn_stage_live_and_argocd
-  tags:
-    - argocd
-  roles:
-    - nausicaea.argocd

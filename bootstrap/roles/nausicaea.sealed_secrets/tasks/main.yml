@@ -1,18 +1,10 @@
 ---
-- name: Install the Kubernetes helper package
-  ansible.builtin.package:
-    name: python3-kubernetes
-    state: present
-  become: true
-
 - name: Deploy the Sealed Secrets keys
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     resource_definition: "{{ nausicaea.sealed_secrets.secrets.sealing_keys }}"
 
 - name: Deploy the Bitnami Sealed Secrets Helm chart
   kubernetes.core.k8s:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     resource_definition:
       apiVersion: helm.cattle.io/v1
       kind: HelmChart
@@ -29,7 +21,6 @@
 
 - name: Wait for Sealed Secrets to be ready
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     namespace: kube-system
     kind: Deployment
     label_selectors:
