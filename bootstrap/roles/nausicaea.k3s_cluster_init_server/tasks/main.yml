@@ -80,17 +80,15 @@
     mode: "0600"
   become: true
 
-- name: Wait for the node to be present (not ready)
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
-    kind: Node
-    name: "{{ tailscale_host_fqdn }}"
-    label_selectors:
-      - node-role.kubernetes.io/control-plane=true
-      - node-role.kubernetes.io/etcd=true
-      - node-role.kubernetes.io/master=true
-    wait: true
-    wait_condition:
-      type: Ready
-      status: "False"
+- name: Wait for the cluster API to be available locally
+  ansible.builtin.uri:
+    url: "https://localhost:6443/"
+    validate_certs: false
+    status_code: [200, 401]
+    method: GET
+    follow_redirects: none
+    timeout: 5
+  register: k8s_apiserver
+  retries: 12
+  delay: 5
 

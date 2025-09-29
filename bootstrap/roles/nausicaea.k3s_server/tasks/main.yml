@@ -71,9 +71,8 @@
     mode: "0600"
   become: true
 
-- name: Wait for the node to be present (not ready)
+- name: Wait for the secondary server node to be ready
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
     kind: Node
     name: "{{ tailscale_host_fqdn }}"
     label_selectors:
@@ -83,4 +82,4 @@
     wait: true
     wait_condition:
       type: Ready
-      status: "False"
+      status: "True"
