@@ -105,15 +105,15 @@
       ansible.builtin.import_role:
         name: nausicaea.k3s_cluster_init_server
 
-    - name: Install and configure Kube-VIP
-      tags: kube_vip
-      ansible.builtin.import_role:
-        name: nausicaea.kube_vip
-
     - name: Install and configure Cilium
       tags: cilium
       ansible.builtin.import_role:
         name: nausicaea.cilium
+
+    - name: Install and configure Kube-VIP
+      tags: kube_vip
+      ansible.builtin.import_role:
+        name: nausicaea.kube_vip
 
     - name: Install and configure Sealed Secrets
       tags: sealed_secrets
