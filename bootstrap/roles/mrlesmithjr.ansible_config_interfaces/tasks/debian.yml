@@ -1,42 +1,34 @@
 ---
 - name: debian | Installing Pre-Req Packages
-  apt:
-    name: ["lldpd"]
+  ansible.builtin.package:
+    name: lldpd
     state: present
   become: true
-  register: result
-  until: result is successful
-  when: config_install_lldp | bool
+  when: config_install_lldp
 
 - name: debian | Installing bridge-utils
-  apt:
-    name: ["bridge-utils"]
+  ansible.builtin.package:
+    name: bridge-utils
     state: present
   become: true
-  register: result
-  until: result is successful
   when: config_network_bridges
 
 - name: debian | Installing Bonding Packages
-  apt:
-    name: ["ifenslave"]
+  ansible.builtin.package:
+    name: ifenslave
     state: present
   become: true
-  register: result
-  until: result is successful
   when: config_network_bonds
 
 - name: debian | Installing VLAN Packages
-  apt:
-    name: ["vlan"]
+  ansible.builtin.package:
+    name: vlan
     state: present
   become: true
-  register: result
-  until: result is successful
   when: config_network_vlans
 
 - name: debian | Configuring Defined Interfaces
-  template:
+  ansible.builtin.template:
     src: "{{ config_interface_template }}"
     dest: /etc/network/interfaces
     owner: root
