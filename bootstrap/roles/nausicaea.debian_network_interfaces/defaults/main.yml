@@ -1,0 +1,21 @@
+---
+nausicaea:
+  debian_network_interfaces:
+    # If enabled, also source files in /etc/network/interfaces.d/*
+    allow_customization: true
+    # Defines all dns servers to configure
+    dns_nameservers: []
+    # Defines your global dns suffix search
+    dns_search: null
+    # Define individual network interfaces
+    network_interfaces: []
+    # - name: <interface name>
+    #   configure: true
+    #   enable: true
+    #   method: static
+    #   parameters:
+    #     - name: pre-up sleep
+    #       value: 2
+    #   address: 192.168.0.2/24
+    #   gateway: 192.168.0.1
+    #   broadcast: 192.168.0.255

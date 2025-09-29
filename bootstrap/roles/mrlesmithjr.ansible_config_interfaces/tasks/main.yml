@@ -1,6 +1,0 @@
----
-- ansible.builtin.include_tasks: debian.yml
-  when: ansible_os_family == "Debian"
-
-- ansible.builtin.include_tasks: redhat.yml
-  when: ansible_os_family == "RedHat"

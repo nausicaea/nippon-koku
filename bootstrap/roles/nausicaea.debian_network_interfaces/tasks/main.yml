@@ -1,0 +1,11 @@
+---
+- name: Configure /etc/network/interfaces
+  ansible.builtin.template:
+    src: etc-network-interfaces.j2
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  become: true
+  notify: 
+    - Restart networking

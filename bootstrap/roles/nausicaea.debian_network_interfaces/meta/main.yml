@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: debian_network_interfaces
+  namespace: nausicaea
+  author: Eleanor Young
+  description: Configure Debian network interfaces
+  company: Nausicaea AS
+  license: MIT
+  min_ansible_version: "2.1"
+  platforms:
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - networking
+    - system
+dependencies: []

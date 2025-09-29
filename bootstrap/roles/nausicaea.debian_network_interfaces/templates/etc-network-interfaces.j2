@@ -1,0 +1,70 @@
+# {{ ansible_managed }}
+# Any changes made here will be lost
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+{% if nausicaea.debian_network_interfaces.allow_customization %}
+source /etc/network/interfaces.d/*
+{% endif %}
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+{% if (nausicaea.debian_network_interfaces.network_interfaces | length) > 0 %}
+########## Network Interfaces
+{%   for item in nausicaea.debian_network_interfaces.network_interfaces %}
+{%     if (item.comment | default(None)) != None %}
+# {{ item.comment }}
+{%     endif %}
+{%     if item.auto | default(false) %}
+auto {{ item.name }}
+{%     endif %}
+{%     if item.allow_hotplug | default(true) %}
+allow-hotplug {{ item.name }}
+{%     endif %}
+{%     if item.method|lower == "static" or item.method|lower == "manual" %}
+iface {{ item.name }} inet {{ item.method|lower }}
+{%       if (item.address | default(None)) != None %}
+  address {{ item.address }}
+{%       endif %}
+{%       if (item.netmask | default(None)) != None %}
+  netmask {{ item.netmask }}
+{%       endif %}
+{%       if (item.gateway | default(None)) != None %}
+  gateway {{ item.gateway }}
+{%       endif %}
+{%       if (item.broadcast | default(None)) != None %}
+  broadcast {{ item.broadcast }}
+{%       endif %}
+{%       if (item.network | default(None)) != None %}
+  network {{ item.network }}
+{%       endif %}
+{%     endif %}
+{# DHCP Settings #}
+{%     if item.method|lower == "dhcp" %}
+iface {{ item.name }} inet dhcp
+{%     endif %}
+{%     if item.parameters is defined and item.parameters != None %}
+{%       for param in item.parameters %}
+  {{ param.name }} {{ param.value }}
+{%       endfor %}
+{%   endif %}
+{%   if (item.dns_nameservers | default([]) | length) > 0 %}
+  dns-nameservers {{ item.dns_nameservers|join (' ') }}
+{%   endif %}
+{%   if (item.dns_search | default(None)) != None %}
+  dns-search {{ item.dns_search }}
+{%   endif %}
+
+{%   endfor %}
+########## End of Network Interfaces
+
+{% if (nausicaea.debian_network_interfaces.dns_nameservers | length) > 0 %}
+dns-nameservers {{ nausicaea.debian_network_interfaces.dns_nameservers|join (' ') }}
+{% endif %}
+{% if nausicaea.debian_network_interfaces.dns_search != None %}
+dns-search {{ nausicaea.debian_network_interfaces.dns_search }}
+{% endif %}
+{% endif %}
