@@ -4,6 +4,11 @@
   ansible.builtin.import_role:
     name: nausicaea.etckeeper
 
+- name: Configure networking
+  tags: networking
+  ansible.builtin.import_role:
+    name: nausicaea.networking
+
 - name: Configure Ansible (ansible-pull)
   tags: ansible
   ansible.builtin.import_role:

@@ -1,0 +1,10 @@
+---
+- name: Configure a static IPv4 address
+  vars:
+    config_network_interfaces: true
+    dns_nameservers: "{{ nausicaea.common.secrets.dns_nameservers }}"
+    dns_search: "{{ nausicaea.common.secrets.dns_search }}"
+    network_interfaces: "{{ nausicaea.common.secrets.network_interfaces }}"
+  ansible.builtin.import_role:
+    name: mrlesmithjr.ansible_config_interfaces
+
