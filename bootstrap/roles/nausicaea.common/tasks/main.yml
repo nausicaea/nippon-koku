@@ -10,3 +10,4 @@
 - name: Gather facts about Tailscale
   ansible.builtin.import_tasks:
     file: gather_tailscale_facts.yml
+
