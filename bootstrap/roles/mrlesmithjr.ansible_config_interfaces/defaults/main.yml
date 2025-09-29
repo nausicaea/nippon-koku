@@ -24,6 +24,9 @@ config_ovs_bridges: false
 # Defines if Open vSwitch interfaces should be configured as defined
 config_ovs_interfaces: false
 
+# If enabled, also source files in /etc/network/interfaces.d/*
+allow_customization: true
+
 # Defines all dns servers to configure
 dns_nameservers:
   - 8.8.8.8
