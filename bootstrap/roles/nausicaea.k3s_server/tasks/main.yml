@@ -31,6 +31,7 @@
       - server
       - "--server={{ k3s_apiserver_url }}"
       - "--token-file=/var/lib/rancher/k3s/server/token"
+      - "--node-ip={{ default_network_address }}"
       - "--tls-san={{ k3s_tls_san }}"
       - "--flannel-backend=none"
       - "--disable-network-policy"
