@@ -28,7 +28,7 @@ spec:
           reclaimPolicy: Delete
           backupTargetName: default
         defaultSettings:
-          defaultReplicaCount: 2
+          defaultReplicaCount: "2"
           defaultDataLocality: best-effort
         defaultBackupStore:
           backupTarget: "s3://nausicaea-longhorn@us-west-002/"
