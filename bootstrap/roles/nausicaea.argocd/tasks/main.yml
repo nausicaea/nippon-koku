@@ -9,7 +9,7 @@
         namespace: kube-system
       spec:
         chart: oci://ghcr.io/argoproj/argo-helm/argo-cd
-        version: 8.2.5
+        version: 8.5.8
         targetNamespace: argocd
         createNamespace: true
         valuesContent: |-
