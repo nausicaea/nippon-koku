@@ -10,7 +10,7 @@ spec:
   source:
     chart: victoria-logs-single
     repoURL: https://victoriametrics.github.io/helm-charts
-    targetRevision: 0.11.6
+    targetRevision: 0.11.11
     helm:
       parameters:
         - name: "server.service.clusterIP"
