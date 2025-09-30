@@ -78,6 +78,8 @@ spec:
       - args:
         - manager
         env:
+        - name: vip_loglevel
+          value: "4"
         - name: vip_arp
           value: "true"
         - name: port
@@ -86,20 +88,18 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: vip_interface
-          value: "{{ default_network_interface }}"
         - name: vip_subnet
           value: "32"
+        - name: vip_leaderelection
+          value: "true"
+        - name: enable_node_labeling
+          value: "true"
         - name: dns_mode
           value: first
         - name: cp_enable
           value: "true"
         - name: cp_namespace
           value: kube-system
-        - name: svc_enable
-          value: "true"
-        - name: svc_leasename
-          value: plndr-svcs-lock
         - name: address
           value: "{{ nausicaea.k3s_common.secrets.apiserver_ip }}"
         - name: prometheus_server
