@@ -4,11 +4,52 @@
   changed_when: true
   when: nausicaea.k3s_common.cluster_upgrade
 
-- name: Install the Kubernetes helper package
+- name: Add the custom APT repository for Helm
+  vars:
+    nausicaea:
+      apt_custom_repo:
+        keyring_url: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey"
+        keyring_checksum: sha256:dc6e3f91236491ab4af688c9cec2f5ea826817dc37181e59fc7a35e18800c4ab
+        keyring_name: helm.gpg
+        keyring_is_armored: true
+        repo_url: "https://packages.buildkite.com/helm-linux/helm-debian/any/"
+        repo_distribution: "any"
+        repo_components: ["main"]
+        repo_filename: helm
+  ansible.builtin.import_role:
+    name: nausicaea.apt_custom_repo
+
+- name: Configure APT pinning for Helm
+  ansible.builtin.blockinfile:
+    path: "/etc/apt/preferences.d/helm.pref"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+    block: |
+      Package: *
+      Pin: origin packages.buildkite.com
+      Pin-Priority: 100
+
+      Package: helm
+      Pin: origin packages.buildkite.com
+      Pin-Priority: 1001
+  become: true
+  notify: Reload APT cache
+
+- name: Install the Kubernetes helper packages
   ansible.builtin.package:
-    name: python3-kubernetes
+    name: 
+      - python3-kubernetes
+      - helm
     state: present
   become: true
+
+- name: Install Helm Diff
+  ansible.builtin.command:
+    argv: ["helm", "plugin", "install", "--version", "3.13.0", "https://github.com/databus23/helm-diff"]
+    creates: /var/lib/ansible/.local/share/helm/plugins/helm-diff
 
 - name: Configure firewalld
   ansible.builtin.import_tasks:
@@ -25,6 +66,8 @@
 
 - name: Provision volumes always needed by K3s
   ansible.builtin.include_tasks: configure_k3s_volumes.yml
+  loop_control:
+    label: "{{ item.name }}"
   loop:
     - name: k3sstorage
       mount_dir: storage
