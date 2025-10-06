@@ -96,9 +96,9 @@
     kubernetes.core.k8s:
       kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
       validate_certs: true
-      # validate:
-      #   fail_on_error: true
-      #   strict: true
+    kubernetes.core.helm:
+      kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+      validate_certs: true
   tasks:
     - name: Install and configure K3s
       tags: cluster_init
