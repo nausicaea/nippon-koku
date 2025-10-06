@@ -1,0 +1,50 @@
+---
+- name: Ensure the keyrings directory exists
+  ansible.builtin.file:
+    path: "{{ nausicaea.apt_custom_repo.vars.operator_keyrings }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Calculate the path to the custom APT keyring
+  ansible.builtin.set_fact:
+    keyring_path: "{{ nausicaea.apt_custom_repo.vars.operator_keyrings }}/{{ nausicaea.apt_custom_repo.keyring_name }}"
+
+- name: Ensure presence of the custom APT keyring (unarmored)
+  ansible.builtin.get_url:
+    url: "{{ nausicaea.apt_custom_repo.keyring_url }}"
+    checksum: "{{ nausicaea.apt_custom_repo.keyring_checksum }}"
+    dest: "{{ keyring_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Reload APT cache
+  when: not nausicaea.apt_custom_repo.keyring_is_armored
+
+- name: Ensure presence of the custom APT keyring (armored)
+  ansible.builtin.shell:
+    chdir: /tmp
+    creates: "{{ keyring_path }}"
+    cmd: |
+      set -xe
+      curl -Lo keyring.armored.gpg "{{ nausicaea.apt_custom_repo.keyring_url }}"
+      printf '{{ nausicaea.apt_custom_repo.keyring_checksum.split(':')[1] if ':' in nausicaea.apt_custom_repo.keyring_checksum else nausicaea.apt_custom_repo.keyring_checksum }}  keyring.armored.gpg' > keyring.armored.checksum
+      shasum -c keyring.armored.checksum
+      cat keyring.armored.gpg | gpg --dearmor > "{{ keyring_path }}"
+      chown root:root "{{ keyring_path }}"
+      chmod 0644 "{{ keyring_path }}"
+  become: true
+  when: nausicaea.apt_custom_repo.keyring_is_armored
+
+# yamllint disable rule:line-length
+- name: Ensure presence of the custom APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ keyring_path }}] {{ nausicaea.apt_custom_repo.repo_url }} {{ nausicaea.apt_custom_repo.repo_distribution }} {{ nausicaea.apt_custom_repo.repo_components | join(' ') }}"
+    filename: "{{ nausicaea.apt_custom_repo.repo_filename }}"
+    state: present
+  become: true
+  notify: Reload APT cache
+# yamllint enable rule:line-length

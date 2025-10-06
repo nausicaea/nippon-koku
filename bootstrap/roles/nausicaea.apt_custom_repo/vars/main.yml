@@ -1,0 +1,6 @@
+---
+nausicaea:
+  apt_custom_repo:
+    vars:
+      operator_keyrings: /usr/share/keyrings
+      apt_sources: /etc/apt/sources.list.d
