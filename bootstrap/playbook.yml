@@ -71,7 +71,7 @@
 
 - name: Perform tasks specific to Apple hardware
   hosts: dyn_sys_apple
-  tags: mbpfan
+  tags: fancontrol
   roles:
     - nausicaea.fancontrol
 
