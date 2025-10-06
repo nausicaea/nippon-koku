@@ -1,7 +1,37 @@
 ---
+- name: Add the custom APT repository for the T2 distribution independent packages
+  vars:
+    nausicaea:
+      apt_custom_repo:
+        keyring_url: "https://adityagarg8.github.io/t2-ubuntu-repo/KEY.gpg"
+        keyring_checksum: sha256:7c9e7cd9927a36de8eee2fb472ecdd5c36d87d9f501248fda795f077d4aa43cb
+        keyring_name: t2-ubuntu-repo.asc
+        keyring_is_armored: false
+        repo_url: "https://adityagarg8.github.io/t2-ubuntu-repo"
+        repo_distribution: "./"
+        repo_components: []
+        repo_filename: "t2-ubuntu-repo_{{ ansible_distribution_release | lower }}"
+  ansible.builtin.import_role:
+    name: nausicaea.apt_custom_repo
+  
+- name: Add the custom APT repository for the T2 distribution-specific packages
+  vars:
+    nausicaea:
+      apt_custom_repo:
+        keyring_url: "https://adityagarg8.github.io/t2-ubuntu-repo/KEY.gpg"
+        keyring_checksum: sha256:7c9e7cd9927a36de8eee2fb472ecdd5c36d87d9f501248fda795f077d4aa43cb
+        keyring_name: t2-ubuntu-repo.asc
+        keyring_is_armored: false
+        repo_url: "https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }}"
+        repo_distribution: "./"
+        repo_components: []
+        repo_filename: t2-ubuntu-repo
+  ansible.builtin.import_role:
+    name: nausicaea.apt_custom_repo
+  
 - name: Configure APT pinning for the T2 repo
   ansible.builtin.blockinfile:
-    path: "/etc/apt/preferences.d/{{ nausicaea.fancontrol.vars.repo_filename }}.pref"
+    path: "/etc/apt/preferences.d/t2-ubuntu-repo.pref"
     create: true
     owner: root
     group: root
@@ -25,47 +55,6 @@
       Pin-Priority: 1001
   become: true
   notify: Reload APT cache
-
-- name: Ensure the keyrings directory exists
-  ansible.builtin.file:
-    path: "{{ nausicaea.fancontrol.vars.operator_keyrings }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-  become: true
-
-- name: Calculate the keyring path
-  ansible.builtin.set_fact:
-    fancontrol_keyring_path: "{{ nausicaea.fancontrol.vars.operator_keyrings }}/{{ nausicaea.fancontrol.vars.keyring_name }}"
-
-- name: Ensure presence of the T2 Ubuntu Repo keyring
-  ansible.builtin.get_url:
-    url: https://adityagarg8.github.io/t2-ubuntu-repo/KEY.gpg
-    checksum: sha256:7c9e7cd9927a36de8eee2fb472ecdd5c36d87d9f501248fda795f077d4aa43cb
-    dest: "{{ fancontrol_keyring_path }}"
-    owner: root
-    group: root
-    mode: "0644"
-  become: true
-
-# yamllint disable rule:line-length
-
-- name: Ensure presence of the T2 Ubuntu generic repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://adityagarg8.github.io/t2-ubuntu-repo ./"
-    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}"
-    state: present
-  become: true
-
-- name: Ensure presence of the T2 Ubuntu release-specific repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by={{ fancontrol_keyring_path }}] https://github.com/AdityaGarg8/t2-ubuntu-repo/releases/download/{{ ansible_distribution_release | lower }}
-      ./"
-    filename: "{{ nausicaea.fancontrol.vars.repo_filename }}_{{ ansible_distribution_release | lower }}"
-    state: present
-  become: true
-# yamllint enable rule:line-length
 
 - name: Install
   ansible.builtin.package:
