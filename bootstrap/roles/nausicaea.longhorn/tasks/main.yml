@@ -67,3 +67,70 @@
     fstype: ext4
     state: mounted
   become: true
+
+- name: Create the longhorn-system namespace
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: longhorn-system
+
+- name: Create the Longhorn backup secret
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      immutable: true
+      metadata:
+        name: longhorn-aws-secret
+        namespace: longhorn-system
+        annotations:
+          longhorn.io/backup-target: s3://nausicaea-longhorn@us-west-002/
+      stringData:
+        AWS_ACCESS_KEY_ID: "{{ nausicaea.longhorn.secrets.aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY: "{{ nausicaea.longhorn.secrets.aws_secret_access_key }}"
+        AWS_ENDPOINTS: "{{ nausicaea.longhorn.secrets.aws_endpoints }}"
+        VIRTUAL_HOSTED_STYLE: "{{ nausicaea.longhorn.secrets.virtual_hosted_style | string | lower }}"
+
+- name: Register the Longhorn Helm repo
+  kubernetes.core.helm_repository:
+    name: longhorn
+    url: https://charts.longhorn.io
+    state: present
+
+- name: Deploy the Longhorn Helm chart
+  kubernetes.core.helm:
+    chart_ref: longhorn/longhorn
+    chart_version: 1.10.0
+    create_namespace: false
+    name: longhorn
+    namespace: longhorn-system
+    state: present
+    atomic: true
+    wait: true
+    values:
+      ingress:
+        enabled: true
+        annotations:
+          tailscale.com/tags: "tag:longhorn,tag:k8s"
+        ingressClassName: tailscale 
+        host: longhorn
+        tls: true
+      preUpgradeChecker:
+        jobEnabled: false
+      persistence:
+        defaultClassReplicaCount: 2
+        defaultDataLocality: best-effort
+        reclaimPolicy: Delete
+        backupTargetName: default
+      defaultSettings:
+        defaultReplicaCount: "2"
+        defaultDataLocality: best-effort
+      defaultBackupStore:
+        backupTarget: "s3://nausicaea-longhorn@us-west-002/"
+        backupTargetCredentialSecret: longhorn-aws-secret
+        pollInterval: 300
+      longhornUI:
+        replicas: 1
