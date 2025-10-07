@@ -1,0 +1,42 @@
+---
+- name: Register the Victoriametrics repo
+  kubernetes.core.helm_repository:
+    name: victoriametrics
+    url: https://victoriametrics.github.io/helm-charts
+    state: present
+
+- name: Deploy Victoriametrics
+  kubernetes.core.helm:
+    chart_ref: victoriametrics/victoria-metrics-single
+    chart_version: 0.24.6
+    create_namespace: true
+    name: victoriametrics
+    namespace: victoriametrics
+    state: present
+    atomic: true
+    wait: true
+    set_values:
+      - value: "server.service.clusterIP=null"
+        value_type: raw
+    values:
+      server:
+        extraArgs:
+          opentelemetry.usePrometheusNaming: true
+        retentionPeriod: 7d
+        persistentVolume:
+          storageClassName: longhorn
+        scrape:
+          enabled: true
+        ingress:
+          enabled: true
+          annotations:
+            tailscale.com/tags: "tag:victoriametrics,tag:k8s"
+          ingressClassName: tailscale
+          hosts:
+            - name: victoriametrics
+              path: ['/']
+              port: http
+          tls:
+            - hosts:
+                - victoriametrics
+
