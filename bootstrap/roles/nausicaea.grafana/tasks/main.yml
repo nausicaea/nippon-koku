@@ -1,0 +1,28 @@
+---
+- name: Register the Grafana Helm repo
+  kubernetes.core.helm_repository:
+    name: grafana
+    url: https://grafana.github.io/helm-charts
+    state: present
+
+- name: Deploy the Grafana dashboard Helm chart
+  kubernetes.core.helm:
+    chart_ref: grafana/grafana
+    chart_version: 10.0.0
+    create_namespace: true
+    name: grafana
+    namespace: victoriametrics
+    state: present
+    atomic: true
+    wait: true
+    values:
+      ingress:
+        enabled: true
+        annotations:
+          tailscale.com/tags: "tag:grafana,tag:k8s"
+        ingressClassName: tailscale
+        hosts:
+          - grafana
+        tls:
+          - hosts:
+              - grafana
