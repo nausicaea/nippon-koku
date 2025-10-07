@@ -1,0 +1,56 @@
+---
+- name: Create the minecraft namespace
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: minecraft
+    wait: true
+
+- name: Create the image pull secret
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      type: kubernetes.io/dockerconfigjson
+      immutable: true
+      metadata:
+        name: ghcr-nausicaea-minecraft
+        namespace: minecraft
+      stringData:
+        .dockerconfigjson: "{{ nausicaea.minecraft.secrets.dockerconfig | to_json(indent=0, separators=[',',':'], sort_keys=True) }}"
+
+- name: Create the player config secret
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      immutable: true
+      metadata:
+        name: player-config
+        namespace: minecraft
+      stringData:
+        banned-ips.json: "{{ nausicaea.minecraft.secrets.banned_ips | to_json(indent=0, separators=[',',':'], sort_keys=True) }}"
+        banned-players.json: "{{ nausicaea.minecraft.secrets.banned_players | to_json(indent=0, separators=[',',':'], sort_keys=True) }}"
+        ops.json: "{{ nausicaea.minecraft.secrets.ops | to_json(indent=0, separators=[',',':'], sort_keys=True) }}"
+        whitelist.json: "{{ nausicaea.minecraft.secrets.allowlist | to_json(indent=0, separators=[',',':'], sort_keys=True) }}"
+
+- name: Create all other Minecraft resources
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', item) | from_yaml }}"
+    wait: true
+  loop:
+    - 'files/cm-env-vars.yaml'
+    - 'files/cm-mod-config.yaml'
+    - 'files/cm-server-config.yaml'
+    - 'files/otelcol-sidecar.yaml'
+    - 'files/svc-minecraft-sts.yaml'
+    - 'files/svc-minecraft.yaml'
+    - 'files/sts-minecraft.yaml'
+
