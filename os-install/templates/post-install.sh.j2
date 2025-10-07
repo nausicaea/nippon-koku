@@ -37,6 +37,7 @@ cat <<EOF > "$ANSIBLE_CFG"
 home = $ANSIBLE_HOME
 interpreter_python = auto_silent
 hash_behaviour = merge
+pipelining = True
 EOF
 
 cat <<EOF > "$ANSIBLE_REQS"
@@ -53,7 +54,7 @@ collections:
     version: 4.0.0
 EOF
 
-echo "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"
+printf '%s\n' "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"
 
 printf '%s namespaces="git" %s\n' "$GIT_AUTHOR_EMAIL" "$GIT_AUTHOR_SSH_PUB" > "$GIT_ALLOWED_SIGNERS_FILE"
 

@@ -1,0 +1,6 @@
+layout python "/opt/homebrew/bin/python3.11"
+
+use pip_packages "$(expand_path requirements.txt)"
+use ansible_collections "$(expand_path bootstrap/roles/nausicaea.ansible/files/ansible-requirements.yml)"
+use kubeseal_cert
+

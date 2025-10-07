@@ -45,8 +45,8 @@
   become: true
 
 - name: Configure Ansible Galaxy requirements
-  ansible.builtin.template:
-    src: ansible-requirements.yml.j2
+  ansible.builtin.copy:
+    src: ansible-requirements.yml
     dest: "{{ nausicaea.common.ansible_requirements_file }}"
     owner: root
     group: root
