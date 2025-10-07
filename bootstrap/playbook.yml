@@ -75,12 +75,6 @@
   roles:
     - nausicaea.fancontrol
 
-- name: Provision Longhorn prerequisites
-  hosts: dyn_stage_live_and_longhorn
-  tags: longhorn
-  roles:
-    - nausicaea.longhorn
-
 - name: Provision Tailscale
   hosts: dyn_stage_live_and_tailscale
   tags: tailscale
@@ -115,21 +109,6 @@
       ansible.builtin.import_role:
         name: nausicaea.kube_vip
 
-    - name: Install and configure Sealed Secrets
-      tags: sealed_secrets
-      ansible.builtin.import_role:
-        name: nausicaea.sealed_secrets
-
-    - name: Install and configure ArgoCD
-      tags: argocd
-      ansible.builtin.import_role:
-        name: nausicaea.argocd
-
-    - name: Install and configure Kepler
-      tags: kepler
-      ansible.builtin.import_role:
-        name: nausicaea.kepler
-
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
   serial: 1
@@ -139,3 +118,94 @@
   roles:
     - nausicaea.k3s_server
 
+- name: Deploy applications
+  hosts: dyn_stage_live_and_k3s_cluster_init_server
+  tags: applications
+  module_defaults:
+    kubernetes.core.k8s:
+      kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+      validate_certs: true
+    kubernetes.core.helm:
+      kubeconfig: "{{ nausicaea.common.ansible_home }}/.kube/config"
+      validate_certs: true
+  tasks:
+    - name: Install and configure Sealed Secrets
+      tags: 
+        - operator
+        - sealed_secrets
+      ansible.builtin.import_role:
+        name: nausicaea.sealed_secrets
+
+    - name: Install and configure Cert-Manager
+      tags: 
+        - operator
+        - cert_manager
+      ansible.builtin.import_role:
+        name: nausicaea.cert_manager
+
+    - name: Install and configure the Opentelemetry operator
+      tags: 
+        - operator
+        - opentelemetry
+      ansible.builtin.import_role:
+        name: nausicaea.opentelemetry_operator
+
+    - name: Install and configure the Tailscale operator
+      tags:
+        - operator
+        - tailscale
+      ansible.builtin.import_role:
+        name: nausicaea.tailscale_operator
+
+    - name: Install and configure Longhorn
+      tags: longhorn
+      ansible.builtin.import_role:
+        name: nausicaea.longhorn
+
+    - name: Install and configure Kepler
+      tags: 
+        - observability
+        - kepler
+      ansible.builtin.import_role:
+        name: nausicaea.kepler
+
+    - name: Install and configure Victoriametrics
+      tags: 
+        - observability
+        - victoriametrics
+      ansible.builtin.import_role:
+        name: nausicaea.victoriametrics
+
+    - name: Install and configure Victorialogs
+      tags: 
+        - observability
+        - victorialogs
+      ansible.builtin.import_role:
+        name: nausicaea.victorialogs
+
+    - name: Install and configure Grafana
+      tags: 
+        - observability
+        - grafana
+      ansible.builtin.import_role:
+        name: nausicaea.grafana
+
+    - name: Apply custom configuration to Traefik
+      tags: traefik
+      ansible.builtin.import_role:
+        name: nausicaea.traefik_config
+
+    - name: Install and configure Minecraft
+      tags: minecraft
+      ansible.builtin.import_role:
+        name: nausicaea.minecraft
+
+    - name: Install and configure Jellyfin
+      tags: jellyfin
+      ansible.builtin.import_role:
+        name: nausicaea.jellyfin
+
+    # - name: Install and configure ArgoCD
+    #   tags: argocd
+    #   ansible.builtin.import_role:
+    #     name: nausicaea.argocd
