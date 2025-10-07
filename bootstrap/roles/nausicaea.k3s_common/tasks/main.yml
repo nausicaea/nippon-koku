@@ -46,10 +46,11 @@
     state: present
   become: true
 
-- name: Install Helm Diff
-  ansible.builtin.command:
-    argv: ["helm", "plugin", "install", "--version", "3.13.0", "https://github.com/databus23/helm-diff"]
-    creates: /var/lib/ansible/.local/share/helm/plugins/helm-diff
+- name: Install Helm Diff (plugin)
+  kubernetes.core.helm_plugin:
+    plugin_path: https://github.com/databus23/helm-diff
+    plugin_version: 3.13.0
+    state: present
 
 - name: Configure firewalld
   ansible.builtin.import_tasks:
