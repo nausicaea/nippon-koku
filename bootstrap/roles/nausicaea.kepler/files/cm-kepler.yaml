@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: kepler
+    app.kubernetes.io/name: kepler
+    app.kubernetes.io/part-of: kepler
+    app.kubernetes.io/version: v0.11.2
+  name: kepler
+  namespace: kepler
+data:
+  config.yaml: |
+    debug:
+      pprof:
+        enabled: false
+    dev:
+      fake-cpu-meter:
+        enabled: false
+        zones: []
+    experimental:
+      platform:
+        redfish:
+          configFile: /etc/kepler/redfish.yaml
+          enabled: false
+          nodeName: ""
+    exporter:
+      prometheus:
+        debugCollectors:
+        - go
+        enabled: true
+      stdout:
+        enabled: false
+    host:
+      procfs: /host/proc
+      sysfs: /host/sys
+    kube:
+      config: ""
+      enabled: false
+      nodeName: ""
+    log:
+      format: text
+      level: info
+    monitor:
+      interval: 5s
+      maxTerminated: 100
+      minTerminatedEnergyThreshold: 10
+      staleness: 500ms
+    rapl:
+      zones: []
+    web:
+      configFile: ""
+      listenAddresses:
+      - :28282
+

@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kepler
+  namespace: kepler
+  labels:
+    app.kubernetes.io/instance: kepler
+    app.kubernetes.io/name: kepler
+    app.kubernetes.io/part-of: kepler
+    app.kubernetes.io/version: v0.11.2
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kepler
+      app.kubernetes.io/name: kepler
+  template:
+    metadata:
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+      labels:
+        app.kubernetes.io/instance: kepler
+        app.kubernetes.io/name: kepler
+    spec:
+      containers:
+        - name: kepler
+          image: quay.io/sustainable_computing_io/kepler:v0.11.2
+          imagePullPolicy: IfNotPresent
+          command: ['/usr/bin/kepler']
+          args:
+            - --config.file=/etc/kepler/config.yaml
+            - --kube.enable
+            - --kube.node-name=$(NODE_NAME)
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+          - containerPort: 28282
+            name: http
+            protocol: TCP
+          resources: {}
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - mountPath: /host/sys
+            name: sysfs
+            readOnly: true
+          - mountPath: /host/proc
+            name: procfs
+            readOnly: true
+          - mountPath: /etc/kepler
+            name: cfm
+      hostPID: true
+      serviceAccount: kepler
+      serviceAccountName: kepler
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      volumes:
+      - hostPath:
+          path: /sys
+        name: sysfs
+      - hostPath:
+          path: /proc
+        name: procfs
+      - configMap:
+          defaultMode: 420
+          name: kepler
+        name: cfm
+
+# vim: ft=yaml

@@ -1,0 +1,69 @@
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: collector-sidecar
+  namespace: kepler
+  labels:
+    app.kubernetes.io/name: kepler
+spec:
+  mode: sidecar
+  #image:
+  #  repository: "otel/opentelemetry-collector-contrib"
+  config:
+    receivers:
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: kepler
+              scrape_interval: 5m
+              static_configs:
+                - targets: [localhost:28282]
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 1024
+        spike_limit_mib: 205
+
+      attributes:
+        actions:
+          - key: job
+            value: otelcol
+            action: insert
+          - key: instance
+            value: kepler
+            action: insert
+
+      deltatocumulative:
+        max_stale: 5m
+
+      batch: {}
+
+    exporters:
+      debug: {}
+      otlphttp/victoriametrics:
+        compression: gzip
+        encoding: proto
+        metrics_endpoint: http://victoriametrics-victoria-metrics-single-server.victoriametrics.svc.cluster.local:8428/opentelemetry/v1/metrics
+        tls:
+          insecure: true
+
+    service:
+      telemetry:
+        logs:
+          level: info
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: '0.0.0.0'
+                    port: 9464
+      pipelines:
+        metrics:
+          receivers: [prometheus]
+          processors: [memory_limiter, deltatocumulative, attributes, batch]
+          exporters: [otlphttp/victoriametrics]
+
+# vim: ft=yaml

@@ -125,6 +125,11 @@
       ansible.builtin.import_role:
         name: nausicaea.argocd
 
+    - name: Install and configure Kepler
+      tags: kepler
+      ansible.builtin.import_role:
+        name: nausicaea.kepler
+
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
   serial: 1

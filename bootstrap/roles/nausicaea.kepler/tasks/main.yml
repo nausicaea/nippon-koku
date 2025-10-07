@@ -1,0 +1,35 @@
+---
+- name: Create the kepler namespace
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: kepler
+    wait: true
+
+- name: Create the kepler configmap
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', 'files/cm-kepler.yaml') | from_yaml }}"
+    wait: true
+
+- name: Create the kepler service
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', 'files/svc-kepler.yaml') | from_yaml }}"
+    wait: true
+
+- name: Create the kepler daemonset
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', 'files/ds-kepler.yaml') | from_yaml }}"
+    wait: true
+
+- name: Create the opentelemetry sidecar
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', 'files/otelcol-kepler.yaml') | from_yaml }}"
+    wait: true
+
