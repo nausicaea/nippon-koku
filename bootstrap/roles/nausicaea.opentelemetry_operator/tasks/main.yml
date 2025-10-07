@@ -1,0 +1,21 @@
+---
+- name: Register the Open-Telemetry Helm repo
+  kubernetes.core.helm_repository:
+    name: opentelemetry
+    url: https://open-telemetry.github.io/opentelemetry-helm-charts
+    state: present
+
+- name: Deploy the Opentelemetry Operator Helm chart
+  kubernetes.core.helm:
+    chart_ref: opentelemetry/opentelemetry-operator
+    chart_version: 0.97.0
+    create_namespace: true
+    name: opentelemetry-operator
+    namespace: opentelemetry
+    state: present
+    atomic: true
+    wait: true
+    values:
+    #  admissionWebhooks:
+    #    certManager: 
+    #      enabled: true
