@@ -1,0 +1,20 @@
+---
+- name: Register the Jetstack Helm repo
+  kubernetes.core.helm_repository:
+    name: jetstack
+    url: https://charts.jetstack.io
+    state: present
+
+- name: Deploy the Cert-Manager Helm chart
+  kubernetes.core.helm:
+    chart_ref: jetstack/cert-manager
+    chart_version: v1.18.2
+    create_namespace: true
+    name: cert-manager
+    namespace: cert-manager
+    state: present
+    atomic: true
+    wait: true
+    values:
+      crds:
+        enabled: true
