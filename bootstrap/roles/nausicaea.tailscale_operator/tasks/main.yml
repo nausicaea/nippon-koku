@@ -1,0 +1,40 @@
+---
+- name: Create the Tailscale namespace
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: tailscale
+
+- name: Create the Tailscale oauth secret
+  kubernetes.core.k8s:
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      immutable: true
+      metadata:
+        name: operator-oauth
+        namespace: tailscale
+      stringData:
+        client_id: "{{ nausicaea.tailscale_operator.secrets.oauth_client_id }}"
+        client_secret: "{{ nausicaea.tailscale_operator.secrets.oauth_client_secret }}"
+
+- name: Register the Tailscale Helm repo
+  kubernetes.core.helm_repository:
+    name: tailscale
+    url: https://pkgs.tailscale.com/helmcharts
+    state: present
+
+- name: Deploy the Tailscale Operator Helm chart
+  kubernetes.core.helm:
+    chart_ref: tailscale/tailscale-operator
+    chart_version: 1.88.3
+    create_namespace: false
+    name: tailscale-operator
+    namespace: tailscale
+    state: present
+    atomic: true
+    wait: true
+
