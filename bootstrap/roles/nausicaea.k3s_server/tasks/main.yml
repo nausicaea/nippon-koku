@@ -51,6 +51,7 @@
     state: started
     enabled: true
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create the Kubeconfig directory
   ansible.builtin.file:
@@ -70,6 +71,7 @@
     group: "{{ nausicaea.common.ansible_group }}"
     mode: "0600"
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Wait for the secondary server node to be ready
   kubernetes.core.k8s_info:

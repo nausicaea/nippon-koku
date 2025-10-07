@@ -23,6 +23,7 @@
     group: root
     mode: "u=rwX,go="
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Copy the K3s token file
   ansible.builtin.copy:
@@ -60,6 +61,7 @@
     state: started
     enabled: true
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create the Kubeconfig directory
   ansible.builtin.file:
@@ -79,6 +81,7 @@
     group: "{{ nausicaea.common.ansible_group }}"
     mode: "0600"
   become: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Wait for the cluster API to be available locally
   ansible.builtin.uri:
