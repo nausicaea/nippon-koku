@@ -1,0 +1,23 @@
+---
+- name: Create the jellyfin namespace
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: jellyfin
+    wait: true
+
+- name: Create all other Jellyfin resources
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('ansible.builtin.file', item) | from_yaml }}"
+    wait: true
+  loop:
+    - 'files/svc-jellyfin-pods.yaml'
+    - 'files/svc-jellyfin.yaml'
+    - 'files/sts-jellyfin.yaml'
+    - 'files/ing-jellyfin-tailscale.yaml'
+
+
