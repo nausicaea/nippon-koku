@@ -85,3 +85,4 @@
     wait_condition:
       type: Ready
       status: "True"
+  ignore_errors: "{{ ansible_check_mode }}"

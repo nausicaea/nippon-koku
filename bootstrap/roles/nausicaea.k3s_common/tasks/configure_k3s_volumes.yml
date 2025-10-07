@@ -32,18 +32,16 @@
   become: true
 
 - name: Copy over old data from before the volume
+  ansible.builtin.shell: |
+    set -xe
+    umount /tmp/staging || true
+    rm -rf /tmp/staging
+    mkdir /tmp/staging
+    mount {{ device }} /tmp/staging
+    find {{ mount_dir }} -mindepth 1 -maxdepth 1 -exec mv -t /tmp/staging/ -- {} +
+    umount /tmp/staging
+  become: true
   when: "mount_dir not in (ansible_mounts | map(attribute='mount') | list)"
-  block:
-    - name: Do the work
-      ansible.builtin.shell: |
-        set -xe
-        umount /tmp/staging || true
-        rm -rf /tmp/staging
-        mkdir /tmp/staging
-        mount {{ device }} /tmp/staging
-        find {{ mount_dir }} -mindepth 1 -maxdepth 1 -exec mv -t /tmp/staging/ -- {} +
-        umount /tmp/staging
-      become: true
 
 - name: "Mount the volume {{ device }} to {{ mount_dir }}"
   ansible.posix.mount:
