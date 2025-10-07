@@ -1,0 +1,86 @@
+---
+- name: Register the Victoriametrics repo
+  kubernetes.core.helm_repository:
+    name: victoriametrics
+    url: https://victoriametrics.github.io/helm-charts
+    state: present
+
+- name: Deploy Victorialogs
+  kubernetes.core.helm:
+    chart_ref: victoriametrics/victoria-logs-single
+    chart_version: 0.11.11
+    create_namespace: true
+    name: victorialogs
+    namespace: victoriametrics
+    state: present
+    atomic: true
+    wait: true
+    set_values:
+      - value: "server.service.clusterIP=null"
+        value_type: raw
+    values:
+      server:
+        retentionPeriod: 7d
+        persistentVolume:
+          storageClassName: longhorn
+        ingress:
+          enabled: true
+          annotations:
+            tailscale.com/tags: "tag:victorialogs,tag:k8s"
+          ingressClassName: tailscale
+          hosts:
+            - name: victorialogs
+              path: ['/']
+              port: http
+          tls:
+            - hosts:
+                - victorialogs
+      vector:
+        enabled: true
+        image:
+          base: debian
+        extraVolumes:
+          - name: run-log-journal
+            hostPath:
+              path: /run/log/journal
+              type: Directory
+        extraVolumeMounts:
+          - name: run-log-journal
+            mountPath: /run/log/journal
+            readOnly: true
+        customConfig:
+          sources:
+            journald_persistent:
+              type: journald
+              journal_directory: "/var/log/journal"
+#              host:
+#                type: host_metrics
+          transforms:
+            custom_parser:
+              type: remap
+              inputs: [journald_persistent,k8s]
+              source: |
+                .log = 
+                    parse_json(.message) ?? 
+                    parse_key_value(.message) ?? 
+                    .message
+                if exists(.log.msg) {
+                    .message = .log.msg
+                } else if exists(.log._msg) {
+                    .message = .log._msg
+                } else if exists(.log.message) {
+                    .message = .log.message
+                }
+          sinks:
+#              vmetrics:
+#                type: prometheus_remote_write
+#                inputs: [host]
+#                endpoint: "http://victoriametrics-victoria-metrics-single-server.victoriametrics.svc.cluster.local:8428/api/v1/write"
+#                healthcheck:
+#                  enabled: false
+
+            vlogs:
+              inputs: [custom_parser]
+              request:
+                headers:
+                  VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace,_COMM,SYSLOG_IDENTIFIER,_TRANSPORT,host
