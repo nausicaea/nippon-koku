@@ -4,28 +4,15 @@
     resource_definition: "{{ nausicaea.sealed_secrets.secrets.sealing_keys }}"
 
 - name: Deploy the Bitnami Sealed Secrets Helm chart
-  kubernetes.core.k8s:
-    resource_definition:
-      apiVersion: helm.cattle.io/v1
-      kind: HelmChart
-      metadata:
-        name: sealed-secrets
-        namespace: kube-system
-      spec:
-        chart: oci://registry-1.docker.io/bitnamicharts/sealed-secrets
-        version: 2.5.19
-        targetNamespace: kube-system
-        createNamespace: false
-        set:
-          fullnameOverride: sealed-secrets-controller
-
-- name: Wait for Sealed Secrets to be ready
-  kubernetes.core.k8s_info:
+  kubernetes.core.helm:
+    chart_ref: oci://registry-1.docker.io/bitnamicharts/sealed-secrets
+    chart_version: 2.5.19
+    create_namespace: false
+    name: sealed-secrets
     namespace: kube-system
-    kind: Deployment
-    label_selectors:
-      - app.kubernetes.io/instance=sealed-secrets
-      - app.kubernetes.io/name=sealed-secrets
+    state: present
+    atomic: true
     wait: true
-    wait_sleep: 10
-    wait_timeout: 360
+    set_values:
+      - value: fullnameOverride=sealed-secrets-controller
+        value_type: string
