@@ -95,3 +95,24 @@
   retries: 12
   delay: 5
 
+- name: Create the secret for ETCD snapshotting
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Secret
+      type: etcd.k3s.cattle.io/s3-config-secret
+      immutable: true
+      metadata:
+        name: k3s-etcd-snapshot-s3-config
+        namespace: kube-system
+      stringData:
+        etcd-s3-access-key: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_access_key }}"
+        etcd-s3-bucket: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_bucket }}"
+        etcd-s3-endpoint: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_endpoint }}"
+        etcd-s3-region: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_region }}"
+        etcd-s3-secret-key: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_secret_key }}"
+        etcd-s3-timeout: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_timeout }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+
