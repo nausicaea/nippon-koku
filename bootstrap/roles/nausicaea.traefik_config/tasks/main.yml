@@ -1,0 +1,72 @@
+---
+- name: Apply a custom configuration to Traefik
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChartConfig
+      metadata:
+        name: traefik
+        namespace: kube-system
+      spec:
+        valuesContent: |-
+          ingressRoute:
+            dashboard:
+              enabled: true
+          ports:
+            minecraft:
+              port: 25565
+              protocol: TCP
+              exposedPort: 25565
+              expose:
+                default: true
+            radicle:
+              port: 8776
+              protocol: TCP
+              exposedPort: 8776
+              expose:
+                default: true
+            
+- name: Create a service for the Traefik dashboard
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: traefik-dashboard
+        namespace: kube-system
+        labels:
+          app.kubernetes.io/instance: traefik-kube-system
+          app.kubernetes.io/name: traefik
+      spec:
+        type: ClusterIP
+        selector:
+          app.kubernetes.io/name: traefik
+        ports:
+          - name: traefik
+            port: 8080
+            targetPort: traefik
+
+- name: Create an ingress resource for the Traefik dashboard (Tailscale only)
+  kubernetes.core.k8s:
+    state: present
+    resource_definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: traefik-dashboard-tailscale
+        namespace: kube-system
+        annotations:
+          tailscale.com/tags: "tag:traefik,tag:k8s"
+      spec:
+        ingressClassName: tailscale
+        defaultBackend:
+          service:
+            name: traefik-dashboard
+            port:
+              name: traefik
+        tls:
+          - hosts:
+              - traefik
+              - traefik.takaya-map.ts.net
