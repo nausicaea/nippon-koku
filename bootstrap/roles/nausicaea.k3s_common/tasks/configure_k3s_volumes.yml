@@ -41,6 +41,7 @@
     find {{ mount_dir }} -mindepth 1 -maxdepth 1 -exec mv -t /tmp/staging/ -- {} +
     umount /tmp/staging
   become: true
+  changed_when: "mount_dir not in (ansible_mounts | map(attribute='mount') | list)"
   when: "mount_dir not in (ansible_mounts | map(attribute='mount') | list)"
 
 - name: "Mount the volume to {{ mount_dir }}"
