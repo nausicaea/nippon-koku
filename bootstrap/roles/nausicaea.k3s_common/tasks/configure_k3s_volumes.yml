@@ -43,7 +43,7 @@
   become: true
   when: "mount_dir not in (ansible_mounts | map(attribute='mount') | list)"
 
-- name: "Mount the volume {{ device }} to {{ mount_dir }}"
+- name: "Mount the volume to {{ mount_dir }}"
   ansible.posix.mount:
     path: "{{ mount_dir }}"
     src: "{{ device }}"

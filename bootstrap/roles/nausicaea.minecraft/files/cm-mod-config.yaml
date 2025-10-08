@@ -193,6 +193,7 @@ data:
       "_c8": "Prevents selected paths from being added to resource pack, if they start with provided text.",
       "prevent_path_with": []
     }
+  # yamllint disable rule:line-length
   server.json: |
     {
       "_c7": "Displays vanilla/modded creatives tabs in /polymer creative",
@@ -214,6 +215,7 @@ data:
       "_c13": "Replaces PolyMc's block and item interaction handling with Polymer ones",
       "override_polymc_mining_check": false
     }
+  # yamllint enable rule:line-length
   AdvancedBackups-client.properties: |
     config.advancedbackups.showProgress=true
     config.advancedbackups.colours.progress.red=82

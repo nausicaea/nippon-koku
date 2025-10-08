@@ -24,6 +24,13 @@
   notify: Reload APT cache
   when: not nausicaea.apt_custom_repo.keyring_is_armored
 
+# yamllint disable rule:line-length
+- name: Trim the APT keyring checksum
+  ansible.builtin.set_fact:
+    keyring_checksum: "{{ nausicaea.apt_custom_repo.keyring_checksum.split(':')[1] if ':' in nausicaea.apt_custom_repo.keyring_checksum else nausicaea.apt_custom_repo.keyring_checksum
+      }}"
+# yamllint enable rule:line-length
+
 - name: Ensure presence of the custom APT keyring (armored)
   ansible.builtin.shell:
     chdir: /tmp
@@ -31,7 +38,7 @@
     cmd: |
       set -xe
       curl -Lo keyring.armored.gpg "{{ nausicaea.apt_custom_repo.keyring_url }}"
-      printf '{{ nausicaea.apt_custom_repo.keyring_checksum.split(':')[1] if ':' in nausicaea.apt_custom_repo.keyring_checksum else nausicaea.apt_custom_repo.keyring_checksum }}  keyring.armored.gpg' > keyring.armored.checksum
+      printf '{{ keyring_checksum }}  keyring.armored.gpg' > keyring.armored.checksum
       shasum -c keyring.armored.checksum
       cat keyring.armored.gpg | gpg --dearmor > "{{ keyring_path }}"
       chown root:root "{{ keyring_path }}"

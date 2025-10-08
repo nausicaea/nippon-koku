@@ -8,8 +8,6 @@ metadata:
     app.kubernetes.io/name: kepler
 spec:
   mode: sidecar
-  #image:
-  #  repository: "otel/opentelemetry-collector-contrib"
   config:
     receivers:
       prometheus:

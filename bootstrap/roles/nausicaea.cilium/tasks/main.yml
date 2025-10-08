@@ -14,8 +14,8 @@
     namespace: kube-system
     state: present
     atomic: true
-    #bootstrap: true
-    #failure_policy: abort
+    # bootstrap: true
+    # failure_policy: abort
     wait: true
     values:
       kubeProxyReplacement: true

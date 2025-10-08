@@ -17,5 +17,5 @@
     wait: true
     values:
     #  admissionWebhooks:
-    #    certManager: 
+    #    certManager:
     #      enabled: true
