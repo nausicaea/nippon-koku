@@ -34,9 +34,8 @@
           ingressClassName: tailscale
           hosts:
             - name: victoriametrics
-              path: ['/']
+              path: ["/"]
               port: http
           tls:
             - hosts:
                 - victoriametrics
-

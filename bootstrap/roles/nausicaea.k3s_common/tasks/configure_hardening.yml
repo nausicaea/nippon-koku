@@ -1,3 +1,4 @@
+---
 # https://docs.k3s.io/security/hardening-guide
 - name: Set kernel parameters for the Kubelet
   ansible.posix.sysctl:
@@ -25,4 +26,3 @@
     group: root
     mode: "0644"
   become: true
-

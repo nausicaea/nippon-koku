@@ -6,7 +6,7 @@ nausicaea:
     # Defines all dns servers to configure
     dns_nameservers: []
     # Defines your global dns suffix search
-    dns_search: null
+    dns_search:
     # Define individual network interfaces
     network_interfaces: []
     # - name: <interface name>

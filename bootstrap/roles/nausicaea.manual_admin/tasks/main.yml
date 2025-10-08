@@ -53,4 +53,3 @@
       dest: top-open-fds
     - src: inotify-consumers.bash
       dest: inotify-consumers
-

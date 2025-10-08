@@ -30,7 +30,7 @@
           ingressClassName: tailscale
           hosts:
             - name: victorialogs
-              path: ['/']
+              path: ["/"]
               port: http
           tls:
             - hosts:
@@ -53,16 +53,16 @@
             journald_persistent:
               type: journald
               journal_directory: "/var/log/journal"
-#              host:
-#                type: host_metrics
+          #              host:
+          #                type: host_metrics
           transforms:
             custom_parser:
               type: remap
-              inputs: [journald_persistent,k8s]
+              inputs: [journald_persistent, k8s]
               source: |
-                .log = 
-                    parse_json(.message) ?? 
-                    parse_key_value(.message) ?? 
+                .log =
+                    parse_json(.message) ??
+                    parse_key_value(.message) ??
                     .message
                 if exists(.log.msg) {
                     .message = .log.msg

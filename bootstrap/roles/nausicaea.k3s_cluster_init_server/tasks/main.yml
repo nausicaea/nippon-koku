@@ -114,5 +114,3 @@
         etcd-s3-secret-key: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_secret_key }}"
         etcd-s3-timeout: "{{ nausicaea.k3s_cluster_init_server.secrets.etcd_s3_timeout }}"
   ignore_errors: "{{ ansible_check_mode }}"
-
-

@@ -26,7 +26,7 @@
               exposedPort: 8776
               expose:
                 default: true
-            
+
 - name: Create a service for the Traefik dashboard
   kubernetes.core.k8s:
     state: present

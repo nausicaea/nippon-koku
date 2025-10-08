@@ -1,3 +1,4 @@
+---
 - name: Configure the Ansible user
   ansible.builtin.import_tasks:
     file: configure_ansible_user.yml
@@ -5,4 +6,3 @@
 - name: Configure ansible-pull
   ansible.builtin.import_tasks:
     file: configure_ansible_pull.yml
-

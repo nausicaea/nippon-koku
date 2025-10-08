@@ -61,7 +61,7 @@
 
 - name: Apply the baseline to all systems
   hosts: dyn_stage_live
-  tags: 
+  tags:
     - dyn_stage_live
     - baseline
   tasks:
@@ -83,7 +83,7 @@
 
 - name: Provision the K3s cluster init server node
   hosts: dyn_stage_live_and_k3s_cluster_init_server
-  tags: 
+  tags:
     - k3s
     - k3s_cluster_init_server
   module_defaults:
@@ -112,7 +112,7 @@
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
   serial: 1
-  tags: 
+  tags:
     - k3s
     - k3s_server
   roles:
@@ -130,21 +130,21 @@
       validate_certs: true
   tasks:
     - name: Install and configure Sealed Secrets
-      tags: 
+      tags:
         - operator
         - sealed_secrets
       ansible.builtin.import_role:
         name: nausicaea.sealed_secrets
 
     - name: Install and configure Cert-Manager
-      tags: 
+      tags:
         - operator
         - cert_manager
       ansible.builtin.import_role:
         name: nausicaea.cert_manager
 
     - name: Install and configure the Opentelemetry operator
-      tags: 
+      tags:
         - operator
         - opentelemetry
       ansible.builtin.import_role:
@@ -163,28 +163,28 @@
         name: nausicaea.longhorn
 
     - name: Install and configure Kepler
-      tags: 
+      tags:
         - observability
         - kepler
       ansible.builtin.import_role:
         name: nausicaea.kepler
 
     - name: Install and configure Victoriametrics
-      tags: 
+      tags:
         - observability
         - victoriametrics
       ansible.builtin.import_role:
         name: nausicaea.victoriametrics
 
     - name: Install and configure Victorialogs
-      tags: 
+      tags:
         - observability
         - victorialogs
       ansible.builtin.import_role:
         name: nausicaea.victorialogs
 
     - name: Install and configure Grafana
-      tags: 
+      tags:
         - observability
         - grafana
       ansible.builtin.import_role:

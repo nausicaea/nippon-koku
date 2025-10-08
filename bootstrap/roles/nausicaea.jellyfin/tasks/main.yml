@@ -15,9 +15,7 @@
     resource_definition: "{{ lookup('ansible.builtin.file', item) | from_yaml }}"
     wait: true
   loop:
-    - 'files/svc-jellyfin-pods.yaml'
-    - 'files/svc-jellyfin.yaml'
-    - 'files/sts-jellyfin.yaml'
-    - 'files/ing-jellyfin-tailscale.yaml'
-
-
+    - "files/svc-jellyfin-pods.yaml"
+    - "files/svc-jellyfin.yaml"
+    - "files/sts-jellyfin.yaml"
+    - "files/ing-jellyfin-tailscale.yaml"

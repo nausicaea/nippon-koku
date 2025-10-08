@@ -115,7 +115,7 @@
         enabled: true
         annotations:
           tailscale.com/tags: "tag:longhorn,tag:k8s"
-        ingressClassName: tailscale 
+        ingressClassName: tailscale
         host: longhorn
         tls: true
       preUpgradeChecker:

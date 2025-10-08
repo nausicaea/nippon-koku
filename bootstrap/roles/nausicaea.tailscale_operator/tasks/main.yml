@@ -37,4 +37,3 @@
     state: present
     atomic: true
     wait: true
-

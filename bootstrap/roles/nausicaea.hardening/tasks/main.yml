@@ -40,7 +40,7 @@
 - name: Apply SSH hardening
   tags: devsec
   vars:
-    ssh_listen_to: ['0.0.0.0', '[::]']
+    ssh_listen_to: ["0.0.0.0", "[::]"]
     ssh_allow_users: "{{ nausicaea.common.secrets.admin_user }} ansible root"
     ssh_max_auth_retries: 6
     ssh_permit_root_login: "without-password"

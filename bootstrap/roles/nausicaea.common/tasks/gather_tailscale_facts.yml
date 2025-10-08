@@ -23,4 +23,3 @@
     tailscale_peer_ips: "{{ tailscale_status | json_query(\"Peer.* | [?Tags && contains(Tags[], 'tag:k8s-node')].TailscaleIPs[]\") }}"
     tailscale_address_ipv4: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv4 | first }}"
     tailscale_address_ipv6: "{{ tailscale_status | json_query('TailscaleIPs') | ansible.utils.ipv6 | first }}"
-

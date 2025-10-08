@@ -1,3 +1,4 @@
+---
 - name: Show a message about a pending K3s reinstall
   ansible.builtin.debug:
     msg: "INFO: Rerunning the K3s installer"

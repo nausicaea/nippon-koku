@@ -39,7 +39,6 @@ spec:
         max_stale: 5m
 
       batch: {}
-
     exporters:
       debug: {}
       otlphttp/victoriametrics:
@@ -58,7 +57,7 @@ spec:
             - pull:
                 exporter:
                   prometheus:
-                    host: '0.0.0.0'
+                    host: "0.0.0.0"
                     port: 9464
       pipelines:
         metrics:

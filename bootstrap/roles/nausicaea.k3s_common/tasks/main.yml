@@ -1,3 +1,4 @@
+---
 - name: Show a message about a pending K8s cluster upgrade
   ansible.builtin.debug:
     msg: "WARNING: Going to perform a cluster upgrade"
@@ -40,7 +41,7 @@
 
 - name: Install the Kubernetes helper packages
   ansible.builtin.package:
-    name: 
+    name:
       - python3-kubernetes
       - helm
     state: present
@@ -95,14 +96,14 @@
   become: true
   loop:
     - name: fs.nr_open
-      value: "4194304"  # 2 ** 22 (four times the default limit)
+      value: "4194304" # 2 ** 22 (four times the default limit)
     # - name: fs.inotify.max_user_watches
     #   value: "524288"
     - name: fs.inotify.max_user_instances
       value: "512"
 
 - name: Apply the CIS Hardening Benchmark
-  ansible.builtin.import_tasks: 
+  ansible.builtin.import_tasks:
     file: configure_hardening.yml
 
 - name: Download the K3s installer script

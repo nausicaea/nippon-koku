@@ -10,7 +10,7 @@
 
     - name: Run APT upgrade
       ansible.builtin.apt:
-        upgrade: yes
+        upgrade: true
       become: true
 
     - name: Remove dependencies that are no longer required

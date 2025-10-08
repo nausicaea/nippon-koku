@@ -26,7 +26,7 @@ spec:
         - name: kepler
           image: quay.io/sustainable_computing_io/kepler:v0.11.2
           imagePullPolicy: IfNotPresent
-          command: ['/usr/bin/kepler']
+          command: ["/usr/bin/kepler"]
           args:
             - --config.file=/etc/kepler/config.yaml
             - --kube.enable
@@ -47,41 +47,41 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           ports:
-          - containerPort: 28282
-            name: http
-            protocol: TCP
+            - containerPort: 28282
+              name: http
+              protocol: TCP
           resources: {}
           securityContext:
             privileged: true
           volumeMounts:
-          - mountPath: /host/sys
-            name: sysfs
-            readOnly: true
-          - mountPath: /host/proc
-            name: procfs
-            readOnly: true
-          - mountPath: /etc/kepler
-            name: cfm
+            - mountPath: /host/sys
+              name: sysfs
+              readOnly: true
+            - mountPath: /host/proc
+              name: procfs
+              readOnly: true
+            - mountPath: /etc/kepler
+              name: cfm
       hostPID: true
       serviceAccount: kepler
       serviceAccountName: kepler
       tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/control-plane
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-        operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
       volumes:
-      - hostPath:
-          path: /sys
-        name: sysfs
-      - hostPath:
-          path: /proc
-        name: procfs
-      - configMap:
-          defaultMode: 420
-          name: kepler
-        name: cfm
+        - hostPath:
+            path: /sys
+          name: sysfs
+        - hostPath:
+            path: /proc
+          name: procfs
+        - configMap:
+            defaultMode: 420
+            name: kepler
+          name: cfm
 
 # vim: ft=yaml

@@ -19,8 +19,8 @@
     wait: true
     values:
       kubeProxyReplacement: true
-      k8sServiceHost: '{{ default_network_address }}'
-      k8sServicePort: '6443'
+      k8sServiceHost: "{{ default_network_address }}"
+      k8sServicePort: "6443"
       ipam:
         operator:
           clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
