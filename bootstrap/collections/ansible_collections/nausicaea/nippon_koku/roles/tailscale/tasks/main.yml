@@ -12,7 +12,7 @@
         repo_components: ["main"]
         repo_filename: tailscale
   ansible.builtin.import_role:
-    name: nausicaea.apt_custom_repo
+    name: nausicaea.nippon_koku.apt_custom_repo
 
 - name: Configure APT pinning for Tailscale
   ansible.builtin.blockinfile:

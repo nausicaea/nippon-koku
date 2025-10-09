@@ -44,18 +44,6 @@
   notify: Etckeeper commit
   become: true
 
-- name: Configure Ansible Galaxy requirements
-  ansible.builtin.copy:
-    src: ansible-requirements.yml
-    dest: "{{ nausicaea.common.ansible_requirements_file }}"
-    owner: root
-    group: root
-    mode: "0644"
-  notify:
-    - Etckeeper commit
-    - Update Ansible Galaxy Collections
-  become: true
-
 - name: Ensure the vault password file has correct permissions
   ansible.builtin.file:
     path: "{{ nausicaea.common.ansible_vault_password_file }}"

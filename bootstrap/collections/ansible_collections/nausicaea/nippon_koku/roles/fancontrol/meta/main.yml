@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: fancontrol
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Installs and configures mbpfan, to regulate Apple hardware fan speeds
   company: Nausicaea AS

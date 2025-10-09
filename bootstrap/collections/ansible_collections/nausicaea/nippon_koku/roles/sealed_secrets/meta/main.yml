@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: sealed_secrets
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Installs Bitnami Sealed Secrets core into the K3s cluster
   company: Nausicaea AS

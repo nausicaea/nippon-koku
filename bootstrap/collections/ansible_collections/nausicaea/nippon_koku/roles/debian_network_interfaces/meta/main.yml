@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: debian_network_interfaces
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Configure Debian network interfaces
   company: Nausicaea AS

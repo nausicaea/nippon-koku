@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: hardening
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Hardens systems and services
   company: Nausicaea AS

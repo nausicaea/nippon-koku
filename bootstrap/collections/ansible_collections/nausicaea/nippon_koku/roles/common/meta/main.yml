@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: common
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Performs tasks and configurations common to all other roles
   company: Nausicaea AS

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: traefik_config
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Applies custom configuration to the K3S bundled Traefik
   company: Nausicaea AS
@@ -9,4 +9,4 @@ galaxy_info:
   min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - role: nausicaea.k3s_common
+  - role: nausicaea.nippon_koku.k3s_common

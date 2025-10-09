@@ -73,13 +73,13 @@
   hosts: dyn_sys_apple
   tags: fancontrol
   roles:
-    - nausicaea.fancontrol
+    - nausicaea.nippon_koku.fancontrol
 
 - name: Provision Tailscale
   hosts: dyn_stage_live_and_tailscale
   tags: tailscale
   roles:
-    - nausicaea.tailscale
+    - nausicaea.nippon_koku.tailscale
 
 - name: Provision the K3s cluster init server node
   hosts: dyn_stage_live_and_k3s_cluster_init_server
@@ -97,17 +97,17 @@
     - name: Install and configure K3s
       tags: cluster_init
       ansible.builtin.import_role:
-        name: nausicaea.k3s_cluster_init_server
+        name: nausicaea.nippon_koku.k3s_cluster_init_server
 
     - name: Install and configure Cilium
       tags: cilium
       ansible.builtin.import_role:
-        name: nausicaea.cilium
+        name: nausicaea.nippon_koku.cilium
 
     - name: Install and configure Kube-VIP
       tags: kube_vip
       ansible.builtin.import_role:
-        name: nausicaea.kube_vip
+        name: nausicaea.nippon_koku.kube_vip
 
 - name: Provision K3S server nodes
   hosts: dyn_stage_live_and_k3s_server
@@ -116,7 +116,7 @@
     - k3s
     - k3s_server
   roles:
-    - nausicaea.k3s_server
+    - nausicaea.nippon_koku.k3s_server
 
 - name: Deploy applications
   hosts: dyn_stage_live_and_k3s_cluster_init_server
@@ -134,78 +134,78 @@
         - operator
         - sealed_secrets
       ansible.builtin.import_role:
-        name: nausicaea.sealed_secrets
+        name: nausicaea.nippon_koku.sealed_secrets
 
     - name: Install and configure Cert-Manager
       tags:
         - operator
         - cert_manager
       ansible.builtin.import_role:
-        name: nausicaea.cert_manager
+        name: nausicaea.nippon_koku.cert_manager
 
     - name: Install and configure the Opentelemetry operator
       tags:
         - operator
         - opentelemetry
       ansible.builtin.import_role:
-        name: nausicaea.opentelemetry_operator
+        name: nausicaea.nippon_koku.opentelemetry_operator
 
     - name: Install and configure the Tailscale operator
       tags:
         - operator
         - tailscale
       ansible.builtin.import_role:
-        name: nausicaea.tailscale_operator
+        name: nausicaea.nippon_koku.tailscale_operator
 
     - name: Install and configure Longhorn
       tags: longhorn
       ansible.builtin.import_role:
-        name: nausicaea.longhorn
+        name: nausicaea.nippon_koku.longhorn
 
     - name: Install and configure Kepler
       tags:
         - observability
         - kepler
       ansible.builtin.import_role:
-        name: nausicaea.kepler
+        name: nausicaea.nippon_koku.kepler
 
     - name: Install and configure Victoriametrics
       tags:
         - observability
         - victoriametrics
       ansible.builtin.import_role:
-        name: nausicaea.victoriametrics
+        name: nausicaea.nippon_koku.victoriametrics
 
     - name: Install and configure Victorialogs
       tags:
         - observability
         - victorialogs
       ansible.builtin.import_role:
-        name: nausicaea.victorialogs
+        name: nausicaea.nippon_koku.victorialogs
 
     - name: Install and configure Grafana
       tags:
         - observability
         - grafana
       ansible.builtin.import_role:
-        name: nausicaea.grafana
+        name: nausicaea.nippon_koku.grafana
 
     - name: Apply custom configuration to Traefik
       tags: traefik
       ansible.builtin.import_role:
-        name: nausicaea.traefik_config
+        name: nausicaea.nippon_koku.traefik_config
 
     - name: Install and configure Minecraft
       tags: minecraft
       ansible.builtin.import_role:
-        name: nausicaea.minecraft
+        name: nausicaea.nippon_koku.minecraft
 
     - name: Install and configure Jellyfin
       tags: jellyfin
       ansible.builtin.import_role:
-        name: nausicaea.jellyfin
+        name: nausicaea.nippon_koku.jellyfin
 
     # - name: Install and configure ArgoCD
     #   tags: argocd
     #   ansible.builtin.import_role:
-    #     name: nausicaea.argocd
+    #     name: nausicaea.nippon_koku.argocd

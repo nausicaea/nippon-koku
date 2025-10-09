@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: kepler
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Installs and configures Kepler energy monitoring
   company: Nausicaea AS
@@ -9,4 +9,4 @@ galaxy_info:
   min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - role: nausicaea.k3s_common
+  - role: nausicaea.nippon_koku.k3s_common

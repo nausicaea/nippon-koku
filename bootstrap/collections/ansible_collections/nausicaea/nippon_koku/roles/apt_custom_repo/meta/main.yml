@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: apt_custom_repo
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Add a custom APT repository
   company: Nausicaea AS

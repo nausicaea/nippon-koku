@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: k3s_common
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Perform common prerequisites for K3s clusters
   company: Nausicaea AS

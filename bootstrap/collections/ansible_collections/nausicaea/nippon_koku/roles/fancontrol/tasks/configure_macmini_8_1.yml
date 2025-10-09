@@ -12,7 +12,7 @@
         repo_components: []
         repo_filename: "t2-ubuntu-repo_{{ ansible_distribution_release | lower }}"
   ansible.builtin.import_role:
-    name: nausicaea.apt_custom_repo
+    name: nausicaea.nippon_koku.apt_custom_repo
 
 - name: Add the custom APT repository for the T2 distribution-specific packages
   vars:
@@ -27,7 +27,7 @@
         repo_components: []
         repo_filename: t2-ubuntu-repo
   ansible.builtin.import_role:
-    name: nausicaea.apt_custom_repo
+    name: nausicaea.nippon_koku.apt_custom_repo
 
 - name: Configure APT pinning for the T2 repo
   ansible.builtin.blockinfile:

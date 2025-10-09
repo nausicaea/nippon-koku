@@ -7,7 +7,6 @@ echo "START POST INSTALL"
 ANSIBLE_HOME="{{ ansible_home }}"
 ANSIBLE_ETCDIR="/etc/ansible"
 ANSIBLE_CFG="$ANSIBLE_ETCDIR/ansible.cfg"
-ANSIBLE_REQS="$ANSIBLE_ETCDIR/ansible-requirements.yml"
 ANSIBLE_VAULT_PASSWORD="{{ vault_password }}"
 ANSIBLE_VAULT_PW_FILE="$ANSIBLE_HOME/vault_password"
 BOOTSTRAP_REPO="{{ repo }}"
@@ -38,20 +37,6 @@ home = $ANSIBLE_HOME
 interpreter_python = auto_silent
 hash_behaviour = merge
 pipelining = True
-EOF
-
-cat <<EOF > "$ANSIBLE_REQS"
-collections:
-  - name: ansible.posix
-    version: 1.6.1
-  - name: community.crypto
-    version: 2.26.3
-  - name: community.general
-    version: 9.5.10
-  - name: devsec.hardening
-    version: 10.2.0
-  - name: kubernetes.core
-    version: 4.0.0
 EOF
 
 printf '%s\n' "$ANSIBLE_VAULT_PASSWORD" > "$ANSIBLE_VAULT_PW_FILE"

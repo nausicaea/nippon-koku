@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: tailscale
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Installs and configures the Tailscale mesh VPN
   company: Nausicaea AS

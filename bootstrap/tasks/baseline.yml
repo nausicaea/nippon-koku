@@ -2,24 +2,24 @@
 - name: Configure Etckeeper
   tags: etckeeper
   ansible.builtin.import_role:
-    name: nausicaea.etckeeper
+    name: nausicaea.nippon_koku.etckeeper
 
 - name: Configure networking
   tags: networking
   ansible.builtin.import_role:
-    name: nausicaea.networking
+    name: nausicaea.nippon_koku.networking
 
 - name: Configure Ansible (ansible-pull)
   tags: ansible
   ansible.builtin.import_role:
-    name: nausicaea.ansible
+    name: nausicaea.nippon_koku.ansible
 
 - name: Enable manual administration
   tags: manual_admin
   ansible.builtin.import_role:
-    name: nausicaea.manual_admin
+    name: nausicaea.nippon_koku.manual_admin
 
 - name: Apply system hardening
   tags: hardening
   ansible.builtin.import_role:
-    name: nausicaea.hardening
+    name: nausicaea.nippon_koku.hardening

@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: ansible
-  namespace: nausicaea
+  namespace: nausicaea.nippon_koku
   author: Eleanor Young
   description: Sets up the ansible system user and configures ansible-pull
   company: Nausicaea AS
