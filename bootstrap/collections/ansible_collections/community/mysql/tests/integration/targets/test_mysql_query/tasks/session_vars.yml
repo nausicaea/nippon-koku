@@ -1,0 +1,29 @@
+---
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: '{{ mysql_host }}'
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+  - name: Select sql_log_bin without session vars
+    mysql_query:
+      <<: *mysql_params
+      query: SELECT @@session.sql_log_bin AS sql_log_bin
+    register: result_without_vars
+
+  - name: Select sql_log_bin with session vars
+    mysql_query:
+      <<: *mysql_params
+      query: SELECT @@session.sql_log_bin AS sql_log_bin
+      session_vars:
+        sql_log_bin: 0
+    register: result_with_vars
+
+  - name: Assert sql_log_bin is set
+    ansible.builtin.assert:
+      that:
+        - 'result_without_vars.query_result[0][0].sql_log_bin == 1'
+        - 'result_with_vars.query_result[0][0].sql_log_bin == 0'

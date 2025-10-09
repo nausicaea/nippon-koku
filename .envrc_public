@@ -2,14 +2,6 @@ use_pip_packages() {
     pip --no-input -qq install -U -r "$1"
 }
 
-use_ansible_collections() {
-    local ansible_home
-    ansible_home="$(direnv_layout_dir)/ansible"
-    mkdir -p "$ansible_home"
-    export ANSIBLE_HOME="$ansible_home"
-    ansible-galaxy collection install -U -r "$1" >/dev/null
-}
-
 use_kubeseal_cert() {
   local cache_file
   cache_file="$(direnv_layout_dir)/sealed-secrets.crt"
@@ -24,6 +16,5 @@ use_kubeseal_cert() {
 layout python "/opt/homebrew/bin/python3.11"
 
 use pip_packages "$(expand_path requirements.txt)"
-use ansible_collections "$(expand_path bootstrap/roles/nausicaea.ansible/files/ansible-requirements.yml)"
 use kubeseal_cert
 
