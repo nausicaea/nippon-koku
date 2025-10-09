@@ -1,12 +1,12 @@
 ---
 galaxy_info:
-  role_name: tailscale
+  role_name: sealed_secrets
   namespace: nausicaea
   author: Eleanor Young
-  description: Installs and configures the Tailscale mesh VPN
+  description: Installs Bitnami Sealed Secrets core into the K3s cluster
   company: Nausicaea AS
   license: MIT
   min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - role: nausicaea.common
+  - role: nausicaea.nippon_koku.common

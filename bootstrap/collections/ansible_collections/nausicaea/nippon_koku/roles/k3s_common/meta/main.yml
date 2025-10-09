@@ -1,12 +1,12 @@
 ---
 galaxy_info:
-  role_name: fancontrol
+  role_name: k3s_common
   namespace: nausicaea
   author: Eleanor Young
-  description: Installs and configures mbpfan, to regulate Apple hardware fan speeds
+  description: Perform common prerequisites for K3s clusters
   company: Nausicaea AS
   license: MIT
   min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - role: nausicaea.common
+  - role: nausicaea.nippon_koku.common
