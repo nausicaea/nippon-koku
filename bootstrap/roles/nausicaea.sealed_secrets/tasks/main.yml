@@ -1,9 +1,11 @@
 ---
 - name: Deploy the Sealed Secrets keys
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     resource_definition: "{{ nausicaea.sealed_secrets.secrets.sealing_keys }}"
 
 - name: Deploy the Bitnami Sealed Secrets Helm chart
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: oci://registry-1.docker.io/bitnamicharts/sealed-secrets
     chart_version: 2.5.19

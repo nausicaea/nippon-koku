@@ -1,5 +1,6 @@
 ---
 - name: Apply a custom configuration to Traefik
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     state: present
     resource_definition:
@@ -28,6 +29,7 @@
                 default: true
 
 - name: Create a service for the Traefik dashboard
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     state: present
     resource_definition:
@@ -49,6 +51,7 @@
             targetPort: traefik
 
 - name: Create an ingress resource for the Traefik dashboard (Tailscale only)
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     state: present
     resource_definition:

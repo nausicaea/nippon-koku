@@ -6,6 +6,7 @@
     state: present
 
 - name: Deploy the Opentelemetry Operator Helm chart
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: opentelemetry/opentelemetry-operator
     chart_version: 0.97.0

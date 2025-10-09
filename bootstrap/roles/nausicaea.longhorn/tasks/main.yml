@@ -69,6 +69,7 @@
   become: true
 
 - name: Create the longhorn-system namespace
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     resource_definition:
       apiVersion: v1
@@ -77,6 +78,7 @@
         name: longhorn-system
 
 - name: Create the Longhorn backup secret
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     resource_definition:
       apiVersion: v1
@@ -101,6 +103,7 @@
     state: present
 
 - name: Deploy the Longhorn Helm chart
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: longhorn/longhorn
     chart_version: 1.10.0

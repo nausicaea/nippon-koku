@@ -1,5 +1,6 @@
 ---
 - name: Create the Tailscale namespace
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     resource_definition:
       apiVersion: v1
@@ -8,6 +9,7 @@
         name: tailscale
 
 - name: Create the Tailscale oauth secret
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     resource_definition:
       apiVersion: v1
@@ -28,6 +30,7 @@
     state: present
 
 - name: Deploy the Tailscale Operator Helm chart
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: tailscale/tailscale-operator
     chart_version: 1.88.3

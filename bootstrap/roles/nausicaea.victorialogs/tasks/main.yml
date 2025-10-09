@@ -6,6 +6,7 @@
     state: present
 
 - name: Deploy Victorialogs
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: victoriametrics/victoria-logs-single
     chart_version: 0.11.11

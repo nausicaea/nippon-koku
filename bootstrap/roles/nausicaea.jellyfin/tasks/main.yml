@@ -1,5 +1,6 @@
 ---
 - name: Create the jellyfin namespace
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     state: present
     resource_definition:
@@ -10,6 +11,7 @@
     wait: true
 
 - name: Create all other Jellyfin resources
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.k8s:
     state: present
     resource_definition: "{{ lookup('ansible.builtin.file', item) | from_yaml }}"

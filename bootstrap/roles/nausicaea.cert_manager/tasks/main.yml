@@ -6,6 +6,7 @@
     state: present
 
 - name: Deploy the Cert-Manager Helm chart
+  ignore_errors: "{{ ansible_check_mode }}"
   kubernetes.core.helm:
     chart_ref: jetstack/cert-manager
     chart_version: v1.18.2
