@@ -36,7 +36,7 @@
     chdir: /tmp
     creates: "{{ keyring_path }}"
     cmd: |
-      set -xeo pipefail
+      set -xe
       curl -Lo keyring.armored.gpg "{{ nausicaea.apt_custom_repo.keyring_url }}"
       printf '{{ keyring_checksum }}  keyring.armored.gpg' > keyring.armored.checksum
       shasum -c keyring.armored.checksum
