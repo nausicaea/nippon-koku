@@ -2,26 +2,6 @@
 
 set -e
 
-function build_image() {
-    OLD_IFS="$IFS"
-    IFS=","
-    read -r 'host_name' 'host_arch' 'host_boot_device' 'kube_apiserver_url' <<< "$9"
-    IFS="$OLD_IFS"
-
-    if [ "x$host_name" = "x" -o "x$host_arch" = "x" -o "x$host_boot_device" = "x" -o "x$kube_apiserver_url" = "x" ]; then
-        echo "Wrong host data format: Expected CSV data with four columns, got: '$9'"
-        return 1
-    fi
-
-    docker run --rm -q \
-        -v "$1/cache:/cache" -v "$1/artifacts:/artifacts" \
-        "$2" \
-        -b "$host_boot_device" -H "$host_name" -a "$host_arch" -B "$3" \
-        -r $(openssl passwd -6 $(op read --account="$4" "$5")) \
-        -v $(op read --account="$4" "$6") \
-        -e "$7" -s "$8" -k "$kube_apiserver_url"
-}
-
 # Positional arguments (provided via getotps)
 # HOST_DATA=""
 
@@ -37,6 +17,48 @@ INPUT_FILE=""
 SCRIPT_DIR=$(dirname "$0")
 CONTEXT_DIR="${SCRIPT_DIR}/os-install"
 IMAGE_TAG="nausicaea/debian-auto:latest"
+
+DOCKER=$(which docker || true)
+PODMAN=$(which podman || true)
+DOCKER_CLI=""
+if [ -n "$DOCKER" ]; then
+    DOCKER_CLI="$DOCKER"
+elif [ -n "$PODMAN" ]; then
+    DOCKER_CLI="$PODMAN"
+else
+    printf 'Could not find a Docker-compatible CLI application (looked for "docker" and "podman")\n' 1>&2
+    exit 1
+fi
+
+function build_image() {
+    OLD_IFS="$IFS"
+    IFS=","
+    read -r 'host_name' 'host_arch' 'host_boot_device' 'kube_apiserver_url' <<< "$9"
+    IFS="$OLD_IFS"
+
+    if [ "x$host_name" = "x" -o "x$host_arch" = "x" -o "x$host_boot_device" = "x" ]; then
+        echo "Wrong host data format: Expected CSV data with three columns, got: '$9'"
+        return 1
+    fi
+
+    CACHE_DIR="$1/cache"
+    if [ ! -d "$CACHE_DIR" ]; then
+        mkdir "$CACHE_DIR"
+    fi
+
+    ARTIFACT_DIR="$1/artifacts"
+    if [ ! -d "$ARTIFACT_DIR" ]; then
+        mkdir "$ARTIFACT_DIR"
+    fi
+
+    "$DOCKER_CLI" run --rm -q \
+        -v "$CACHE_DIR:/cache" -v "$ARTIFACT_DIR:/artifacts" \
+        "$2" \
+        -b "$host_boot_device" -H "$host_name" -a "$host_arch" -B "$3" \
+        -r $(openssl passwd -6 $(op read --account="$4" "$5")) \
+        -v $(op read --account="$4" "$6") \
+        -e "$7" -s "$8"
+}
 
 while getopts ':hi:' 'opt'; do
     case $opt in
@@ -63,8 +85,7 @@ OPTIONS:
 ARGUMENTS:
   HOST_DATA                     For every image to generate, 
                                 specify hostname, architecture, 
-                                boot device, and Kube API server 
-                                URL as CSV format.
+                                and boot device URL as CSV format.
 '
             exit 0
             ;;
@@ -84,7 +105,7 @@ done
 shift $((OPTIND-1))
 
 export DOCKER_CLI_HINTS=false
-docker build -q -t "$IMAGE_TAG" "$CONTEXT_DIR" >/dev/null
+"$DOCKER_CLI" build -q -t "$IMAGE_TAG" "$CONTEXT_DIR" >/dev/null
 
 if [ -f "$INPUT_FILE" ]; then
     while read 'host_data'; do
