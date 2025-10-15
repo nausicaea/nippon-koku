@@ -22,7 +22,7 @@ BOOT_DEVICE="${BOOT_DEVICE:-/dev/nvme0n1}"
 BOOTSTRAP_REPO="${BOOTSTRAP_REPO:-https://iris.radicle.xyz/zoBPQV6X2FH296n9gQxJr6suvSSi.git}"
 BOOTSTRAP_BRANCH="${BOOTSTRAP_BRANCH:-main}"
 DEBIAN_MIRROR="${DEBIAN_MIRROR:-debian.ethz.ch}"
-DEBIAN_VERSION="${DEBIAN_VERSION:-12.9.0}"
+DEBIAN_VERSION="${DEBIAN_VERSION:-13.1.0}"
 HOSTNAME="${HOSTNAME:-debian}"
 DOMAIN="${DOMAIN}"
 INSTALL_NONFREE_FIRMWARE="${INSTALL_NONFREE_FIRMWARE:-false}"
@@ -146,6 +146,7 @@ ARCH_SHORT=$(echo $ARCH | awk '{ if ($0 == "amd64") print "amd"; else if ($0 == 
 IMAGE_LABEL="Debian-$DEBIAN_VERSION-$ARCH-a"
 IMAGE_FILE="$HOSTNAME-debian-$DEBIAN_VERSION-$ARCH-auto.iso"
 ORIG_IMAGE_FILE="debian-$DEBIAN_VERSION-$ARCH-netinst.iso"
+ORIG_IMAGE_PATH="/cache/$ORIG_IMAGE_FILE"
 
 mkdir -p /cache /build /artifacts
 
@@ -153,12 +154,12 @@ mkdir -p /cache /build /artifacts
 cd /cache
 echo "Signature: 8a477f597d28d172789f06886806bc55" > /cache/CACHEDIR.TAG
 if [ ! -f "$ORIG_IMAGE_FILE" ]; then
-    curl -LO "https://cdimage.debian.org/debian-cd/$DEBIAN_VERSION/$ARCH/iso-cd/$ORIG_IMAGE_FILE"
+    curl -Lo "$ORIG_IMAGE_PATH" "https://cdimage.debian.org/debian-cd/$DEBIAN_VERSION/$ARCH/iso-cd/$ORIG_IMAGE_FILE"
 fi
 
 # Unpack the Debian netinstall image
 cd /build
-bsdtar -xf /cache/$ORIG_IMAGE_FILE
+bsdtar -xf "$ORIG_IMAGE_PATH"
 
 # Configure the Grub boot menu
 sed -e "s/{{ arch_short }}/$ARCH_SHORT/g" \
@@ -205,9 +206,10 @@ XORRISO_BASE_ARGS="-quiet -r -checksum_algorithm_iso sha256,sha512 -volid $IMAGE
 if [ "$ARCH" = "arm64" ]; then
     # Extract the EFI partition
     EFI_IMAGE=$(mktemp)
-    START_BLOCK=$(fdisk -l /cache/debian-12.9.0-arm64-netinst.iso | grep 'iso2' | awk '{ print $2 }')
-    BLOCK_COUNT=$(fdisk -l /cache/debian-12.9.0-arm64-netinst.iso | grep 'iso2' | awk '{ print $4 }')
-    dd if="/cache/$ORIG_IMAGE_FILE" bs=512 skip="$START_BLOCK" count="$BLOCK_COUNT" of="$EFI_IMAGE" 2> /dev/null
+    FDISK_ISO2_INFO=$(fdisk -l "$ORIG_IMAGE_PATH" | grep 'iso2')
+    START_BLOCK=$(printf '%s' "$FDISK_ISO2_INFO" | awk '{ print $2 }')
+    BLOCK_COUNT=$(printf '%s' "$FDISK_ISO2_INFO" | awk '{ print $4 }')
+    dd if="$ORIG_IMAGE_PATH" bs=512 skip="$START_BLOCK" count="$BLOCK_COUNT" of="$EFI_IMAGE" 2> /dev/null
     # The file /build/boot/grub/efi.img might be a good alternative
 
     exec xorrisofs $XORRISO_BASE_ARGS \
@@ -218,7 +220,7 @@ if [ "$ARCH" = "arm64" ]; then
 elif [ "$ARCH" = "amd64" -o "$ARCH" = "i386" ]; then
     # Extract MBR template file to disk
     MBR_TEMPLATE=$(mktemp)
-    dd if="/cache/$ORIG_IMAGE_FILE" bs=1 count=432 of="$MBR_TEMPLATE" 2> /dev/null
+    dd if="$ORIG_IMAGE_PATH" bs=1 count=432 of="$MBR_TEMPLATE" 2> /dev/null
     # The file /usr/lib/ISOLINUX/isohdpfx.bin might be a good alternative
     
     exec xorrisofs $XORRISO_BASE_ARGS \
