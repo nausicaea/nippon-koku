@@ -8,27 +8,27 @@ d-i debian-installer/locale string en_GB.UTF-8
 d-i keyboard-configuration/xkb-keymap select ch
 
 d-i netcfg/choose_interface select auto
-d-i netcfg/get_hostname string {{ hostname }}
-d-i netcfg/get_domain string {{ domain }}
+d-i netcfg/get_hostname string ${hostname}
+d-i netcfg/get_domain string ${domain}
 d-i netcfg/wireless_wep string
 
 d-i hw-detect/load_firmware boolean true
 
 d-i mirror/country string manual
-d-i mirror/http/hostname string {{ mirror }}
+d-i mirror/http/hostname string ${mirror}
 d-i mirror/http/directory string /debian
 d-i mirror/http/proxy string
 
 d-i passwd/make-user boolean false
-d-i passwd/root-password-crypted password {{ password }}
+d-i passwd/root-password-crypted password ${password}
 
 d-i clock-setup/utc boolean true
-d-i time/zone string {{ timezone }}
+d-i time/zone string ${timezone}
 d-i clock-setup/ntp boolean true
 
 # Thanks to @cavcrosby for the tip with the early command! https://github.com/cavcrosby/homelab-cm/blob/9339b9ed805f71064f81bc868d435503eb01e6f6/preseed.cfg.j2#L103C1-L103C126
-d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "{{ boot_device }}")"
-#d-i partman-auto/disk string {{ boot_device }}
+d-i partman/early_command string debconf-set partman-auto/disk "$$(readlink -f "${boot_device}")"
+#d-i partman-auto/disk string ${boot_device}
 d-i partman-auto/method string lvm
 d-i partman-auto-lvm/guided_size string max
 d-i partman-md/device_remove_md boolean true
@@ -52,7 +52,7 @@ d-i partman/confirm_nooverwrite boolean true
 
 d-i apt-setup/cdrom/set-first boolean false
 #d-i apt-setup/disable-cdrom-entries boolean true
-d-i apt-setup/non-free-firmware boolean {{ nonfree_firmware }}
+d-i apt-setup/non-free-firmware boolean ${nonfree_firmware}
 
 tasksel tasksel/first multiselect standard, ssh-server
 
@@ -63,7 +63,7 @@ popularity-contest popularity-contest/participate boolean true
 
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
-d-i grub-installer/bootdev string {{ boot_device }}
+d-i grub-installer/bootdev string ${boot_device}
 
 d-i debian-installer/add-kernel-opts string quiet audit=1
 

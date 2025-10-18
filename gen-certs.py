@@ -18,8 +18,12 @@ import OpenSSL.crypto
 
 
 SCRIPT_COMMIT_HASH: str = "0a47df6f60c8fa62ebedf7f44ca46cd27ef2ec85"
-SCRIPT_SHA256_HASH: str = "0dcbcb95891ee05fdbd81dc3487753bbcf7f3cd290a01667185a809994954887"
-SCRIPT_URL: str = f"https://raw.githubusercontent.com/k3s-io/k3s/{SCRIPT_COMMIT_HASH}/contrib/util/generate-custom-ca-certs.sh"
+SCRIPT_SHA256_HASH: str = (
+    "0dcbcb95891ee05fdbd81dc3487753bbcf7f3cd290a01667185a809994954887"
+)
+SCRIPT_URL: str = (
+    f"https://raw.githubusercontent.com/k3s-io/k3s/{SCRIPT_COMMIT_HASH}/contrib/util/generate-custom-ca-certs.sh"
+)
 
 
 def download_cert_generation_script(script_dest: pathlib.Path):
@@ -34,10 +38,19 @@ def download_cert_generation_script(script_dest: pathlib.Path):
     with script_dest.open("rb") as script_data:
         sha256_hash = hashlib.sha256(script_data.read()).hexdigest()
         if sha256_hash != SCRIPT_SHA256_HASH:
-            raise Exception(f"SHA256 hash mismatch: expected {SCRIPT_SHA256_HASH}, got {sha256_hash}")
+            raise Exception(
+                f"SHA256 hash mismatch: expected {SCRIPT_SHA256_HASH}, got {sha256_hash}"
+            )
 
 
-def create_k3s_cert_hierarchy(generate_custom_ca_certs: pathlib.Path, data_dir: pathlib.Path, temp_dir: pathlib.Path, cert_temp_dir: pathlib.Path, cert_archive_dest: pathlib.Path, ansible_args: list[str]):
+def create_k3s_cert_hierarchy(
+    generate_custom_ca_certs: pathlib.Path,
+    data_dir: pathlib.Path,
+    temp_dir: pathlib.Path,
+    cert_temp_dir: pathlib.Path,
+    cert_archive_dest: pathlib.Path,
+    ansible_args: list[str],
+):
     """
     Generate a custom certificate chain by calling the K3S helper script,
     archive all certificates, keys, and additional files into a TAR-GZIP
@@ -47,10 +60,11 @@ def create_k3s_cert_hierarchy(generate_custom_ca_certs: pathlib.Path, data_dir: 
     # Execute the script within the temporary directory
     data_dir.mkdir()
     subprocess.run(
-        ["/bin/sh", str(generate_custom_ca_certs)], 
-        cwd=temp_dir, 
+        ["/bin/sh", str(generate_custom_ca_certs)],
+        cwd=temp_dir,
         env={"DATA_DIR": str(data_dir)},
         capture_output=True,
+        check=True,
     )
 
     # Create and encrypt the certificate archive
@@ -59,12 +73,15 @@ def create_k3s_cert_hierarchy(generate_custom_ca_certs: pathlib.Path, data_dir: 
         cert_archive_file.add(cert_temp_dir, arcname=".", recursive=True)
 
     subprocess.run(
-        ["ansible-vault", "encrypt", *ansible_args, str(cert_archive_dest)], 
+        ["ansible-vault", "encrypt", *ansible_args, str(cert_archive_dest)],
         capture_output=True,
+        check=True,
     )
 
 
-def create_k3s_secure_token(root_ca_pem: pathlib.Path, k3s_token_dest: pathlib.Path, ansible_args: list[str]):
+def create_k3s_secure_token(
+    root_ca_pem: pathlib.Path, k3s_token_dest: pathlib.Path, ansible_args: list[str]
+):
     """
     Calculate the SHA256 hash of the root CA certificate in DER format,
     generate 16 bits of secure random data, construct a K3S secure token, write
@@ -74,8 +91,12 @@ def create_k3s_secure_token(root_ca_pem: pathlib.Path, k3s_token_dest: pathlib.P
     with root_ca_pem.open("rb") as root_ca_pem_file:
         root_ca_pem_data = root_ca_pem_file.read()
 
-    cert = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, root_ca_pem_data)
-    root_ca_der_data = OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_ASN1, cert)
+    cert = OpenSSL.crypto.load_certificate(
+        OpenSSL.crypto.FILETYPE_PEM, root_ca_pem_data
+    )
+    root_ca_der_data = OpenSSL.crypto.dump_certificate(
+        OpenSSL.crypto.FILETYPE_ASN1, cert
+    )
 
     root_ca_der_sha256_hash = hashlib.sha256(root_ca_der_data).hexdigest()
     k3s_token_short = secrets.token_hex(16)
@@ -85,18 +106,34 @@ def create_k3s_secure_token(root_ca_pem: pathlib.Path, k3s_token_dest: pathlib.P
         ktf.write(f"K10{root_ca_der_sha256_hash}::server:{k3s_token_short}")
 
     subprocess.run(
-        ["ansible-vault", "encrypt", *ansible_args, str(k3s_token_dest)], 
+        ["ansible-vault", "encrypt", *ansible_args, str(k3s_token_dest)],
         capture_output=True,
+        check=True,
     )
 
 
 def main():
     script_dir = pathlib.Path(__file__).parent
-    default_output_prefix = script_dir.joinpath("bootstrap", "roles", "nausicaea.k3s", "files")
+    default_output_prefix = script_dir.joinpath(
+        "bootstrap", "roles", "nausicaea.k3s", "files"
+    )
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("-a", "--ansible-arg", action="append", type=str, default=None, help="""Specify an additional argument for ansible-vault. Can be specified more than once. You must use the equal sign between the option '-a' and its value, i.e. '--ansible-arg="--vault-id vault-id"'""")
-    parser.add_argument("-p", "--output-prefix", type=pathlib.Path, default=default_output_prefix, help="Specify the output directory prefix")
+    parser.add_argument(
+        "-a",
+        "--ansible-arg",
+        action="append",
+        type=str,
+        default=None,
+        help="""Specify an additional argument for ansible-vault. Can be specified more than once. You must use the equal sign between the option '-a' and its value, i.e. '--ansible-arg="--vault-id vault-id"'""",
+    )
+    parser.add_argument(
+        "-p",
+        "--output-prefix",
+        type=pathlib.Path,
+        default=default_output_prefix,
+        help="Specify the output directory prefix",
+    )
     matches = parser.parse_args()
 
     ansible_args: list[str] = matches.ansible_arg

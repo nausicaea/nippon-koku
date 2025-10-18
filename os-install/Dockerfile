@@ -9,21 +9,30 @@ LABEL org.opencontainers.image.licenses="GPLv3"
 
 VOLUME ["/cache", "/artifacts"]
 
+ENV ROOT_PASSWORD_CRYPTED=
+ENV ANSIBLE_VAULT_PASSWORD=
+ENV GIT_AUTHOR_EMAIL=
+ENV GIT_AUTHOR_SSH_PUB=
+
 RUN <<-EOM
     set -e
     apt-get update
     apt-get install -y \
         make curl libarchive-tools cpio genisoimage \
         coreutils util-linux xorriso syslinux-common \
-        syslinux-efi isolinux fdisk
+        syslinux-efi isolinux fdisk python3
     apt-get clean
 EOM
 
 WORKDIR /src
 COPY --link --chown=root:root --chmod=0400 ./templates/* ./
 
+WORKDIR /usr/local/lib/debian_auto
+COPY --link --chown=root:root --chmod=0755 ./gen_images.py ./
+COPY --link --chown=root:root --chmod=0755 ./test_gen_images.py ./
+
 WORKDIR /usr/local/bin
-COPY --link --chown=root:root --chmod=0755 ./docker-entrypoint.sh ./docker-entrypoint
+RUN ln -s /usr/local/lib/debian_auto/gen_images.py /usr/local/bin/gen-images
 
 WORKDIR /cache
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/gen-images"]
