@@ -82,9 +82,7 @@ def template_grub(spec: ImageSpec, prefix: Path) -> None:
     with Path("/src/grub.cfg.t").open("rt") as f:
         template = Template(f.read())
 
-    substitutions = {
-        "arch_short": to_grub_arch(spec.arch),
-    }
+    substitutions = {"arch_short": to_grub_arch(spec.arch)}
 
     result = template.substitute(substitutions)
 
@@ -143,15 +141,7 @@ def bake_preseed(
             shutil.copyfileobj(initrd, initrd_decompressed)
 
         initrd_decompressed_path = Path(initrd_decompressed.name)
-        cpio_args = [
-            "cpio",
-            "-H",
-            "newc",
-            "-o",
-            "-A",
-            "-F",
-            initrd_decompressed_path,
-        ]
+        cpio_args = ["cpio", "-H", "newc", "-o", "-A", "-F", initrd_decompressed_path]
         if verbose:
             cpio_args.append("-v")
         run(cpio_args, cwd=tmp_prefix, input="preseed.cfg\n", text=True, check=True)
@@ -220,11 +210,7 @@ def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) ->
     if not verbose:
         base_args.insert(0, "-quiet")
     run(
-        [
-            "xorrisofs",
-            *base_args,
-            *extra_args,
-        ],
+        ["xorrisofs", *base_args, *extra_args],
         check=True,
     )
 
@@ -314,13 +300,7 @@ def parse_host_data(src: Iterable[str]) -> list[HostData]:
         src, dialect="unix", fieldnames=["host_name", "arch", "boot_device"]
     )
     for row in csv_data:
-        host_data.append(
-            HostData(
-                row["host_name"],
-                row["arch"],
-                row["boot_device"],
-            )
-        )
+        host_data.append(HostData(row["host_name"], row["arch"], row["boot_device"]))
     return host_data
 
 

@@ -17,4 +17,3 @@ layout python "/opt/homebrew/bin/python3.11"
 
 use pip_packages "$(expand_path requirements.txt)"
 use kubeseal_cert
-
