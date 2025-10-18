@@ -10,9 +10,10 @@ import os
 from pathlib import Path
 import shutil
 from string import Template
-import subprocess
+from subprocess import run
 import sys
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import Any
 import urllib.request
 
 
@@ -64,7 +65,7 @@ def download_image(debian_version: str, arch: str, verbose: bool) -> Path:
     orig_image_file = Path(f"/cache/debian-{debian_version}-{arch}-netinst.iso")
     if not orig_image_file.exists():
         if verbose:
-            print(f'Downloading "{image_url}"')
+            print(f'Downloading "{image_url}"', file=sys.stderr)
         with urllib.request.urlopen(image_url) as response:
             with orig_image_file.open("wb") as f:
                 shutil.copyfileobj(response, f)
@@ -74,9 +75,7 @@ def download_image(debian_version: str, arch: str, verbose: bool) -> Path:
 
 # Unpack the Debian netinstall image
 def unpack_image(src: Path, dest: Path, verbose: bool) -> None:
-    subprocess.run(
-        ["bsdtar", f'-{"v" if verbose else ""}xf', str(src)], cwd=dest, check=True
-    )
+    run(["bsdtar", f'-{"v" if verbose else ""}xf', src], cwd=dest, check=True)
 
 
 def template_grub(spec: ImageSpec, prefix: Path) -> None:
@@ -151,13 +150,11 @@ def bake_preseed(
             "-o",
             "-A",
             "-F",
-            str(initrd_decompressed_path),
+            initrd_decompressed_path,
         ]
         if verbose:
             cpio_args.append("-v")
-        subprocess.run(
-            cpio_args, cwd=tmp_prefix, input="preseed.cfg\n", text=True, check=True
-        )
+        run(cpio_args, cwd=tmp_prefix, input="preseed.cfg\n", text=True, check=True)
 
         with gzip.open(initrd_path, mode="wb") as initrd:
             initrd_decompressed.seek(0)
@@ -166,7 +163,7 @@ def bake_preseed(
 
 def update_md5sum(prefix: Path, verbose: bool) -> None:
     with prefix.joinpath("md5sum.txt").open("wb") as f:
-        subprocess.run(
+        run(
             ["find", ".", "-type", "f", "-exec", "md5sum", "{}", ";"],
             cwd=prefix,
             stdout=f,
@@ -185,86 +182,94 @@ def parse_efi_partition_info(fdisk_output: str) -> (int, int):
 
 
 def efi_partition_info(image: Path) -> (int, int):
-    fdisk_info_proc = subprocess.run(
-        ["fdisk", "-l", str(image)], capture_output=True, text=True, check=True
+    fdisk_info_proc = run(
+        ["fdisk", "-l", image], capture_output=True, text=True, check=True
     )
     start_block, block_count = parse_efi_partition_info(fdisk_info_proc.stdout)
     return start_block, block_count
 
 
-def build_xorriso_image(
-    spec: ImageSpec, orig_image_path: Path, prefix: Path, dest: Path, verbose: bool
+def dd(
+    src: Path, dest: Path, start_block: int, block_size: int, block_count: int
 ) -> None:
+    run(
+        [
+            "dd",
+            f"if={src}",
+            f"skip={start_block}",
+            f"bs={block_size}",
+            f"count={block_count}",
+            f"of={dest}",
+        ],
+        check=True,
+    )
+
+
+def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) -> None:
     base_args = [
         "-r",
         "-checksum_algorithm_iso",
         "sha256,sha512",
         "-volid",
-        f"Debian-{spec.debian_version}-{spec.arch}-a",
+        volume_id,
         "-o",
-        str(
-            dest.joinpath(
-                f"{spec.host_name}-debian-{spec.debian_version}-{spec.arch}-auto.iso"
-            )
-        ),
+        dest,
         "-J",
         "-joliet-long",
     ]
     if not verbose:
         base_args.insert(0, "-quiet")
+    run(
+        [
+            "xorrisofs",
+            *base_args,
+            *extra_args,
+        ],
+        check=True,
+    )
 
-    match spec.arch:
-        case "arm64":
-            with NamedTemporaryFile(mode="wb") as f:
+
+def build_xorriso_image(
+    spec: ImageSpec, orig_image_path: Path, prefix: Path, dest: Path, verbose: bool
+) -> None:
+    volume_id = f"Debian_{spec.debian_version}_{spec.arch}_a".replace(".", "_")
+    dest_file = dest.joinpath(
+        f"{spec.host_name}-debian-{spec.debian_version}-{spec.arch}-auto.iso"
+    )
+    with NamedTemporaryFile(mode="wb") as efi_or_mbr_tempfile:
+        efi_or_mbr = Path(efi_or_mbr_tempfile.name)
+        match spec.arch:
+            case "arm64":
                 start_block, block_count = efi_partition_info(orig_image_path)
 
                 # Extract the EFI partition
-                subprocess.run(
+                dd(orig_image_path, efi_or_mbr, start_block, 512, block_count)
+                xorriso(
+                    dest_file,
+                    volume_id,
                     [
-                        "dd",
-                        f"if={orig_image_path}",
-                        "bs=512",
-                        f"count={block_count}",
-                        f"of={f.name}",
-                    ],
-                    check=True,
-                )
-                subprocess.run(
-                    [
-                        "xorrisofs",
-                        *base_args,
                         "-e",
                         "boot/grub/efi.img",
                         "-no-emul-boot",
                         "-append_partition",
                         "2",
                         "0xef",
-                        f.name,
+                        efi_or_mbr,
                         "-partition_cyl_align",
                         "all",
-                        str(prefix),
+                        prefix,
                     ],
-                    check=True,
+                    verbose,
                 )
-        case "amd64" | "i386":
-            with NamedTemporaryFile(mode="wb") as f:
+            case "amd64" | "i386":
                 # Extract MBR template file to disk
-                subprocess.run(
+                dd(orig_image_path, efi_or_mbr, 0, 1, 432)
+                xorriso(
+                    dest_file,
+                    volume_id,
                     [
-                        "dd",
-                        f"if={orig_image_path}",
-                        "bs=1",
-                        "count=432",
-                        f"of={f.name}",
-                    ],
-                    check=True,
-                )
-                subprocess.run(
-                    [
-                        "xorrisofs",
-                        *base_args,
                         "-isohybrid-mbr",
-                        f.name,
+                        efi_or_mbr,
                         "-b",
                         "isolinux/isolinux.bin",
                         "-c",
@@ -279,12 +284,12 @@ def build_xorriso_image(
                         "-no-emul-boot",
                         "-isohybrid-gpt-basdat",
                         "-isohybrid-apm-hfsplus",
-                        str(prefix),
+                        prefix,
                     ],
-                    check=True,
+                    verbose,
                 )
-        case _:
-            raise ValueError(f'Unsupported architecture "{spec.arch}"')
+            case _:
+                raise ValueError(f'Unsupported architecture "{spec.arch}"')
 
 
 def build_image(spec: ImageSpec, dest: Path, verbose: bool) -> None:
@@ -316,7 +321,6 @@ def parse_host_data(src: Iterable[str]) -> list[HostData]:
                 row["boot_device"],
             )
         )
-
     return host_data
 
 
