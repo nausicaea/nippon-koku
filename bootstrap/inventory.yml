@@ -4,7 +4,6 @@ all:
     shizuoka: {}
     osaka: {}
     kagawa: {}
-    gemini.nausicaea.net: {}
   children:
     longhorn:
       hosts:
@@ -16,7 +15,6 @@ all:
         shizuoka: {}
         osaka: {}
         kagawa: {}
-        gemini.nausicaea.net: {}
     k3s_cluster_init_server:
       hosts:
         shizuoka: {}
