@@ -57,12 +57,12 @@ def to_grub_arch(arch: str) -> str:
 
 
 # Download the Debian netinstall image
-def download_image(debian_version: str, arch: str, verbose: bool) -> Path:
-    with Path("/cache/CACHEDIR.TAG").open("wt") as f:
+def download_image(debian_version: str, arch: str, cache_dir: Path, verbose: bool) -> Path:
+    with cache_dir.joinpath("CACHEDIR.TAG").open("wt") as f:
         f.write("Signature: 8a477f597d28d172789f06886806bc55\n")
 
     image_url = f"https://cdimage.debian.org/debian-cd/{debian_version}/{arch}/iso-cd/debian-{debian_version}-{arch}-netinst.iso"
-    orig_image_file = Path(f"/cache/debian-{debian_version}-{arch}-netinst.iso")
+    orig_image_file = cache_dir.joinpath(f"debian-{debian_version}-{arch}-netinst.iso")
     if not orig_image_file.exists():
         if verbose:
             print(f'Downloading "{image_url}"', file=sys.stderr)
@@ -278,9 +278,9 @@ def build_xorriso_image(
                 raise ValueError(f'Unsupported architecture "{spec.arch}"')
 
 
-def build_image(spec: ImageSpec, dest: Path, verbose: bool) -> None:
+def build_image(spec: ImageSpec, dest: Path, cache_dir: Path, verbose: bool) -> None:
     grub_arch = to_grub_arch(spec.arch)
-    orig_image_file = download_image(spec.debian_version, spec.arch, verbose)
+    orig_image_file = download_image(spec.debian_version, spec.arch, cache_dir, verbose)
     with TemporaryDirectory() as staging_tmpdir:
         staging_dir = Path(staging_tmpdir)
         unpack_image(orig_image_file, staging_dir, verbose)
@@ -311,20 +311,16 @@ def require_env(name: str) -> str:
     return env_value
 
 
-def main() -> None:
+def _main() -> None:
     parser = argparse.ArgumentParser(
         description="Generates one or more Debian ISO images with a preseed configuration. The preseed images are saved to the ./artifacts/ directory, while the original unmodified images are saved to the ./cache/ directory.",
         epilog="Project home page: https://app.radicle.xyz/nodes/iris.radicle.xyz/rad:zoBPQV6X2FH296n9gQxJr6suvSSi",
     )
     parser.add_argument(
-        "-i",
-        "--input-file",
-        help='Optionally specify a file with host data triplets (each separated by newlines). The special value "-" indicates that you would like to read data from stdin.',
-    )
-    parser.add_argument(
-        "host_data",
-        nargs="*",
-        help="For every image to generate, specify hostname, architecture, and boot device URL as CSV format.",
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Optionally enable verbose output"
     )
     matches = parser.parse_args()
 
@@ -335,21 +331,11 @@ def main() -> None:
     git_author_ssh_pub = require_env("GIT_AUTHOR_SSH_PUB")
 
     output_dir = Path("/artifacts")
-    verbose = True
+    cache_dir = Path("/cache")
+    verbose: bool = matches.verbose
 
     # Parse the host data
-    host_data = list()
-    if matches.input_file == "-":
-        host_data.extend(parse_host_data(sys.stdin))
-    elif matches.input_file is not None:
-        input_file = Path(matches.input_file)
-        if input_file.is_file():
-            with input_file.open("rt") as f:
-                host_data.extend(parse_host_data(f))
-
-    host_data.extend(parse_host_data(matches.host_data))
-
-    for hd in host_data:
+    for hd in parse_host_data(sys.stdin):
         build_image(
             ImageSpec(
                 hd.host_name,
@@ -361,9 +347,10 @@ def main() -> None:
                 git_author_ssh_pub,
             ),
             output_dir,
+            cache_dir,
             verbose,
         )
 
 
 if __name__ == "__main__":
-    main()
+    _main()

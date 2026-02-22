@@ -57,7 +57,7 @@ d-i apt-setup/non-free-firmware boolean ${nonfree_firmware}
 tasksel tasksel/first multiselect standard, ssh-server
 
 d-i pkgsel/upgrade select safe-upgrade
-d-i pkgsel/include string resolvconf git curl ansible-core
+d-i pkgsel/include string resolvconf git curl ansible-core openssh-server
 
 popularity-contest popularity-contest/participate boolean true
 
@@ -73,6 +73,7 @@ d-i finish-install/reboot_in_progress note
 #   Shell command or commands to run in the d-i environment as late as possible
 # d-i preseed/late_command string <string>
 d-i preseed/late_command string \
+    in-target sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config; \
     mkdir -p /target/tmp; \
     cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
     chmod 0500 /target/tmp/post-install.sh; \

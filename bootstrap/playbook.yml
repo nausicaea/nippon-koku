@@ -53,11 +53,7 @@
   tasks:
     - name: Clean up leftovers from bootstrapping
       ansible.builtin.import_tasks:
-        file: tasks/bootstrap_cleanup.yml
-
-    - name: Apply baseline tasks
-      ansible.builtin.import_tasks:
-        file: tasks/baseline.yml
+        file: tasks/bootstrap.yml
 
 - name: Apply the baseline to all systems
   hosts: dyn_stage_live

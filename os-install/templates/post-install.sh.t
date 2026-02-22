@@ -53,10 +53,6 @@ BOOTSTRAP_BRANCH="$$BOOTSTRAP_BRANCH"
 EOF
 
 echo "PI: Stage 2"
-export ANSIBLE_HOME
-ansible-galaxy collection install -r "$$ANSIBLE_REQS"
-
-echo "PI: Stage 3"
 export BOOTSTRAP_BRANCH
 ansible-pull -U "$$BOOTSTRAP_REPO" -C "$$BOOTSTRAP_BRANCH" --clean \
     --verify-commit \
