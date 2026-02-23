@@ -17,7 +17,19 @@ from typing import Any
 import urllib.request
 
 
-@dataclass
+def which_optional(name: str) -> Path | None:
+    p = shutil.which(name)
+    return Path(p) if p is not None else None
+
+
+def which(name: str) -> Path:
+    p = shutil.which(name)
+    if p is None:
+        raise ValueError(f"Unknown command: {name}")
+    return Path(p)
+
+
+@dataclass(frozen=True)
 class ImageSpec:
     host_name: str
     arch: str
@@ -30,14 +42,14 @@ class ImageSpec:
     bootstrap_branch: str = "main"
     bootstrap_dest: str = "/var/lib/ansible/repo"
     debian_mirror: str = "debian.ethz.ch"
-    debian_version: str = "13.1.0"
+    debian_version: str = "13.3.0"
     install_nonfree_firmware: bool = False
     timezone: str = "Europe/Zurich"
     domain: str = ""
     ansible_home: str = "/var/lib/ansible"
 
 
-@dataclass
+@dataclass(frozen=True)
 class HostData:
     host_name: str
     arch: str
@@ -75,7 +87,8 @@ def download_image(debian_version: str, arch: str, cache_dir: Path, verbose: boo
 
 # Unpack the Debian netinstall image
 def unpack_image(src: Path, dest: Path, verbose: bool) -> None:
-    run(["bsdtar", f'-{"v" if verbose else ""}xf', src], cwd=dest, check=True)
+    bsdtar_path = which("bsdtar")
+    run([bsdtar_path, "-xf", src], cwd=dest, check=True)
 
 
 def template_grub(spec: ImageSpec, prefix: Path) -> None:
@@ -110,7 +123,7 @@ def template_post_install(spec: ImageSpec, prefix: Path) -> None:
         f.write(result)
 
 
-def template_preseed(spec: ImageSpec, tmp_prefix: Path) -> None:
+def template_preseed(spec: ImageSpec, preseed_staging_dir: Path) -> None:
     with Path("/src/preseed.cfg.t").open("rt") as f:
         template = Template(f.read())
 
@@ -126,35 +139,35 @@ def template_preseed(spec: ImageSpec, tmp_prefix: Path) -> None:
 
     result = template.substitute(substitutions)
 
-    with tmp_prefix.joinpath("preseed.cfg").open("wt") as f:
+    with preseed_staging_dir.joinpath("preseed.cfg").open("wt") as f:
         f.write(result)
 
 
 def bake_preseed(
-    spec: ImageSpec, prefix: Path, tmp_prefix: Path, verbose: bool
+    spec: ImageSpec, prefix: Path, preseed_staging_dir: Path, verbose: bool, tmp_dir: Path | None = None
 ) -> None:
+    cpio_path = which("cpio")
     grub_arch = to_grub_arch(spec.arch)
     initrd_dir = prefix.joinpath(f"install.{grub_arch}")
     initrd_path = initrd_dir.joinpath("initrd.gz")
-    with NamedTemporaryFile(mode="r+b") as initrd_decompressed:
+    with NamedTemporaryFile(mode="r+b", prefix="initrd", dir=tmp_dir, delete=(tmp_dir is None)) as initrd_decompressed:
         with gzip.open(initrd_path, mode="rb") as initrd:
             shutil.copyfileobj(initrd, initrd_decompressed)
+            initrd_decompressed.seek(0)
 
         initrd_decompressed_path = Path(initrd_decompressed.name)
-        cpio_args = ["cpio", "-H", "newc", "-o", "-A", "-F", initrd_decompressed_path]
-        if verbose:
-            cpio_args.append("-v")
-        run(cpio_args, cwd=tmp_prefix, input="preseed.cfg\n", text=True, check=True)
+        cpio_args = [cpio_path, "-v", "-H", "newc", "-o", "-A", "--reproducible", "-F", initrd_decompressed_path]
+        run(cpio_args, cwd=preseed_staging_dir, input="preseed.cfg", text=True, check=True)
 
         with gzip.open(initrd_path, mode="wb") as initrd:
-            initrd_decompressed.seek(0)
             shutil.copyfileobj(initrd_decompressed, initrd)
 
 
 def update_md5sum(prefix: Path, verbose: bool) -> None:
+    find_path = which("find")
     with prefix.joinpath("md5sum.txt").open("wb") as f:
         run(
-            ["find", ".", "-type", "f", "-exec", "md5sum", "{}", ";"],
+            [find_path, ".", "-type", "f", "-exec", "md5sum", "{}", ";"],
             cwd=prefix,
             stdout=f,
             check=True,
@@ -172,8 +185,9 @@ def parse_efi_partition_info(fdisk_output: str) -> (int, int):
 
 
 def efi_partition_info(image: Path) -> (int, int):
+    fdisk_path = which("fdisk")
     fdisk_info_proc = run(
-        ["fdisk", "-l", image], capture_output=True, text=True, check=True
+        [fdisk_path, "-l", image], capture_output=True, text=True, check=True
     )
     start_block, block_count = parse_efi_partition_info(fdisk_info_proc.stdout)
     return start_block, block_count
@@ -182,9 +196,10 @@ def efi_partition_info(image: Path) -> (int, int):
 def dd(
     src: Path, dest: Path, start_block: int, block_size: int, block_count: int
 ) -> None:
+    dd_path = which("dd")
     run(
         [
-            "dd",
+            dd_path,
             f"if={src}",
             f"skip={start_block}",
             f"bs={block_size}",
@@ -196,6 +211,7 @@ def dd(
 
 
 def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) -> None:
+    xorrisofs_path = which("xorrisofs")
     base_args = [
         "-r",
         "-checksum_algorithm_iso",
@@ -210,19 +226,19 @@ def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) ->
     if not verbose:
         base_args.insert(0, "-quiet")
     run(
-        ["xorrisofs", *base_args, *extra_args],
+        [xorrisofs_path, *base_args, *extra_args],
         check=True,
     )
 
 
 def build_xorriso_image(
-    spec: ImageSpec, orig_image_path: Path, prefix: Path, dest: Path, verbose: bool
+    spec: ImageSpec, orig_image_path: Path, prefix: Path, dest: Path, verbose: bool, tmp_dir: Path | None = None
 ) -> None:
     volume_id = f"Debian_{spec.debian_version}_{spec.arch}_a".replace(".", "_")
     dest_file = dest.joinpath(
         f"{spec.host_name}-debian-{spec.debian_version}-{spec.arch}-auto.iso"
     )
-    with NamedTemporaryFile(mode="wb") as efi_or_mbr_tempfile:
+    with NamedTemporaryFile(mode="wb", prefix="efi", dir=tmp_dir, delete=(tmp_dir is None)) as efi_or_mbr_tempfile:
         efi_or_mbr = Path(efi_or_mbr_tempfile.name)
         match spec.arch:
             case "arm64":
@@ -278,20 +294,20 @@ def build_xorriso_image(
                 raise ValueError(f'Unsupported architecture "{spec.arch}"')
 
 
-def build_image(spec: ImageSpec, dest: Path, cache_dir: Path, verbose: bool) -> None:
+def build_image(spec: ImageSpec, dest: Path, cache_dir: Path, verbose: bool, tmp_dir: Path | None = None) -> None:
     grub_arch = to_grub_arch(spec.arch)
     orig_image_file = download_image(spec.debian_version, spec.arch, cache_dir, verbose)
-    with TemporaryDirectory() as staging_tmpdir:
+    with TemporaryDirectory(prefix="staging", dir=tmp_dir, delete=(tmp_dir is None)) as staging_tmpdir:
         staging_dir = Path(staging_tmpdir)
         unpack_image(orig_image_file, staging_dir, verbose)
         template_grub(spec, staging_dir)
         template_post_install(spec, staging_dir)
-        with TemporaryDirectory() as preseed_tmpdir:
+        with TemporaryDirectory(prefix="preseed", dir=tmp_dir, delete=(tmp_dir is None)) as preseed_tmpdir:
             preseed_dir = Path(preseed_tmpdir)
             template_preseed(spec, preseed_dir)
-            bake_preseed(spec, staging_dir, preseed_dir, verbose)
+            bake_preseed(spec, staging_dir, preseed_dir, verbose, tmp_dir)
         update_md5sum(staging_dir, verbose)
-        build_xorriso_image(spec, orig_image_file, staging_dir, dest, verbose)
+        build_xorriso_image(spec, orig_image_file, staging_dir, dest, verbose, tmp_dir)
 
 
 def parse_host_data(src: Iterable[str]) -> list[HostData]:
@@ -315,12 +331,19 @@ def _main() -> None:
     parser = argparse.ArgumentParser(
         description="Generates one or more Debian ISO images with a preseed configuration. The preseed images are saved to the ./artifacts/ directory, while the original unmodified images are saved to the ./cache/ directory.",
         epilog="Project home page: https://app.radicle.xyz/nodes/iris.radicle.xyz/rad:zoBPQV6X2FH296n9gQxJr6suvSSi",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="Optionally enable verbose output"
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Optionally enable debugging"
     )
     matches = parser.parse_args()
 
@@ -333,6 +356,11 @@ def _main() -> None:
     output_dir = Path("/artifacts")
     cache_dir = Path("/cache")
     verbose: bool = matches.verbose
+    debug: bool = matches.debug
+
+    tmp_dir: Path | None = None
+    if debug:
+        tmp_dir = Path("/tmp")
 
     # Parse the host data
     for hd in parse_host_data(sys.stdin):
@@ -349,6 +377,7 @@ def _main() -> None:
             output_dir,
             cache_dir,
             verbose,
+            tmp_dir,
         )
 
 

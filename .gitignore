@@ -2,8 +2,7 @@
 sec*.yaml
 .envrc
 .direnv/
-cache/
-artifacts/
+build/
 ansible-facts.json
 __pycache__
 

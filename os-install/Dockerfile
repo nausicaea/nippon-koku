@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:13.1-slim@sha256:1caf1c703c8f7e15dcf2e7769b35000c764e6f50e4d7401c355fb0248f3ddfdb
+FROM docker.io/library/debian:13.3-slim@sha256:f6e2cfac5cf956ea044b4bd75e6397b4372ad88fe00908045e9a0d21712ae3ba
 
 LABEL org.opencontainers.image.title="Debian Automated Install Builder"
 LABEL org.opencontainers.image.description="Builds Debian ISO installers with a preseed configuration"
