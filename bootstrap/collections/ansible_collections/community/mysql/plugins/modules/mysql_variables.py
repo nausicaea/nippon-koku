@@ -48,6 +48,11 @@ options:
 attributes:
   check_mode:
     support: none
+  idempotent:
+    support: partial
+    details:
+      - The module is idempotent when O(value) is not set (read-only query).
+      - When setting a value, the module is idempotent.
 
 seealso:
 - module: community.mysql.mysql_info

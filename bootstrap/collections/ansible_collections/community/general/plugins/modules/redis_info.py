@@ -1,25 +1,22 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2020, Pavlo Bashynskyi (@levonet) <levonet@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: redis_info
 short_description: Gather information about Redis servers
 version_added: '0.2.0'
 description:
-- Gathers information and statistics about Redis servers.
+  - Gathers information and statistics about Redis servers.
 extends_documentation_fragment:
-- community.general.redis
-- community.general.attributes
-- community.general.attributes.info_module
+  - community.general.redis
+  - community.general.attributes
+  - community.general.attributes.info_module
 options:
   login_user:
     version_added: 7.5.0
@@ -36,11 +33,11 @@ options:
     type: bool
     version_added: 9.1.0
 seealso:
-- module: community.general.redis
+  - module: community.general.redis
 author: "Pavlo Bashynskyi (@levonet)"
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Get server information
   community.general.redis_info:
   register: result
@@ -57,14 +54,15 @@ EXAMPLES = r'''
 - name: Print server cluster information
   ansible.builtin.debug:
     var: result.cluster_info
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 info:
   description: The default set of server information sections U(https://redis.io/commands/info).
   returned: success
   type: dict
-  sample: {
+  sample:
+    {
       "active_defrag_hits": 0,
       "active_defrag_key_hits": 0,
       "active_defrag_key_misses": 0,
@@ -197,36 +195,40 @@ cluster:
   returned: success if O(cluster=true)
   version_added: 9.1.0
   type: dict
-  sample: {
-     "cluster_state": ok,
-     "cluster_slots_assigned": 16384,
-     "cluster_slots_ok": 16384,
-     "cluster_slots_pfail": 0,
-     "cluster_slots_fail": 0,
-     "cluster_known_nodes": 6,
-     "cluster_size": 3,
-     "cluster_current_epoch": 6,
-     "cluster_my_epoch": 2,
-     "cluster_stats_messages_sent": 1483972,
-     "cluster_stats_messages_received": 1483968,
-     "total_cluster_links_buffer_limit_exceeded": 0
-  }
-'''
+  sample:
+    {
+      "cluster_state": "ok",
+      "cluster_slots_assigned": 16384,
+      "cluster_slots_ok": 16384,
+      "cluster_slots_pfail": 0,
+      "cluster_slots_fail": 0,
+      "cluster_known_nodes": 6,
+      "cluster_size": 3,
+      "cluster_current_epoch": 6,
+      "cluster_my_epoch": 2,
+      "cluster_stats_messages_sent": 1483972,
+      "cluster_stats_messages_received": 1483968,
+      "total_cluster_links_buffer_limit_exceeded": 0
+    }
+"""
 
 import traceback
 
 REDIS_IMP_ERR = None
 try:
     from redis import StrictRedis
+
     HAS_REDIS_PACKAGE = True
 except ImportError:
     REDIS_IMP_ERR = traceback.format_exc()
     HAS_REDIS_PACKAGE = False
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import to_native
 from ansible_collections.community.general.plugins.module_utils.redis import (
-    fail_imports, redis_auth_argument_spec, redis_auth_params)
+    fail_imports,
+    redis_auth_argument_spec,
+    redis_auth_params,
+)
 
 
 def redis_client(**client_params):
@@ -236,7 +238,7 @@ def redis_client(**client_params):
 # Module execution.
 def main():
     module_args = dict(
-        cluster=dict(type='bool', default=False),
+        cluster=dict(type="bool", default=False),
     )
     module_args.update(redis_auth_argument_spec(tls_default=False))
     module = AnsibleModule(
@@ -244,27 +246,27 @@ def main():
         supports_check_mode=True,
     )
 
-    fail_imports(module, module.params['tls'])
+    fail_imports(module, module.params["tls"])
 
     redis_params = redis_auth_params(module)
-    cluster = module.params['cluster']
+    cluster = module.params["cluster"]
 
     # Connect and check
     client = redis_client(**redis_params)
     try:
         client.ping()
     except Exception as e:
-        module.fail_json(msg="unable to connect to database: %s" % to_native(e), exception=traceback.format_exc())
+        module.fail_json(msg=f"unable to connect to database: {e}", exception=traceback.format_exc())
 
     info = client.info()
 
     result = dict(changed=False, info=info)
 
     if cluster:
-        result['cluster_info'] = client.execute_command('CLUSTER INFO')
+        result["cluster_info"] = client.execute_command("CLUSTER INFO")
 
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

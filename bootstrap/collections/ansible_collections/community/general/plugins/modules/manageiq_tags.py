@@ -1,16 +1,13 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2017, Daniel Korn <korndaniel1@gmail.com>
 # Copyright (c) 2017, Yaacov Zamir <yzamir@redhat.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
-
+DOCUMENTATION = r"""
 module: manageiq_tags
 
 short_description: Management of resource tags in ManageIQ
@@ -21,7 +18,6 @@ extends_documentation_fragment:
 author: Daniel Korn (@dkorn)
 description:
   - The manageiq_tags module supports adding, updating and deleting tags in ManageIQ.
-
 attributes:
   check_mode:
     support: none
@@ -32,7 +28,7 @@ options:
   state:
     type: str
     description:
-      - V(absent) - tags should not exist.
+      - V(absent) - tags should not exist,
       - V(present) - tags should exist.
     choices: ['absent', 'present']
     default: 'present'
@@ -47,52 +43,64 @@ options:
     description:
       - The relevant resource type in manageiq.
     required: true
-    choices: ['provider', 'host', 'vm', 'blueprint', 'category', 'cluster',
-        'data store', 'group', 'resource pool', 'service', 'service template',
-        'template', 'tenant', 'user']
+    choices:
+      - provider
+      - host
+      - vm
+      - blueprint
+      - category
+      - cluster
+      - data store
+      - group
+      - resource pool
+      - service
+      - service template
+      - template
+      - tenant
+      - user
   resource_name:
     type: str
     description:
-      - The name of the resource at which tags will be controlled.
+      - The name of the resource at which tags are be controlled.
       - Must be specified if O(resource_id) is not set. Both options are mutually exclusive.
   resource_id:
     description:
-      - The ID of the resource at which tags will be controlled.
+      - The ID of the resource at which tags are controlled.
       - Must be specified if O(resource_name) is not set. Both options are mutually exclusive.
     type: int
     version_added: 2.2.0
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create new tags for a provider in ManageIQ.
   community.general.manageiq_tags:
     resource_name: 'EngLab'
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false  # only do this when connecting to localhost!
+      validate_certs: false # only do this when connecting to localhost!
 
 - name: Create new tags for a provider in ManageIQ.
   community.general.manageiq_tags:
     resource_id: 23000000790497
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false  # only do this when connecting to localhost!
+      validate_certs: false # only do this when connecting to localhost!
 
 - name: Remove tags for a provider in ManageIQ.
   community.general.manageiq_tags:
@@ -100,36 +108,37 @@ EXAMPLES = '''
     resource_name: 'EngLab'
     resource_type: 'provider'
     tags:
-    - category: environment
-      name: prod
-    - category: owner
-      name: prod_ops
+      - category: environment
+        name: prod
+      - category: owner
+        name: prod_ops
     manageiq_connection:
       url: 'http://127.0.0.1:3000'
       username: 'admin'
       password: 'smartvm'
-      validate_certs: false  # only do this when connecting to localhost!
-'''
+      validate_certs: false # only do this when connecting to localhost!
+"""
 
-RETURN = '''
-'''
+RETURN = r"""
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.manageiq import (
-    ManageIQ, ManageIQTags, manageiq_argument_spec, manageiq_entities
+    ManageIQ,
+    ManageIQTags,
+    manageiq_argument_spec,
+    manageiq_entities,
 )
 
 
 def main():
-    actions = {'present': 'assign', 'absent': 'unassign'}
+    actions = {"present": "assign", "absent": "unassign"}
     argument_spec = dict(
-        tags=dict(type='list', elements='dict'),
-        resource_id=dict(type='int'),
-        resource_name=dict(type='str'),
-        resource_type=dict(required=True, type='str',
-                           choices=list(manageiq_entities().keys())),
-        state=dict(required=False, type='str',
-                   choices=['present', 'absent'], default='present'),
+        tags=dict(type="list", elements="dict"),
+        resource_id=dict(type="int"),
+        resource_name=dict(type="str"),
+        resource_type=dict(required=True, type="str", choices=list(manageiq_entities().keys())),
+        state=dict(type="str", choices=["present", "absent"], default="present"),
     )
     # add the manageiq connection arguments to the arguments
     argument_spec.update(manageiq_argument_spec())
@@ -138,17 +147,14 @@ def main():
         argument_spec=argument_spec,
         mutually_exclusive=[["resource_id", "resource_name"]],
         required_one_of=[["resource_id", "resource_name"]],
-        required_if=[
-            ('state', 'present', ['tags']),
-            ('state', 'absent', ['tags'])
-        ],
+        required_if=[("state", "present", ["tags"]), ("state", "absent", ["tags"])],
     )
 
-    tags = module.params['tags']
-    resource_id = module.params['resource_id']
-    resource_type_key = module.params['resource_type']
-    resource_name = module.params['resource_name']
-    state = module.params['state']
+    tags = module.params["tags"]
+    resource_id = module.params["resource_id"]
+    resource_type_key = module.params["resource_type"]
+    resource_name = module.params["resource_name"]
+    state = module.params["state"]
 
     # get the action and resource type
     action = actions[state]

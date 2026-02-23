@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2022 Ansible Project
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
 import os
 
@@ -34,7 +32,7 @@ def test_op_config(mocker, os_expanduser):
     mocker.patch("os.path.exists", side_effect=[False, True])
     op_config = OnePasswordConfig()
 
-    assert "/home/testuser/.config/op/config" == op_config.config_file_path
+    assert op_config.config_file_path == "/home/testuser/.config/op/config"
 
 
 def test_op_no_config(mocker, os_expanduser):

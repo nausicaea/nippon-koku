@@ -1,56 +1,54 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2017, 2018, Oracle and/or its affiliates.
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
-__metaclass__ = type
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: oci_vcn
 short_description: Manage Virtual Cloud Networks(VCN) in OCI
+deprecated:
+  removed_in: 13.0.0
+  why: Superseded by official Oracle collection.
+  alternative: Use module C(oci_network_vcn) from the C(oracle.oci) collection.
 description:
-    - This module allows the user to create, delete and update virtual cloud networks(VCNs) in OCI.
-      The complete Oracle Cloud Infrastructure Ansible Modules can be downloaded from
-      U(https://github.com/oracle/oci-ansible-modules/releases).
+  - This module allows the user to create, delete and update virtual cloud networks(VCNs) in OCI. The complete Oracle Cloud
+    Infrastructure Ansible Modules can be downloaded from U(https://github.com/oracle/oci-ansible-modules/releases).
 attributes:
-    check_mode:
-        support: none
-    diff_mode:
-        support: none
+  check_mode:
+    support: none
+  diff_mode:
+    support: none
 options:
-    cidr_block:
-        description: The CIDR IP address block of the VCN. Required when creating a VCN with O(state=present).
-        type: str
-        required: false
-    compartment_id:
-        description: The OCID of the compartment to contain the VCN. Required when creating a VCN with O(state=present).
-                     This option is mutually exclusive with O(vcn_id).
-        type: str
-    display_name:
-        description: A user-friendly name. Does not have to be unique, and it's changeable.
-        type: str
-        aliases: [ 'name' ]
-    dns_label:
-        description: A DNS label for the VCN, used in conjunction with the VNIC's hostname and subnet's DNS label to
-                     form a fully qualified domain name (FQDN) for each VNIC within this subnet (for example,
-                     bminstance-1.subnet123.vcn1.oraclevcn.com). Not required to be unique, but it's a best practice
-                     to set unique DNS labels for VCNs in your tenancy. Must be an alphanumeric string that begins
-                     with a letter. The value cannot be changed.
-        type: str
-    state:
-        description: Create or update a VCN with O(state=present). Use O(state=absent) to delete a VCN.
-        type: str
-        default: present
-        choices: ['present', 'absent']
-    vcn_id:
-        description: The OCID of the VCN. Required when deleting a VCN with O(state=absent) or updating a VCN
-                     with O(state=present). This option is mutually exclusive with O(compartment_id).
-        type: str
-        aliases: [ 'id' ]
+  cidr_block:
+    description: The CIDR IP address block of the VCN. Required when creating a VCN with O(state=present).
+    type: str
+  compartment_id:
+    description: The OCID of the compartment to contain the VCN. Required when creating a VCN with O(state=present). This
+      option is mutually exclusive with O(vcn_id).
+    type: str
+  display_name:
+    description: A user-friendly name. Does not have to be unique, and it is changeable.
+    type: str
+    aliases: ['name']
+  dns_label:
+    description: A DNS label for the VCN, used in conjunction with the VNIC's hostname and subnet's DNS label to form a fully
+      qualified domain name (FQDN) for each VNIC within this subnet (for example, V(bminstance-1.subnet123.vcn1.oraclevcn.com)).
+      Not required to be unique, but it is a best practice to set unique DNS labels for VCNs in your tenancy. Must be an alphanumeric
+      string that begins with a letter. The value cannot be changed.
+    type: str
+  state:
+    description: Create or update a VCN with O(state=present). Use O(state=absent) to delete a VCN.
+    type: str
+    default: present
+    choices: ['present', 'absent']
+  vcn_id:
+    description: The OCID of the VCN. Required when deleting a VCN with O(state=absent) or updating a VCN with O(state=present).
+      This option is mutually exclusive with O(compartment_id).
+    type: str
+    aliases: ['id']
 author: "Rohit Chaware (@rohitChaware)"
 extends_documentation_fragment:
   - community.general.oracle
@@ -58,10 +56,9 @@ extends_documentation_fragment:
   - community.general.oracle_wait_options
   - community.general.oracle_tags
   - community.general.attributes
+"""
 
-'''
-
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Create a VCN
   community.general.oci_vcn:
     cidr_block: '10.0.0.0/16'
@@ -80,24 +77,25 @@ EXAMPLES = """
     state: absent
 """
 
-RETURN = """
+RETURN = r"""
 vcn:
-    description: Information about the VCN
-    returned: On successful create and update operation
-    type: dict
-    sample: {
-            "cidr_block": "10.0.0.0/16",
-            compartment_id": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
-            "default_dhcp_options_id": "ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx",
-            "default_route_table_id": "ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx",
-            "default_security_list_id": "ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx",
-            "display_name": "ansible_vcn",
-            "dns_label": "ansiblevcn",
-            "id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx",
-            "lifecycle_state": "AVAILABLE",
-            "time_created": "2017-11-13T20:22:40.626000+00:00",
-            "vcn_domain_name": "ansiblevcn.oraclevcn.com"
-        }
+  description: Information about the VCN.
+  returned: On successful create and update operation
+  type: dict
+  sample:
+    {
+      "cidr_block": "10.0.0.0/16",
+      "compartment_id\"": "ocid1.compartment.oc1..xxxxxEXAMPLExxxxx",
+      "default_dhcp_options_id": "ocid1.dhcpoptions.oc1.phx.xxxxxEXAMPLExxxxx",
+      "default_route_table_id": "ocid1.routetable.oc1.phx.xxxxxEXAMPLExxxxx",
+      "default_security_list_id": "ocid1.securitylist.oc1.phx.xxxxxEXAMPLExxxxx",
+      "display_name": "ansible_vcn",
+      "dns_label": "ansiblevcn",
+      "id": "ocid1.vcn.oc1.phx.xxxxxEXAMPLExxxxx",
+      "lifecycle_state": "AVAILABLE",
+      "time_created": "2017-11-13T20:22:40.626000+00:00",
+      "vcn_domain_name": "ansiblevcn.oraclevcn.com"
+    }
 """
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
@@ -160,22 +158,15 @@ def create_vcn(virtual_network_client, module):
 
 
 def main():
-    module_args = oci_utils.get_taggable_arg_spec(
-        supports_create=True, supports_wait=True
-    )
+    module_args = oci_utils.get_taggable_arg_spec(supports_create=True, supports_wait=True)
     module_args.update(
         dict(
-            cidr_block=dict(type="str", required=False),
-            compartment_id=dict(type="str", required=False),
-            display_name=dict(type="str", required=False, aliases=["name"]),
-            dns_label=dict(type="str", required=False),
-            state=dict(
-                type="str",
-                required=False,
-                default="present",
-                choices=["absent", "present"],
-            ),
-            vcn_id=dict(type="str", required=False, aliases=["id"]),
+            cidr_block=dict(type="str"),
+            compartment_id=dict(type="str"),
+            display_name=dict(type="str", aliases=["name"]),
+            dns_label=dict(type="str"),
+            state=dict(type="str", default="present", choices=["absent", "present"]),
+            vcn_id=dict(type="str", aliases=["id"]),
         )
     )
 
@@ -188,9 +179,7 @@ def main():
     if not HAS_OCI_PY_SDK:
         module.fail_json(msg=missing_required_lib("oci"))
 
-    virtual_network_client = oci_utils.create_service_client(
-        module, VirtualNetworkClient
-    )
+    virtual_network_client = oci_utils.create_service_client(module, VirtualNetworkClient)
 
     exclude_attributes = {"display_name": True, "dns_label": True}
     state = module.params["state"]
@@ -200,9 +189,7 @@ def main():
         if vcn_id is not None:
             result = delete_vcn(virtual_network_client, module)
         else:
-            module.fail_json(
-                msg="Specify vcn_id with state as 'absent' to delete a VCN."
-            )
+            module.fail_json(msg="Specify vcn_id with state as 'absent' to delete a VCN.")
 
     else:
         if vcn_id is not None:

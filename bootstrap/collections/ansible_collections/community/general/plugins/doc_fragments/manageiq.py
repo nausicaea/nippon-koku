@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2017, Daniel Korn <korndaniel1@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
 
-class ModuleDocFragment(object):
-
+class ModuleDocFragment:
     # Standard ManageIQ documentation fragment
-    DOCUMENTATION = r'''
+    DOCUMENTATION = r"""
 options:
   manageiq_connection:
     description:
@@ -34,20 +30,21 @@ options:
         type: str
       token:
         description:
-          - ManageIQ token. E(MIQ_TOKEN) environment variable if set. Otherwise, required if no username or password is passed in.
+          - ManageIQ token. E(MIQ_TOKEN) environment variable if set. Otherwise, required if no username or password is passed
+            in.
         type: str
       validate_certs:
         description:
           - Whether SSL certificates should be verified for HTTPS requests.
         type: bool
         default: true
-        aliases: [ verify_ssl ]
+        aliases: [verify_ssl]
       ca_cert:
         description:
           - The path to a CA bundle file or directory with certificates.
         type: str
-        aliases: [ ca_bundle_path ]
+        aliases: [ca_bundle_path]
 
 requirements:
   - 'manageiq-client U(https://github.com/ManageIQ/manageiq-api-client-python/)'
-'''
+"""

@@ -1,12 +1,10 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2018, Johannes Brunswicker <johannes.brunswicker@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
-__metaclass__ = type
 
 DOCUMENTATION = r"""
 module: utm_dns_host
@@ -14,10 +12,10 @@ module: utm_dns_host
 author:
   - Johannes Brunswicker (@MatrixCrawler)
 
-short_description: Create, update or destroy dns entry in Sophos UTM
+short_description: Create, update or destroy DNS entry in Sophos UTM
 
 description:
-  - Create, update or destroy a dns entry in SOPHOS UTM.
+  - Create, update or destroy a DNS entry in SOPHOS UTM.
   - This module needs to have the REST Ability of the UTM to be activated.
 attributes:
   check_mode:
@@ -29,7 +27,7 @@ options:
   name:
     type: str
     description:
-      - The name of the object. Will be used to identify the entry.
+      - The name of the object that identifies the entry.
     required: true
   address:
     type: str
@@ -44,16 +42,16 @@ options:
   comment:
     type: str
     description:
-      - An optional comment to add to the dns host object.
+      - An optional comment to add to the DNS host object.
     default: ''
   hostname:
     type: str
     description:
-      - The hostname for the dns host object.
+      - The hostname for the DNS host object.
   interface:
     type: str
     description:
-      - The reference name of the interface to use. If not provided the default interface will be used.
+      - The reference name of the interface to use. If not provided the default interface is used.
     default: ''
   resolved:
     description:
@@ -68,7 +66,7 @@ options:
   timeout:
     type: int
     description:
-      - The timeout for the utm to resolve the ip address for the hostname again.
+      - The timeout for the UTM to resolve the IP address for the hostname again.
     default: 0
 
 extends_documentation_fragment:
@@ -130,7 +128,7 @@ result:
       description: Whether the ipv6 address is resolved or not.
       type: bool
     timeout:
-      description: The timeout until a new resolving will be attempted.
+      description: The timeout until a new resolving is attempted.
       type: int
 """
 
@@ -143,15 +141,15 @@ def main():
     key_to_check_for_changes = ["comment", "hostname", "interface"]
     module = UTMModule(
         argument_spec=dict(
-            name=dict(type='str', required=True),
-            address=dict(type='str', required=False, default='0.0.0.0'),
-            address6=dict(type='str', required=False, default='::'),
-            comment=dict(type='str', required=False, default=""),
-            hostname=dict(type='str', required=False),
-            interface=dict(type='str', required=False, default=""),
-            resolved=dict(type='bool', required=False, default=False),
-            resolved6=dict(type='bool', required=False, default=False),
-            timeout=dict(type='int', required=False, default=0),
+            name=dict(type="str", required=True),
+            address=dict(type="str", default="0.0.0.0"),
+            address6=dict(type="str", default="::"),
+            comment=dict(type="str", default=""),
+            hostname=dict(type="str"),
+            interface=dict(type="str", default=""),
+            resolved=dict(type="bool", default=False),
+            resolved6=dict(type="bool", default=False),
+            timeout=dict(type="int", default=0),
         )
     )
     try:
@@ -160,5 +158,5 @@ def main():
         module.fail_json(msg=to_native(e))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,6 +25,7 @@ jobs:
           - stable-2.17
           - stable-2.18
           - stable-2.19
+          - stable-2.20
           - devel
     steps:
       # https://github.com/ansible-community/ansible-test-gh-action
@@ -47,6 +48,7 @@ jobs:
           - stable-2.17
           - stable-2.18
           - stable-2.19
+          - stable-2.20
           - devel
         db_engine_name:
           - mysql
@@ -55,7 +57,7 @@ jobs:
           - '8.0.38'
           - '8.4.1'
           - '10.11.8'
-          - '11.4.5'
+          - '11.8.3'
         connector_name:
           - pymysql
         connector_version:
@@ -86,7 +88,7 @@ jobs:
             db_engine_version: '10.11.8'
 
           - db_engine_name: mysql
-            db_engine_version: '11.4.5'
+            db_engine_version: '11.8.3'
 
           - db_engine_name: mariadb
             db_engine_version: '8.0.38'
@@ -245,6 +247,7 @@ jobs:
           - stable-2.17
           - stable-2.18
           - stable-2.19
+          - stable-2.20
           - devel
         python:
           - '3.8'
@@ -256,6 +259,9 @@ jobs:
             ansible: stable-2.17
 
           - python: '3.8'
+            ansible: stable-2.20
+
+          - python: '3.8'
             ansible: devel
 
           - python: '3.8'
@@ -263,6 +269,9 @@ jobs:
 
           - python: '3.9'
             ansible: stable-2.17
+
+          - python: '3.9'
+            ansible: stable-2.20
 
           - python: '3.9'
             ansible: devel

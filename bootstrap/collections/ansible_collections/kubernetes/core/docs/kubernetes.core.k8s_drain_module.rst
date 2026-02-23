@@ -423,7 +423,7 @@ Parameters
                         <span style="color: purple">list</span>
                          / <span style="color: purple">elements=string</span>
                     </div>
-                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.5.0</div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 3.0.0</div>
                 </td>
                 <td>
                 </td>
@@ -595,7 +595,8 @@ Examples
       kubernetes.core.k8s_drain:
         state: drain
         name: foo
-        force: yes
+        delete_options:
+          force: yes
 
     - name: Drain node "foo", but abort if there are pods not managed by a ReplicationController, Job, or DaemonSet, and use a grace period of 15 minutes.
       kubernetes.core.k8s_drain:

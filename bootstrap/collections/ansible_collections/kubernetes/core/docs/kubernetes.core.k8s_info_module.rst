@@ -168,14 +168,13 @@ Parameters
                         <span style="color: purple">list</span>
                          / <span style="color: purple">elements=string</span>
                     </div>
-                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 2.5.0</div>
+                    <div style="font-style: italic; font-size: small; color: darkgreen">added in 3.0.0</div>
                 </td>
                 <td>
                 </td>
                 <td>
                         <div>Hide fields matching any of the field definitions in the result</div>
-                        <div>An example might be <code>hidden_fields=[metadata.managedFields]</code></div>
-                        <div>Only field definitions that don&#x27;t reference list items are supported (so V(spec.containers[0]) would not work)</div>
+                        <div>An example might be <code>hidden_fields=[metadata.managedFields]</code> or V(hidden_fields=[spec.containers[0].env[3].value]) or V(hidden_fields=[metadata.annotations[kubectl.kubernetes.io/last-applied-configuration]])</div>
                 </td>
             </tr>
             <tr>

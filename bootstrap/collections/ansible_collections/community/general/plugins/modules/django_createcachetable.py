@@ -1,13 +1,11 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2024, Alexei Znamensky <russoz@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 module: django_createcachetable
 author:
   - Alexei Znamensky (@russoz)
@@ -26,7 +24,7 @@ attributes:
     support: none
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Create cache table in the default database
   community.general.django_createcachetable:
     settings: myproject.settings
@@ -39,11 +37,17 @@ EXAMPLES = """
     venv: /home/joedoe/project/fancysite/venv
 """
 
-RETURN = """
+RETURN = r"""
 run_info:
   description: Command-line execution information.
   type: dict
   returned: success and O(verbosity) >= 3
+version:
+  description: Version of Django.
+  type: str
+  returned: always
+  sample: 5.1.2
+  version_added: 10.0.0
 """
 
 from ansible_collections.community.general.plugins.module_utils.django import DjangoModuleHelper
@@ -54,14 +58,17 @@ class DjangoCreateCacheTable(DjangoModuleHelper):
         supports_check_mode=True,
     )
     django_admin_cmd = "createcachetable"
-    django_admin_arg_order = "noinput database dry_run"
-    _django_args = ["noinput", "database", "dry_run"]
+    django_admin_arg_order = "noinput database_dash dry_run"
+    _django_args = ["database_dash"]
     _check_mode_arg = "dry_run"
+
+    def __init_module__(self):
+        self.vars.set("database_dash", self.vars.database, output=False)
 
 
 def main():
     DjangoCreateCacheTable.execute()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,45 +1,49 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2017, Juan Manuel Parrilla <jparrill@redhat.com>
 # Copyright (c) 2012-17 Ansible Project
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = '''
-    author:
-      - Juan Manuel Parrilla (@jparrill)
-    name: hiera
-    short_description: get info from hiera data
-    requirements:
-      - hiera (command line utility)
+DOCUMENTATION = r"""
+author:
+  - Juan Manuel Parrilla (@jparrill)
+name: hiera
+short_description: Get info from hiera data
+requirements:
+  - hiera (command line utility)
+description:
+  - Retrieves data from an Puppetmaster node using Hiera as ENC.
+deprecated:
+  removed_in: 13.0.0
+  why: >-
+    Hiera has been deprecated a long time ago.
+    If you disagree with this deprecation, please create an issue in the community.general repository.
+  alternative: Unknown.
+options:
+  _terms:
     description:
-        - Retrieves data from an Puppetmaster node using Hiera as ENC.
-    options:
-      _terms:
-            description:
-                - The list of keys to lookup on the Puppetmaster.
-            type: list
-            elements: string
-            required: true
-      executable:
-            description:
-                - Binary file to execute Hiera.
-            type: string
-            default: '/usr/bin/hiera'
-            env:
-                - name: ANSIBLE_HIERA_BIN
-      config_file:
-            description:
-                - File that describes the hierarchy of Hiera.
-            type: string
-            default: '/etc/hiera.yaml'
-            env:
-                - name: ANSIBLE_HIERA_CFG
+      - The list of keys to lookup on the Puppetmaster.
+    type: list
+    elements: string
+    required: true
+  executable:
+    description:
+      - Binary file to execute Hiera.
+    type: string
+    default: '/usr/bin/hiera'
+    env:
+      - name: ANSIBLE_HIERA_BIN
+  config_file:
+    description:
+      - File that describes the hierarchy of Hiera.
+    type: string
+    default: '/etc/hiera.yaml'
+    env:
+      - name: ANSIBLE_HIERA_CFG
 # FIXME: incomplete options .. _terms? environment/fqdn?
-'''
+"""
 
-EXAMPLES = """
+EXAMPLES = r"""
 # All this examples depends on hiera.yml that describes the hierarchy
 
 - name: "a value from Hiera 'DB'"
@@ -55,12 +59,12 @@ EXAMPLES = """
     msg: "{{ lookup('community.general.hiera', 'foo fqdn=puppet01.localdomain') }}"
 """
 
-RETURN = """
-    _raw:
-        description:
-            - a value associated with input key
-        type: list
-        elements: str
+RETURN = r"""
+_raw:
+  description:
+    - A value associated with input key.
+  type: list
+  elements: str
 """
 
 from ansible.plugins.lookup import LookupBase
@@ -68,19 +72,18 @@ from ansible.utils.cmd_functions import run_cmd
 from ansible.module_utils.common.text.converters import to_text
 
 
-class Hiera(object):
+class Hiera:
     def __init__(self, hiera_cfg, hiera_bin):
         self.hiera_cfg = hiera_cfg
         self.hiera_bin = hiera_bin
 
     def get(self, hiera_key):
         pargs = [self.hiera_bin]
-        pargs.extend(['-c', self.hiera_cfg])
+        pargs.extend(["-c", self.hiera_cfg])
 
         pargs.extend(hiera_key)
 
-        rc, output, err = run_cmd("{0} -c {1} {2}".format(
-            self.hiera_bin, self.hiera_cfg, hiera_key[0]))
+        rc, output, err = run_cmd(f"{self.hiera_bin} -c {self.hiera_cfg} {hiera_key[0]}")
 
         return to_text(output.strip())
 
@@ -89,6 +92,6 @@ class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
         self.set_options(var_options=variables, direct=kwargs)
 
-        hiera = Hiera(self.get_option('config_file'), self.get_option('executable'))
+        hiera = Hiera(self.get_option("config_file"), self.get_option("executable"))
         ret = [hiera.get(terms)]
         return ret

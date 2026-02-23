@@ -1,13 +1,11 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2017, Alberto Murillo <alberto.murillo.silva@intel.com>
 #
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
 DOCUMENTATION = r"""
@@ -30,12 +28,13 @@ options:
     type: str
   format:
     description:
-      - The format suffix for version file downloads. For example [1,2,3,staging,etc]. If not specified, the default format is used.
+      - The format suffix for version file downloads. For example V(1), V(2), V(3), and so on, or the special value V(staging).
+        If not specified, the default format is used.
     type: str
   manifest:
     description:
-      - The manifest contains information about the bundles at certain version of the OS. Specify a Manifest version to verify against that version
-        or leave unspecified to verify against the current version.
+      - The manifest contains information about the bundles at certain version of the OS. Specify a Manifest version to verify
+        against that version or leave unspecified to verify against the current version.
     aliases: [release, version]
     type: int
   name:
@@ -45,7 +44,8 @@ options:
     type: str
   state:
     description:
-      - Indicates the desired (I)bundle state. V(present) ensures the bundle is installed while V(absent) ensures the (I)bundle is not installed.
+      - Indicates the desired (I)bundle state. V(present) ensures the bundle is installed while V(absent) ensures the (I)bundle
+        is not installed.
     default: present
     choices: [present, absent]
     type: str
@@ -94,22 +94,12 @@ EXAMPLES = r"""
     manifest: 12920
 """
 
-RETURN = r"""
-stdout:
-  description: C(stdout) of C(swupd).
-  returned: always
-  type: str
-stderr:
-  description: C(stderr) of C(swupd).
-  returned: always
-  type: str
-"""
 
 import os
 from ansible.module_utils.basic import AnsibleModule
 
 
-class Swupd(object):
+class Swupd:
     FILES_NOT_MATCH = "files did not match"
     FILES_REPLACED = "missing files were replaced"
     FILES_FIXED = "files were fixed"
@@ -138,32 +128,32 @@ class Swupd(object):
         self.rc, self.stdout, self.stderr = self.module.run_command(cmd, check_rc=False)
 
     def _get_cmd(self, command):
-        cmd = "%s %s" % (self.swupd_cmd, command)
+        cmd = [self.swupd_cmd] + command
 
         if self.format:
-            cmd += " --format=%s" % self.format
+            cmd.append(f"--format={self.format}")
         if self.manifest:
-            cmd += " --manifest=%s" % self.manifest
+            cmd.append(f"--manifest={self.manifest}")
         if self.url:
-            cmd += " --url=%s" % self.url
+            cmd.append(f"--url={self.url}")
         else:
             if self.contenturl and command != "check-update":
-                cmd += " --contenturl=%s" % self.contenturl
+                cmd.append(f"--contenturl={self.contenturl}")
             if self.versionurl:
-                cmd += " --versionurl=%s" % self.versionurl
+                cmd.append(f"--versionurl={self.versionurl}")
 
         return cmd
 
     def _is_bundle_installed(self, bundle):
         try:
-            os.stat("/usr/share/clear/bundles/%s" % bundle)
+            os.stat(f"/usr/share/clear/bundles/{bundle}")
         except OSError:
             return False
 
         return True
 
     def _needs_update(self):
-        cmd = self._get_cmd("check-update")
+        cmd = self._get_cmd(["check-update"])
         self._run_cmd(cmd)
 
         if self.rc == 0:
@@ -176,7 +166,7 @@ class Swupd(object):
         self.msg = "Failed to check for updates"
 
     def _needs_verify(self):
-        cmd = self._get_cmd("verify")
+        cmd = self._get_cmd(["verify"])
         self._run_cmd(cmd)
 
         if self.rc != 0:
@@ -194,19 +184,19 @@ class Swupd(object):
             self.module.exit_json(changed=not self._is_bundle_installed(bundle))
 
         if self._is_bundle_installed(bundle):
-            self.msg = "Bundle %s is already installed" % bundle
+            self.msg = f"Bundle {bundle} is already installed"
             return
 
-        cmd = self._get_cmd("bundle-add %s" % bundle)
+        cmd = self._get_cmd(["bundle-add", bundle])
         self._run_cmd(cmd)
 
         if self.rc == 0:
             self.changed = True
-            self.msg = "Bundle %s installed" % bundle
+            self.msg = f"Bundle {bundle} installed"
             return
 
         self.failed = True
-        self.msg = "Failed to install bundle %s" % bundle
+        self.msg = f"Failed to install bundle {bundle}"
 
     def remove_bundle(self, bundle):
         """Removes a bundle with `swupd bundle-remove bundle`"""
@@ -217,16 +207,16 @@ class Swupd(object):
             self.msg = "Bundle %s not installed"
             return
 
-        cmd = self._get_cmd("bundle-remove %s" % bundle)
+        cmd = self._get_cmd(["bundle-remove", bundle])
         self._run_cmd(cmd)
 
         if self.rc == 0:
             self.changed = True
-            self.msg = "Bundle %s removed" % bundle
+            self.msg = f"Bundle {bundle} removed"
             return
 
         self.failed = True
-        self.msg = "Failed to remove bundle %s" % bundle
+        self.msg = f"Failed to remove bundle {bundle}"
 
     def update_os(self):
         """Updates the os with `swupd update`"""
@@ -237,7 +227,7 @@ class Swupd(object):
             self.msg = "There are no updates available"
             return
 
-        cmd = self._get_cmd("update")
+        cmd = self._get_cmd(["update"])
         self._run_cmd(cmd)
 
         if self.rc == 0:
@@ -257,10 +247,12 @@ class Swupd(object):
             self.msg = "No files where changed"
             return
 
-        cmd = self._get_cmd("verify --fix")
+        cmd = self._get_cmd(["verify", "--fix"])
         self._run_cmd(cmd)
 
-        if self.rc == 0 and (self.FILES_REPLACED in self.stdout or self.FILES_FIXED in self.stdout or self.FILES_DELETED in self.stdout):
+        if self.rc == 0 and (
+            self.FILES_REPLACED in self.stdout or self.FILES_FIXED in self.stdout or self.FILES_DELETED in self.stdout
+        ):
             self.changed = True
             self.msg = "Fix successful"
             return
@@ -285,7 +277,7 @@ def main():
         ),
         required_one_of=[["name", "update", "verify"]],
         mutually_exclusive=[["name", "update", "verify"]],
-        supports_check_mode=True
+        supports_check_mode=True,
     )
 
     swupd = Swupd(module)
@@ -312,5 +304,5 @@ def main():
         module.exit_json(changed=swupd.changed, msg=swupd.msg, stdout=swupd.stdout, stderr=swupd.stderr)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

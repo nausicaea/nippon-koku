@@ -1,57 +1,52 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, Ivan Vanderbyl <ivan@app.io>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: logentries
 author: "Ivan Vanderbyl (@ivanvanderbyl)"
-short_description: Module for tracking logs via logentries.com
+short_description: Module for tracking logs using U(logentries.com)
 description:
-    - Sends logs to LogEntries in realtime
+  - Sends logs to LogEntries in realtime.
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-    path:
-        type: str
-        description:
-            - path to a log file
-        required: true
-    state:
-        type: str
-        description:
-            - following state of the log
-        choices: [ 'present', 'absent', 'followed', 'unfollowed' ]
-        required: false
-        default: present
-    name:
-        type: str
-        description:
-            - name of the log
-        required: false
-    logtype:
-        type: str
-        description:
-            - type of the log
-        required: false
-        aliases: [type]
+  path:
+    type: str
+    description:
+      - Path to a log file.
+    required: true
+  state:
+    type: str
+    description:
+      - Following state of the log.
+    choices: ['present', 'absent', 'followed', 'unfollowed']
+    default: present
+  name:
+    type: str
+    description:
+      - Name of the log.
+  logtype:
+    type: str
+    description:
+      - Type of the log.
+    aliases: [type]
 
 notes:
-    - Requires the LogEntries agent which can be installed following the instructions at logentries.com
-'''
-EXAMPLES = '''
+  - Requires the LogEntries agent which can be installed following the instructions at U(logentries.com).
+"""
+
+EXAMPLES = r"""
 - name: Track nginx logs
   community.general.logentries:
     path: /var/log/nginx/access.log
@@ -62,13 +57,13 @@ EXAMPLES = '''
   community.general.logentries:
     path: /var/log/nginx/error.log
     state: absent
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 
 
 def query_log_status(module, le_path, path, state="present"):
-    """ Returns whether a log is followed or not. """
+    """Returns whether a log is followed or not."""
 
     if state == "present":
         rc, out, err = module.run_command([le_path, "followed", path])
@@ -79,7 +74,7 @@ def query_log_status(module, le_path, path, state="present"):
 
 
 def follow_log(module, le_path, logs, name=None, logtype=None):
-    """ Follows one or more logs if not already followed. """
+    """Follows one or more logs if not already followed."""
 
     followed_count = 0
 
@@ -90,26 +85,26 @@ def follow_log(module, le_path, logs, name=None, logtype=None):
         if module.check_mode:
             module.exit_json(changed=True)
 
-        cmd = [le_path, 'follow', log]
+        cmd = [le_path, "follow", log]
         if name:
-            cmd.extend(['--name', name])
+            cmd.extend(["--name", name])
         if logtype:
-            cmd.extend(['--type', logtype])
+            cmd.extend(["--type", logtype])
         rc, out, err = module.run_command(cmd)
 
         if not query_log_status(module, le_path, log):
-            module.fail_json(msg="failed to follow '%s': %s" % (log, err.strip()))
+            module.fail_json(msg=f"failed to follow '{log}': {err.strip()}")
 
         followed_count += 1
 
     if followed_count > 0:
-        module.exit_json(changed=True, msg="followed %d log(s)" % (followed_count,))
+        module.exit_json(changed=True, msg=f"followed {followed_count} log(s)")
 
     module.exit_json(changed=False, msg="logs(s) already followed")
 
 
 def unfollow_log(module, le_path, logs):
-    """ Unfollows one or more logs if followed. """
+    """Unfollows one or more logs if followed."""
 
     removed_count = 0
 
@@ -121,15 +116,15 @@ def unfollow_log(module, le_path, logs):
 
         if module.check_mode:
             module.exit_json(changed=True)
-        rc, out, err = module.run_command([le_path, 'rm', log])
+        rc, out, err = module.run_command([le_path, "rm", log])
 
         if query_log_status(module, le_path, log):
-            module.fail_json(msg="failed to remove '%s': %s" % (log, err.strip()))
+            module.fail_json(msg=f"failed to remove '{log}': {err.strip()}")
 
         removed_count += 1
 
     if removed_count > 0:
-        module.exit_json(changed=True, msg="removed %d package(s)" % removed_count)
+        module.exit_json(changed=True, msg=f"removed {removed_count} package(s)")
 
     module.exit_json(changed=False, msg="logs(s) already unfollowed")
 
@@ -139,26 +134,26 @@ def main():
         argument_spec=dict(
             path=dict(required=True),
             state=dict(default="present", choices=["present", "followed", "absent", "unfollowed"]),
-            name=dict(required=False, default=None, type='str'),
-            logtype=dict(required=False, default=None, type='str', aliases=['type'])
+            name=dict(type="str"),
+            logtype=dict(type="str", aliases=["type"]),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
     )
 
-    le_path = module.get_bin_path('le', True, ['/usr/local/bin'])
+    le_path = module.get_bin_path("le", True, ["/usr/local/bin"])
 
     p = module.params
 
     # Handle multiple log files
     logs = p["path"].split(",")
-    logs = filter(None, logs)
+    logs = [_f for _f in logs if _f]
 
     if p["state"] in ["present", "followed"]:
-        follow_log(module, le_path, logs, name=p['name'], logtype=p['logtype'])
+        follow_log(module, le_path, logs, name=p["name"], logtype=p["logtype"])
 
     elif p["state"] in ["absent", "unfollowed"]:
         unfollow_log(module, le_path, logs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,13 +1,11 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2024, Alexei Znamensky <russoz@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = """
+DOCUMENTATION = r"""
 module: django_command
 author:
   - Alexei Znamensky (@russoz)
@@ -36,7 +34,7 @@ options:
       - List of extra arguments passed to the django admin command.
 """
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Check the project
   community.general.django_command:
     command: check
@@ -50,11 +48,17 @@ EXAMPLES = """
     venv: /home/joedoe/project/fancysite/venv
 """
 
-RETURN = """
+RETURN = r"""
 run_info:
   description: Command-line execution information.
   type: dict
   returned: success and O(verbosity) >= 3
+version:
+  description: Version of Django.
+  type: str
+  returned: always
+  sample: 5.1.2
+  version_added: 10.0.0
 """
 
 import shlex
@@ -84,5 +88,5 @@ def main():
     DjangoCommand.execute()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

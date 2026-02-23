@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
 # PubNub Real-time Cloud-Hosted Push API and Push Notification Client
 # Frameworks
@@ -10,19 +9,15 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: pubnub_blocks
 short_description: PubNub blocks management module
 description:
-  - "This module allows Ansible to interface with the PubNub BLOCKS
-    infrastructure by providing the following operations: create / remove,
-    start / stop and rename for blocks and create / modify / remove for event
-    handlers."
+  - 'This module allows Ansible to interface with the PubNub BLOCKS infrastructure by providing the following operations:
+    create / remove, start / stop and rename for blocks and create / modify / remove for event handlers.'
 author:
   - PubNub <support@pubnub.com> (@pubnub)
   - Sergey Mamontov <sergey@pubnub.com> (@parfeon)
@@ -39,38 +34,30 @@ options:
   email:
     description:
       - Email from account for which new session should be started.
-      - "Not required if O(cache) contains result of previous module call (in
-        same play)."
-    required: false
+      - Not required if O(cache) contains result of previous module call (in same play).
     type: str
     default: ''
   password:
     description:
       - Password which match to account to which specified O(email) belong.
-      - "Not required if O(cache) contains result of previous module call (in
-        same play)."
-    required: false
+      - Not required if O(cache) contains result of previous module call (in same play).
     type: str
     default: ''
   cache:
-    description: >
-       In case if single play use blocks management module few times it is
-       preferred to enabled 'caching' by making previous module to share
-       gathered artifacts and pass them to this parameter.
-    required: false
+    description: >-
+      In case if single play use blocks management module few times it is preferred to enabled 'caching' by making previous
+      module to share gathered artifacts and pass them to this parameter.
     type: dict
     default: {}
   account:
     description:
-      - "Name of PubNub account for from which O(application) will be used to
-        manage blocks."
-      - "User's account will be used if value not set or empty."
+      - Name of PubNub account for from which O(application) is used to manage blocks.
+      - User's account is used if value not set or empty.
     type: str
     default: ''
   application:
     description:
-      - "Name of target PubNub application for which blocks configuration on
-        specific O(keyset) will be done."
+      - Name of target PubNub application for which blocks configuration on specific O(keyset) is done.
     type: str
     required: true
   keyset:
@@ -80,68 +67,52 @@ options:
     required: true
   state:
     description:
-      - "Intended block state after event handlers creation / update process
-        will be completed."
-    required: false
+      - Intended block state after event handlers creation / update process is completed.
     default: 'present'
     choices: ['started', 'stopped', 'present', 'absent']
     type: str
   name:
     description:
-      - Name of managed block which will be later visible on admin.pubnub.com.
+      - Name of managed block which is later visible on admin.pubnub.com.
     required: true
     type: str
   description:
     description:
-        - Short block description which will be later visible on
-          admin.pubnub.com. Used only if block doesn't exists and won't change
-          description for existing block.
-    required: false
+      - Short block description which is later visible on U(https://admin.pubnub.com).
+      - Used only if block does not exists and does not change description for existing block.
     type: str
   event_handlers:
     description:
-      - "List of event handlers which should be updated for specified block
-        O(name)."
-      - "Each entry for new event handler should contain: C(name), C(src),
-        C(channels), C(event). C(name) used as event handler name which can be
-        used later to make changes to it."
+      - List of event handlers which should be updated for specified block O(name).
+      - 'Each entry for new event handler should contain: V(name), V(src), V(channels), V(event). V(name) used as event handler
+        name which can be used later to make changes to it.'
       - C(src) is full path to file with event handler code.
-      - "C(channels) is name of channel from which event handler is waiting
-        for events."
-      - "C(event) is type of event which is able to trigger event handler:
-        C(js-before-publish), C(js-after-publish), C(js-after-presence)."
-      - "Each entry for existing handlers should contain C(name) (so target
-        handler can be identified). Rest parameters (C(src), C(channels) and
-        C(event)) can be added if changes required for them."
-      - "It is possible to rename event handler by adding C(changes) key to
-        event handler payload and pass dictionary, which will contain single key
-        C(name), where new name should be passed."
-      - "To remove particular event handler it is possible to set C(state) for
-        it to C(absent) and it will be removed."
-    required: false
+      - V(channels) is name of channel from which event handler is waiting for events.
+      - 'V(event) is type of event which is able to trigger event handler: V(js-before-publish), V(js-after-publish), V(js-after-presence).'
+      - Each entry for existing handlers should contain C(name) (so target handler can be identified). Rest parameters (C(src),
+        C(channels) and C(event)) can be added if changes required for them.
+      - It is possible to rename event handler by adding C(changes) key to event handler payload and pass dictionary, which
+        contains single key C(name), where new name should be passed.
+      - To remove particular event handler it is possible to set C(state) for it to C(absent) and it is removed.
     default: []
     type: list
     elements: dict
   changes:
     description:
-      - "List of fields which should be changed by block itself (doesn't
-        affect any event handlers)."
-      - "Possible options for change is: O(name)."
-    required: false
+      - List of fields which should be changed by block itself (does not affect any event handlers).
+      - 'Possible options for change is: O(name).'
     default: {}
     type: dict
   validate_certs:
     description:
-      - "This key allow to try skip certificates check when performing REST API
-        calls. Sometimes host may have issues with certificates on it and this
-        will cause problems to call PubNub REST API."
+      - This key allow to try skip certificates check when performing REST API calls. Sometimes host may have issues with
+        certificates on it and this causes problems to call PubNub REST API.
       - If check should be ignored V(false) should be passed to this parameter.
-    required: false
     default: true
     type: bool
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 # Event handler create example.
 - name: Create single event handler
   community.general.pubnub_blocks:
@@ -151,8 +122,7 @@ EXAMPLES = '''
     keyset: '{{ keyset_name }}'
     name: '{{ block_name }}'
     event_handlers:
-      -
-        src: '{{ path_to_handler_source }}'
+      - src: '{{ path_to_handler_source }}'
         name: '{{ handler_name }}'
         event: 'js-before-publish'
         channels: '{{ handler_channel }}'
@@ -166,8 +136,7 @@ EXAMPLES = '''
     keyset: '{{ keyset_name }}'
     name: '{{ block_name }}'
     event_handlers:
-      -
-        name: '{{ handler_name }}'
+      - name: '{{ handler_name }}'
         event: 'js-after-publish'
 
 # Stop block and event handlers.
@@ -199,8 +168,7 @@ EXAMPLES = '''
     name: '{{ block_name }}'
     state: present
     event_handlers:
-      -
-        src: '{{ path_to_handler_1_source }}'
+      - src: '{{ path_to_handler_1_source }}'
         name: '{{ event_handler_1_name }}'
         channels: '{{ event_handler_1_channel }}'
         event: 'js-before-publish'
@@ -213,8 +181,7 @@ EXAMPLES = '''
     name: '{{ block_name }}'
     state: present
     event_handlers:
-      -
-        src: '{{ path_to_handler_2_source }}'
+      - src: '{{ path_to_handler_2_source }}'
         name: '{{ event_handler_2_name }}'
         channels: '{{ event_handler_2_channel }}'
         event: 'js-before-publish'
@@ -226,17 +193,16 @@ EXAMPLES = '''
     keyset: '{{ keyset_name }}'
     name: '{{ block_name }}'
     state: started
-'''
+"""
 
-RETURN = '''
+RETURN = r"""
 module_cache:
   description:
-    - Cached account information. In case if with single play module
-      used few times it is better to pass cached data to next module calls to speed
-      up process.
+    - Cached account information. In case if with single play module used few times it is better to pass cached data to next
+      module calls to speed up process.
   type: dict
   returned: always
-'''
+"""
 import copy
 import os
 
@@ -245,6 +211,7 @@ try:
     from pubnub_blocks_client import User
     from pubnub_blocks_client import Block, EventHandler
     from pubnub_blocks_client import exceptions
+
     HAS_PUBNUB_BLOCKS_CLIENT = True
 except ImportError:
     HAS_PUBNUB_BLOCKS_CLIENT = False
@@ -275,18 +242,19 @@ def pubnub_user(module):
     user = None
     params = module.params
 
-    if params.get('cache') and params['cache'].get('module_cache'):
-        cache = params['cache']['module_cache']
+    if params.get("cache") and params["cache"].get("module_cache"):
+        cache = params["cache"]["module_cache"]
         user = User()
-        user.restore(cache=copy.deepcopy(cache['pnm_user']))
-    elif params.get('email') and params.get('password'):
-        user = User(email=params.get('email'), password=params.get('password'))
+        user.restore(cache=copy.deepcopy(cache["pnm_user"]))
+    elif params.get("email") and params.get("password"):
+        user = User(email=params.get("email"), password=params.get("password"))
     else:
-        err_msg = 'It looks like not account credentials has been passed or ' \
-                  '\'cache\' field doesn\'t have result of previous module ' \
-                  'call.'
-        module.fail_json(msg='Missing account credentials.',
-                         description=err_msg, changed=False)
+        err_msg = (
+            "It looks like not account credentials has been passed or "
+            "'cache' field doesn't have result of previous module "
+            "call."
+        )
+        module.fail_json(msg="Missing account credentials.", description=err_msg, changed=False)
 
     return user
 
@@ -306,16 +274,16 @@ def pubnub_account(module, user):
              case if not all required information has been passed to block.
     """
     params = module.params
-    if params.get('account'):
-        account_name = params.get('account')
-        account = user.account(name=params.get('account'))
+    if params.get("account"):
+        account_name = params.get("account")
+        account = user.account(name=params.get("account"))
         if account is None:
-            err_frmt = 'It looks like there is no \'{0}\' account for ' \
-                       'authorized user. Please make sure what correct ' \
-                       'name has been passed during module configuration.'
-            module.fail_json(msg='Missing account.',
-                             description=err_frmt.format(account_name),
-                             changed=False)
+            err_frmt = (
+                "It looks like there is no '{0}' account for "
+                "authorized user. Please make sure what correct "
+                "name has been passed during module configuration."
+            )
+            module.fail_json(msg="Missing account.", description=err_frmt.format(account_name), changed=False)
     else:
         account = user.accounts()[0]
 
@@ -340,21 +308,22 @@ def pubnub_application(module, account):
     application = None
     params = module.params
     try:
-        application = account.application(params['application'])
+        application = account.application(params["application"])
     except (exceptions.AccountError, exceptions.GeneralPubNubError) as exc:
         exc_msg = _failure_title_from_exception(exc)
-        exc_descr = exc.message if hasattr(exc, 'message') else exc.args[0]
-        module.fail_json(msg=exc_msg, description=exc_descr,
-                         changed=account.changed,
-                         module_cache=dict(account))
+        exc_descr = exc.message if hasattr(exc, "message") else exc.args[0]
+        module.fail_json(msg=exc_msg, description=exc_descr, changed=account.changed, module_cache=dict(account))
 
     if application is None:
-        err_fmt = 'There is no \'{0}\' application for {1}. Make sure what ' \
-                  'correct application name has been passed. If application ' \
-                  'doesn\'t exist you can create it on admin.pubnub.com.'
+        err_fmt = (
+            "There is no '{0}' application for {1}. Make sure what "
+            "correct application name has been passed. If application "
+            "doesn't exist you can create it on admin.pubnub.com."
+        )
         email = account.owner.email
-        module.fail_json(msg=err_fmt.format(params['application'], email),
-                         changed=account.changed, module_cache=dict(account))
+        module.fail_json(
+            msg=err_fmt.format(params["application"], email), changed=account.changed, module_cache=dict(account)
+        )
 
     return application
 
@@ -378,14 +347,16 @@ def pubnub_keyset(module, account, application):
     :return: Reference on initialized and ready to use keyset model.
     """
     params = module.params
-    keyset = application.keyset(params['keyset'])
+    keyset = application.keyset(params["keyset"])
     if keyset is None:
-        err_fmt = 'There is no \'{0}\' keyset for \'{1}\' application. Make ' \
-                  'sure what correct keyset name has been passed. If keyset ' \
-                  'doesn\'t exist you can create it on admin.pubnub.com.'
-        module.fail_json(msg=err_fmt.format(params['keyset'],
-                                            application.name),
-                         changed=account.changed, module_cache=dict(account))
+        err_fmt = (
+            "There is no '{0}' keyset for '{1}' application. Make "
+            "sure what correct keyset name has been passed. If keyset "
+            "doesn't exist you can create it on admin.pubnub.com."
+        )
+        module.fail_json(
+            msg=err_fmt.format(params["keyset"], application.name), changed=account.changed, module_cache=dict(account)
+        )
 
     return keyset
 
@@ -411,31 +382,30 @@ def pubnub_block(module, account, keyset):
     block = None
     params = module.params
     try:
-        block = keyset.block(params['name'])
+        block = keyset.block(params["name"])
     except (exceptions.KeysetError, exceptions.GeneralPubNubError) as exc:
         exc_msg = _failure_title_from_exception(exc)
-        exc_descr = exc.message if hasattr(exc, 'message') else exc.args[0]
-        module.fail_json(msg=exc_msg, description=exc_descr,
-                         changed=account.changed, module_cache=dict(account))
+        exc_descr = exc.message if hasattr(exc, "message") else exc.args[0]
+        module.fail_json(msg=exc_msg, description=exc_descr, changed=account.changed, module_cache=dict(account))
 
     # Report error because block doesn't exists and at the same time
     # requested to start/stop.
-    if block is None and params['state'] in ['started', 'stopped']:
-        block_name = params.get('name')
-        module.fail_json(msg="'{0}' block doesn't exists.".format(block_name),
-                         changed=account.changed, module_cache=dict(account))
+    if block is None and params["state"] in ["started", "stopped"]:
+        block_name = params.get("name")
+        module.fail_json(
+            msg=f"'{block_name}' block doesn't exists.", changed=account.changed, module_cache=dict(account)
+        )
 
-    if block is None and params['state'] == 'present':
-        block = Block(name=params.get('name'),
-                      description=params.get('description'))
+    if block is None and params["state"] == "present":
+        block = Block(name=params.get("name"), description=params.get("description"))
         keyset.add_block(block)
 
     if block:
         # Update block information if required.
-        if params.get('changes') and params['changes'].get('name'):
-            block.name = params['changes']['name']
-        if params.get('description'):
-            block.description = params.get('description')
+        if params.get("changes") and params["changes"].get("name"):
+            block.name = params["changes"]["name"]
+        if params.get("description"):
+            block.description = params.get("description")
 
     return block
 
@@ -455,25 +425,23 @@ def pubnub_event_handler(block, data):
              'None' will be returned in case if there is no handler with
              specified name and no request to create it.
     """
-    event_handler = block.event_handler(data['name'])
+    event_handler = block.event_handler(data["name"])
 
     # Prepare payload for event handler update.
-    changed_name = (data.pop('changes').get('name')
-                    if 'changes' in data else None)
-    name = data.get('name') or changed_name
-    channels = data.get('channels')
-    event = data.get('event')
-    code = _content_of_file_at_path(data.get('src'))
-    state = data.get('state') or 'present'
+    changed_name = data.pop("changes").get("name") if "changes" in data else None
+    name = data.get("name") or changed_name
+    channels = data.get("channels")
+    event = data.get("event")
+    code = _content_of_file_at_path(data.get("src"))
+    state = data.get("state") or "present"
 
     # Create event handler if required.
-    if event_handler is None and state == 'present':
-        event_handler = EventHandler(name=name, channels=channels, event=event,
-                                     code=code)
+    if event_handler is None and state == "present":
+        event_handler = EventHandler(name=name, channels=channels, event=event, code=code)
         block.add_event_handler(event_handler)
 
     # Update event handler if required.
-    if event_handler is not None and state == 'present':
+    if event_handler is not None and state == "present":
         if name is not None:
             event_handler.name = name
         if channels is not None:
@@ -498,37 +466,37 @@ def _failure_title_from_exception(exception):
     :return: Reference on error tile which should be shown on module
              failure.
     """
-    title = 'General REST API access error.'
+    title = "General REST API access error."
     if exception.code == exceptions.PN_AUTHORIZATION_MISSING_CREDENTIALS:
-        title = 'Authorization error: missing credentials.'
+        title = "Authorization error: missing credentials."
     elif exception.code == exceptions.PN_AUTHORIZATION_WRONG_CREDENTIALS:
-        title = 'Authorization error: wrong credentials.'
+        title = "Authorization error: wrong credentials."
     elif exception.code == exceptions.PN_USER_INSUFFICIENT_RIGHTS:
-        title = 'API access error: insufficient access rights.'
+        title = "API access error: insufficient access rights."
     elif exception.code == exceptions.PN_API_ACCESS_TOKEN_EXPIRED:
-        title = 'API access error: time token expired.'
+        title = "API access error: time token expired."
     elif exception.code == exceptions.PN_KEYSET_BLOCK_EXISTS:
-        title = 'Block create did fail: block with same name already exists).'
+        title = "Block create did fail: block with same name already exists)."
     elif exception.code == exceptions.PN_KEYSET_BLOCKS_FETCH_DID_FAIL:
-        title = 'Unable fetch list of blocks for keyset.'
+        title = "Unable fetch list of blocks for keyset."
     elif exception.code == exceptions.PN_BLOCK_CREATE_DID_FAIL:
-        title = 'Block creation did fail.'
+        title = "Block creation did fail."
     elif exception.code == exceptions.PN_BLOCK_UPDATE_DID_FAIL:
-        title = 'Block update did fail.'
+        title = "Block update did fail."
     elif exception.code == exceptions.PN_BLOCK_REMOVE_DID_FAIL:
-        title = 'Block removal did fail.'
+        title = "Block removal did fail."
     elif exception.code == exceptions.PN_BLOCK_START_STOP_DID_FAIL:
-        title = 'Block start/stop did fail.'
+        title = "Block start/stop did fail."
     elif exception.code == exceptions.PN_EVENT_HANDLER_MISSING_FIELDS:
-        title = 'Event handler creation did fail: missing fields.'
+        title = "Event handler creation did fail: missing fields."
     elif exception.code == exceptions.PN_BLOCK_EVENT_HANDLER_EXISTS:
-        title = 'Event handler creation did fail: missing fields.'
+        title = "Event handler creation did fail: missing fields."
     elif exception.code == exceptions.PN_EVENT_HANDLER_CREATE_DID_FAIL:
-        title = 'Event handler creation did fail.'
+        title = "Event handler creation did fail."
     elif exception.code == exceptions.PN_EVENT_HANDLER_UPDATE_DID_FAIL:
-        title = 'Event handler update did fail.'
+        title = "Event handler update did fail."
     elif exception.code == exceptions.PN_EVENT_HANDLER_REMOVE_DID_FAIL:
-        title = 'Event handler removal did fail.'
+        title = "Event handler removal did fail."
 
     return title
 
@@ -547,7 +515,7 @@ def _content_of_file_at_path(path):
         with open(path, mode="rt") as opened_file:
             b_content = opened_file.read()
             try:
-                content = to_text(b_content, errors='surrogate_or_strict')
+                content = to_text(b_content, errors="surrogate_or_strict")
             except UnicodeError:
                 pass
 
@@ -556,22 +524,23 @@ def _content_of_file_at_path(path):
 
 def main():
     fields = dict(
-        email=dict(default='', required=False, type='str'),
-        password=dict(default='', required=False, type='str', no_log=True),
-        account=dict(default='', required=False, type='str'),
-        application=dict(required=True, type='str'),
-        keyset=dict(required=True, type='str', no_log=False),
-        state=dict(default='present', type='str',
-                   choices=['started', 'stopped', 'present', 'absent']),
-        name=dict(required=True, type='str'), description=dict(type='str'),
-        event_handlers=dict(default=list(), type='list', elements='dict'),
-        changes=dict(default=dict(), type='dict'),
-        cache=dict(default=dict(), type='dict'),
-        validate_certs=dict(default=True, type='bool'))
+        email=dict(default="", type="str"),
+        password=dict(default="", type="str", no_log=True),
+        account=dict(default="", type="str"),
+        application=dict(required=True, type="str"),
+        keyset=dict(required=True, type="str", no_log=False),
+        state=dict(default="present", type="str", choices=["started", "stopped", "present", "absent"]),
+        name=dict(required=True, type="str"),
+        description=dict(type="str"),
+        event_handlers=dict(default=list(), type="list", elements="dict"),
+        changes=dict(default=dict(), type="dict"),
+        cache=dict(default=dict(), type="dict"),
+        validate_certs=dict(default=True, type="bool"),
+    )
     module = AnsibleModule(argument_spec=fields, supports_check_mode=True)
 
     if not HAS_PUBNUB_BLOCKS_CLIENT:
-        module.fail_json(msg='pubnub_blocks_client required for this module.')
+        module.fail_json(msg="pubnub_blocks_client required for this module.")
 
     params = module.params
 
@@ -588,44 +557,45 @@ def main():
     is_new_block = block is not None and block.uid == -1
 
     # Check whether block should be removed or not.
-    if block is not None and params['state'] == 'absent':
+    if block is not None and params["state"] == "absent":
         keyset.remove_block(block)
         block = None
 
     if block is not None:
         # Update block information if required.
-        if params.get('changes') and params['changes'].get('name'):
-            block.name = params['changes']['name']
+        if params.get("changes") and params["changes"].get("name"):
+            block.name = params["changes"]["name"]
 
         # Process event changes to event handlers.
-        for event_handler_data in params.get('event_handlers') or list():
-            state = event_handler_data.get('state') or 'present'
-            event_handler = pubnub_event_handler(data=event_handler_data,
-                                                 block=block)
-            if state == 'absent' and event_handler:
+        for event_handler_data in params.get("event_handlers") or list():
+            state = event_handler_data.get("state") or "present"
+            event_handler = pubnub_event_handler(data=event_handler_data, block=block)
+            if state == "absent" and event_handler:
                 block.delete_event_handler(event_handler)
 
     # Update block operation state if required.
     if block and not is_new_block:
-        if params['state'] == 'started':
+        if params["state"] == "started":
             block.start()
-        elif params['state'] == 'stopped':
+        elif params["state"] == "stopped":
             block.stop()
 
     # Save current account state.
     if not module.check_mode:
         try:
             account.save()
-        except (exceptions.APIAccessError, exceptions.KeysetError,
-                exceptions.BlockError, exceptions.EventHandlerError,
-                exceptions.GeneralPubNubError) as exc:
+        except (
+            exceptions.APIAccessError,
+            exceptions.KeysetError,
+            exceptions.BlockError,
+            exceptions.EventHandlerError,
+            exceptions.GeneralPubNubError,
+        ) as exc:
             module_cache = dict(account)
             module_cache.update(dict(pnm_user=dict(user)))
             exc_msg = _failure_title_from_exception(exc)
-            exc_descr = exc.message if hasattr(exc, 'message') else exc.args[0]
-            module.fail_json(msg=exc_msg, description=exc_descr,
-                             changed=account.changed,
-                             module_cache=module_cache)
+            exc_descr = exc.message if hasattr(exc, "message") else exc.args[0]
+            module.fail_json(msg=exc_msg, description=exc_descr, changed=account.changed, module_cache=module_cache)
 
     # Report module execution results.
     module_cache = dict(account)
@@ -634,5 +604,5 @@ def main():
     module.exit_json(changed=changed_will_change, module_cache=module_cache)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

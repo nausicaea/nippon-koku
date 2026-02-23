@@ -4,6 +4,7 @@ mysql_user: root
 mysql_password: msandbox
 mysql_host: '{{ gateway_addr }}'
 mysql_primary_port: 3307
+mysql_replica1_port: 3308
 
 db_name: data
 

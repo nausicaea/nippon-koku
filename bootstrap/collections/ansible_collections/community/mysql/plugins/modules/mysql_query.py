@@ -60,6 +60,8 @@ options:
 attributes:
   check_mode:
     support: none
+  idempotent:
+    support: none
 seealso:
 - module: community.mysql.mysql_db
 notes:

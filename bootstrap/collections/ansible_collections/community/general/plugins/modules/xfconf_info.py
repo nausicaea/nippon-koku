@@ -1,24 +1,21 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2021, Alexei Znamensky <russoz@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = """
----
+DOCUMENTATION = r"""
 module: xfconf_info
 author:
-- "Alexei Znamensky (@russoz)"
+  - "Alexei Znamensky (@russoz)"
 short_description: Retrieve XFCE4 configurations
 version_added: 3.5.0
 description:
-- This module allows retrieving Xfce 4 configurations with the help of C(xfconf-query).
+  - This module allows retrieving Xfce 4 configurations with the help of C(xfconf-query).
 extends_documentation_fragment:
-- community.general.attributes
-- community.general.attributes.info_module
+  - community.general.attributes
+  - community.general.attributes.info_module
 attributes:
   check_mode:
     version_added: 3.3.0
@@ -26,26 +23,21 @@ attributes:
 options:
   channel:
     description:
-    - >
-      A Xfconf preference channel is a top-level tree key, inside of the
-      Xfconf repository that corresponds to the location for which all
-      application properties/keys are stored.
-    - If not provided, the module will list all available channels.
+      - A Xfconf preference channel is a top-level tree key, inside of the Xfconf repository that corresponds to the location
+        for which all application properties/keys are stored.
+      - If not provided, the module lists all available channels.
     type: str
   property:
     description:
-    - >
-      A Xfce preference key is an element in the Xfconf repository
-      that corresponds to an application preference.
-    - If provided, then O(channel) is required.
-    - If not provided and a O(channel) is provided, then the module will list all available properties in that O(channel).
+      - A Xfce preference key is an element in the Xfconf repository that corresponds to an application preference.
+      - If provided, then O(channel) is required.
+      - If not provided and a O(channel) is provided, then the module lists all available properties in that O(channel).
     type: str
 notes:
-- See man xfconf-query(1) for more details.
+  - See man xfconf-query(1) for more details.
 """
 
-EXAMPLES = """
----
+EXAMPLES = r"""
 - name: Get list of all available channels
   community.general.xfconf_info: {}
   register: result
@@ -68,84 +60,88 @@ EXAMPLES = """
   register: result
 """
 
-RETURN = """
----
+RETURN = r"""
 channels:
   description:
-  - List of available channels.
-  - Returned when the module receives no parameter at all.
+    - List of available channels.
+    - Returned when the module receives no parameter at all.
   returned: success
   type: list
   elements: str
   sample:
-  - xfce4-desktop
-  - displays
-  - xsettings
-  - xfwm4
+    - xfce4-desktop
+    - displays
+    - xsettings
+    - xfwm4
 properties:
   description:
-  - List of available properties for a specific channel.
-  - Returned by passing only the O(channel) parameter to the module.
+    - List of available properties for a specific channel.
+    - Returned by passing only the O(channel) parameter to the module.
   returned: success
   type: list
   elements: str
   sample:
-  - /Gdk/WindowScalingFactor
-  - /Gtk/ButtonImages
-  - /Gtk/CursorThemeSize
-  - /Gtk/DecorationLayout
-  - /Gtk/FontName
-  - /Gtk/MenuImages
-  - /Gtk/MonospaceFontName
-  - /Net/DoubleClickTime
-  - /Net/IconThemeName
-  - /Net/ThemeName
-  - /Xft/Antialias
-  - /Xft/Hinting
-  - /Xft/HintStyle
-  - /Xft/RGBA
+    - /Gdk/WindowScalingFactor
+    - /Gtk/ButtonImages
+    - /Gtk/CursorThemeSize
+    - /Gtk/DecorationLayout
+    - /Gtk/FontName
+    - /Gtk/MenuImages
+    - /Gtk/MonospaceFontName
+    - /Net/DoubleClickTime
+    - /Net/IconThemeName
+    - /Net/ThemeName
+    - /Xft/Antialias
+    - /Xft/Hinting
+    - /Xft/HintStyle
+    - /Xft/RGBA
 is_array:
   description:
-  - Flag indicating whether the property is an array or not.
+    - Flag indicating whether the property is an array or not.
   returned: success
   type: bool
 value:
   description:
-  - The value of the property. Empty if the property is of array type.
+    - The value of the property. Empty if the property is of array type.
   returned: success
   type: str
   sample: Monospace 10
 value_array:
   description:
-  - The array value of the property. Empty if the property is not of array type.
+    - The array value of the property. Empty if the property is not of array type.
   returned: success
   type: list
   elements: str
   sample:
-  - Main
-  - Work
-  - Tmp
+    - Main
+    - Work
+    - Tmp
+version:
+  description:
+    - The version of the C(xfconf-query) command.
+  returned: success
+  type: str
+  sample: 4.18.1
+  version_added: 10.2.0
 """
 
 from ansible_collections.community.general.plugins.module_utils.module_helper import ModuleHelper
-from ansible_collections.community.general.plugins.module_utils.xfconf import xfconf_runner
+from ansible_collections.community.general.plugins.module_utils.xfconf import xfconf_runner, get_xfconf_version
 
 
 class XFConfInfo(ModuleHelper):
     module = dict(
         argument_spec=dict(
-            channel=dict(type='str'),
-            property=dict(type='str'),
+            channel=dict(type="str"),
+            property=dict(type="str"),
         ),
-        required_by=dict(
-            property=['channel']
-        ),
+        required_by=dict(property=["channel"]),
         supports_check_mode=True,
     )
-    use_old_vardict = False
 
     def __init_module__(self):
         self.runner = xfconf_runner(self.module, check_rc=True)
+        self.vars.version = get_xfconf_version(self.runner)
         self.vars.set("list_arg", False, output=False)
         self.vars.set("is_array", False)
 
@@ -153,9 +149,12 @@ class XFConfInfo(ModuleHelper):
         result = out.rstrip()
         if "Value is an array with" in result:
             result = result.split("\n")
-            result.pop(0)
-            result.pop(0)
             self.vars.is_array = True
+            if len(result) > 1:
+                result.pop(0)
+                result.pop(0)
+            else:
+                return []
 
         return result
 
@@ -170,16 +169,16 @@ class XFConfInfo(ModuleHelper):
 
     def __run__(self):
         self.vars.list_arg = not (bool(self.vars.channel) and bool(self.vars.property))
-        output = 'value'
+        output = "value"
         proc = self.process_command_output
         if self.vars.channel is None:
-            output = 'channels'
+            output = "channels"
             proc = self._process_list_channels
         elif self.vars.property is None:
-            output = 'properties'
+            output = "properties"
             proc = self._process_list_properties
 
-        with self.runner.context('list_arg channel property', output_process=proc) as ctx:
+        with self.runner.context("list_arg channel property", output_process=proc) as ctx:
             result = ctx.run(**self.vars.as_dict())
 
         if not self.vars.list_arg and self.vars.is_array:
@@ -191,5 +190,5 @@ def main():
     XFConfInfo.execute()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

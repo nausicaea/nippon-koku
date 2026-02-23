@@ -133,6 +133,13 @@ options:
     default: true
     version_added: '3.8.0'
 
+  sql_log_bin:
+    description:
+      - Whether binary logging should be enabled or disabled for the connection.
+    type: bool
+    default: true
+    version_added: '4.1.0'
+
 notes:
   - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
@@ -141,6 +148,8 @@ notes:
 
 attributes:
   check_mode:
+    support: full
+  idempotent:
     support: full
 
 seealso:
@@ -299,6 +308,13 @@ EXAMPLES = r'''
     members:
     - 'existing_user@localhost'
     - 'not_existing_user@localhost'
+
+- name: Create role without binary logging
+  community.mysql.mysql_role:
+    name: readers
+    state: present
+    priv: 'fiction.*:SELECT'
+    sql_log_bin: false
 '''
 
 RETURN = '''#'''
@@ -975,6 +991,7 @@ def main():
         set_default_role_all=dict(type='bool', default=True),
         members_must_exist=dict(type='bool', default=True),
         column_case_sensitive=dict(type='bool', default=True),
+        sql_log_bin=dict(type='bool', default=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -1010,6 +1027,7 @@ def main():
     set_default_role_all = module.params['set_default_role_all']
     members_must_exist = module.params['members_must_exist']
     column_case_sensitive = module.params['column_case_sensitive']
+    sql_log_bin = module.params['sql_log_bin']
 
     if priv and not isinstance(priv, (str, dict)):
         msg = ('The "priv" parameter must be str or dict '
@@ -1046,6 +1064,9 @@ def main():
                              'check login_user and login_password '
                              'are correct or %s has the credentials. '
                              'Exception message: %s' % (config_file, to_native(e)))
+
+    if not sql_log_bin:
+        cursor.execute("SET SQL_LOG_BIN=0;")
 
     # Set defaults
     changed = False

@@ -1,29 +1,18 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2017-2018, Keller Fuchs <kellerfuchs@hashbang.sh>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: ldap_passwd
 short_description: Set passwords in LDAP
 description:
-  - Set a password for an LDAP entry.  This module only asserts that
-    a given password is valid for a given entry.  To assert the
-    existence of an entry, see M(community.general.ldap_entry).
-notes:
-  - The default authentication settings will attempt to use a SASL EXTERNAL
-    bind over a UNIX domain socket. This works well with the default Ubuntu
-    install for example, which includes a C(cn=peercred,cn=external,cn=auth) ACL
-    rule allowing root to modify the server configuration. If you need to use
-    a simple bind to access your server, pass the credentials in O(bind_dn)
-    and O(bind_pw).
+  - Set a password for an LDAP entry. This module only asserts that a given password is valid for a given entry. To assert
+    the existence of an entry, see M(community.general.ldap_entry).
 author:
   - Keller Fuchs (@KellerFuchs)
 requirements:
@@ -41,10 +30,9 @@ options:
 extends_documentation_fragment:
   - community.general.ldap.documentation
   - community.general.attributes
+"""
 
-'''
-
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Set a password for the admin user
   community.general.ldap_passwd:
     dn: cn=admin,dc=example,dc=com
@@ -56,13 +44,13 @@ EXAMPLES = """
     passwd: "{{ item.value }}"
   with_dict:
     alice: alice123123
-    bob:   "|30b!"
+    bob: "|30b!"
     admin: "{{ vault_secret }}"
 """
 
-RETURN = """
+RETURN = r"""
 modlist:
-  description: list of modified parameters
+  description: List of modified parameters.
   returned: success
   type: list
   sample:
@@ -72,7 +60,11 @@ modlist:
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
-from ansible_collections.community.general.plugins.module_utils.ldap import LdapGeneric, gen_specs, ldap_required_together
+from ansible_collections.community.general.plugins.module_utils.ldap import (
+    LdapGeneric,
+    gen_specs,
+    ldap_required_together,
+)
 
 LDAP_IMP_ERR = None
 try:
@@ -89,7 +81,7 @@ class LdapPasswd(LdapGeneric):
         LdapGeneric.__init__(self, module)
 
         # Shortcuts
-        self.passwd = self.module.params['passwd']
+        self.passwd = self.module.params["passwd"]
 
     def passwd_check(self):
         try:
@@ -137,8 +129,7 @@ def main():
     )
 
     if not HAS_LDAP:
-        module.fail_json(msg=missing_required_lib('python-ldap'),
-                         exception=LDAP_IMP_ERR)
+        module.fail_json(msg=missing_required_lib("python-ldap"), exception=LDAP_IMP_ERR)
 
     ldap = LdapPasswd(module)
 
@@ -148,5 +139,5 @@ def main():
     module.exit_json(changed=ldap.passwd_set())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

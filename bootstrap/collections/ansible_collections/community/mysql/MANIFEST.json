@@ -2,7 +2,7 @@
  "collection_info": {
   "namespace": "community",
   "name": "mysql",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "authors": [
    "Ansible community"
   ],
@@ -25,7 +25,7 @@
   "name": "FILES.json",
   "ftype": "file",
   "chksum_type": "sha256",
-  "chksum_sha256": "e65404953c14fca4033089d795ec6dec910f67c0a0d6a7f48eb62a15e053fc4e",
+  "chksum_sha256": "39f3110a0782635c308531028a0b8f0d5decd31504e6af1699708ec6b113cd2a",
   "format": 1
  },
  "format": 1

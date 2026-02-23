@@ -19,17 +19,10 @@
         name: '{{ item }}'
       loop: '{{ openldap_packages_name }}'
 
-    - name: Install python-ldap (Python 3)
+    - name: Install python-ldap
       become: true
       package:
         name: '{{ python_ldap_package_name_python3 }}'
-      when: ansible_python_version is version('3.0', '>=')
-
-    - name: Install python-ldap (Python 2)
-      become: true
-      package:
-        name: '{{ python_ldap_package_name }}'
-      when: ansible_python_version is version('3.0', '<')
 
     - name: Make sure OpenLDAP service is stopped
       become: true
@@ -79,14 +72,21 @@
         - rootpw_cnconfig.ldif
         - cert_cnconfig.ldif
         - initial_config.ldif
+        - inc_schema_cnconfig.ldif
+        - ldap_inc_config.ldif
 
     - name: Configure admin password for cn=config
       shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/{{ item }}"
       loop:
         - rootpw_cnconfig.ldif
         - cert_cnconfig.ldif
+        - inc_schema_cnconfig.ldif
 
     - name: Add initial config
       become: true
-      shell: 'ldapadd -H ldapi:/// -x -D "cn=admin,dc=example,dc=com" -w Test1234! -f /tmp/initial_config.ldif'
+      shell: 'ldapadd -H ldapi:/// -x -D "cn=admin,dc=example,dc=com" -w Test1234! -f /tmp/{{ item }}'
+      loop:
+        - initial_config.ldif
+        - ldap_inc_config.ldif
+
   when: ansible_os_family in ['Ubuntu', 'Debian']

@@ -1,15 +1,12 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2021, Andreas Botzner <andreas at botzner dot com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: redis_data_info
 short_description: Get value of key in Redis database
 version_added: 3.7.0
@@ -33,9 +30,9 @@ seealso:
   - module: community.general.redis_data_incr
   - module: community.general.redis_info
   - module: community.general.redis
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Get key foo=bar from loalhost with no username
   community.general.redis_data_info:
     login_host: localhost
@@ -50,9 +47,9 @@ EXAMPLES = '''
     validate_certs: true
     ssl_ca_certs: /path/to/ca/certs
     key: foo
-'''
+"""
 
-RETURN = '''
+RETURN = r"""
 exists:
   description: If they key exists in the database.
   returned: on success
@@ -67,17 +64,20 @@ msg:
   returned: always
   type: str
   sample: 'Got key: foo with value: bar'
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.general.plugins.module_utils.redis import (
-    fail_imports, redis_auth_argument_spec, RedisAnsible)
+    fail_imports,
+    redis_auth_argument_spec,
+    RedisAnsible,
+)
 
 
 def main():
     redis_auth_args = redis_auth_argument_spec()
     module_args = dict(
-        key=dict(type='str', required=True, no_log=False),
+        key=dict(type="str", required=True, no_log=False),
     )
     module_args.update(redis_auth_args)
 
@@ -89,28 +89,27 @@ def main():
 
     redis = RedisAnsible(module)
 
-    key = module.params['key']
-    result = {'changed': False}
+    key = module.params["key"]
+    result = {"changed": False}
 
     value = None
     try:
         value = redis.connection.get(key)
     except Exception as e:
-        msg = 'Failed to get value of key "{0}" with exception: {1}'.format(
-            key, str(e))
-        result['msg'] = msg
+        msg = f'Failed to get value of key "{key}" with exception: {e}'
+        result["msg"] = msg
         module.fail_json(**result)
 
     if value is None:
-        msg = 'Key "{0}" does not exist in database'.format(key)
-        result['exists'] = False
+        msg = f'Key "{key}" does not exist in database'
+        result["exists"] = False
     else:
-        msg = 'Got key "{0}"'.format(key)
-        result['value'] = value
-        result['exists'] = True
-    result['msg'] = msg
+        msg = f'Got key "{key}"'
+        result["value"] = value
+        result["exists"] = True
+    result["msg"] = msg
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

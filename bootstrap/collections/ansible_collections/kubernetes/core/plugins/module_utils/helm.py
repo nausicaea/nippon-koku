@@ -15,7 +15,6 @@ import tempfile
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
-from ansible.module_utils.six import string_types
 from ansible_collections.kubernetes.core.plugins.module_utils.version import (
     LooseVersion,
 )
@@ -77,7 +76,6 @@ def write_temp_kubeconfig(server, validate_certs=True, ca_cert=None, kubeconfig=
 
 
 class AnsibleHelmModule(object):
-
     """
     An Ansible module class for Kubernetes.core helm modules
     """
@@ -114,7 +112,7 @@ class AnsibleHelmModule(object):
         kubeconfig_content = None
         kubeconfig = self.params.get("kubeconfig")
         if kubeconfig:
-            if isinstance(kubeconfig, string_types):
+            if isinstance(kubeconfig, str):
                 with open(os.path.expanduser(kubeconfig)) as fd:
                     kubeconfig_content = yaml.safe_load(fd)
             elif isinstance(kubeconfig, dict):
@@ -160,11 +158,13 @@ class AnsibleHelmModule(object):
             self.helm_env = self._prepare_helm_environment()
         return self.helm_env
 
-    def run_helm_command(self, command, fails_on_error=True):
+    def run_helm_command(self, command, fails_on_error=True, data=None):
         if not HAS_YAML:
             self.fail_json(msg=missing_required_lib("PyYAML"), exception=YAML_IMP_ERR)
 
-        rc, out, err = self.run_command(command, environ_update=self.env_update)
+        rc, out, err = self.run_command(
+            command, environ_update=self.env_update, data=data
+        )
         if fails_on_error and rc != 0:
             self.fail_json(
                 msg="Failure when executing Helm command. Exited {0}.\nstdout: {1}\nstderr: {2}".format(
@@ -184,10 +184,10 @@ class AnsibleHelmModule(object):
     def get_helm_version(self):
         command = self.get_helm_binary() + " version"
         rc, out, err = self.run_command(command)
-        m = re.match(r'version.BuildInfo{Version:"v([0-9\.]*)",', out)
+        m = re.match(r'version.BuildInfo{Version:"v(.*?)",', out)
         if m:
             return m.group(1)
-        m = re.match(r'Client: &version.Version{SemVer:"v([0-9\.]*)", ', out)
+        m = re.match(r'Client: &version.Version{SemVer:"v(.*?)", ', out)
         if m:
             return m.group(1)
         return None

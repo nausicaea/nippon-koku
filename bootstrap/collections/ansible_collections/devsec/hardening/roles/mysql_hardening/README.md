@@ -25,11 +25,11 @@ Further information is available at [Deutsche Telekom (German)](http://www.telek
 
 ## Supported Operating Systems
 - EL
-  - 8, 9
+  - 8, 9, 10
 - Ubuntu
   - focal, jammy, noble
 - Debian
-  - bullseye, bookworm
+  - trixie, bookworm, bullseye
 - Amazon
 - opensuse
 

@@ -55,6 +55,8 @@ notes:
 attributes:
   check_mode:
     support: full
+  idempotent:
+    support: full
 
 seealso:
 - module: community.mysql.mysql_variables
@@ -531,20 +533,20 @@ class MySQL_Info(object):
         res = self.__exec_sql(query)
         if res:
             for line in res:
-                host = line['Master_Host']
+                host = line.get('Master_Host') or line.get('Source_Host')
                 if host not in self.info['slave_status']:
                     self.info['slave_status'][host] = {}
 
-                port = line['Master_Port']
+                port = line.get('Master_Port') or line.get('Source_Port')
                 if port not in self.info['slave_status'][host]:
                     self.info['slave_status'][host][port] = {}
 
-                user = line['Master_User']
+                user = line.get('Master_User') or line.get('Source_User')
                 if user not in self.info['slave_status'][host][port]:
                     self.info['slave_status'][host][port][user] = {}
 
                 for vname, val in line.items():
-                    if vname not in ('Master_Host', 'Master_Port', 'Master_User'):
+                    if vname not in ('Master_Host', 'Master_Port', 'Master_User', 'Source_Host', 'Source_Port', 'Source_User'):
                         self.info['slave_status'][host][port][user][vname] = self.__convert(val)
 
     def __get_slaves(self):

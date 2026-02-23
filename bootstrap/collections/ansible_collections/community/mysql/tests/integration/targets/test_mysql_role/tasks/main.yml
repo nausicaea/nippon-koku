@@ -22,3 +22,10 @@
 - name: Test column case sensitive
   ansible.builtin.import_tasks:
     file: test_column_case_sensitive.yml
+
+# Test sql_log_bin parameter
+# (https://github.com/ansible-collections/community.mysql/issues/742)
+- name: Test sql_log_bin parameter
+  ansible.builtin.include_tasks: test_sql_log_bin.yml
+  when:
+    - db_engine == 'mysql'

@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2024, Felix Fontein <felix@fontein.de>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
 DOCUMENTATION = r"""
 name: default_without_diff
@@ -29,7 +26,7 @@ ansible_config: |
   stdout_callback = community.general.default_without_diff
 
 # Enable callback with environment variables:
-environment_variable: |
+environment_variable: |-
   ANSIBLE_STDOUT_CALLBACK=community.general.default_without_diff
 """
 
@@ -38,8 +35,8 @@ from ansible.plugins.callback.default import CallbackModule as Default
 
 class CallbackModule(Default):
     CALLBACK_VERSION = 2.0
-    CALLBACK_TYPE = 'stdout'
-    CALLBACK_NAME = 'community.general.default_without_diff'
+    CALLBACK_TYPE = "stdout"
+    CALLBACK_NAME = "community.general.default_without_diff"
 
     def v2_on_file_diff(self, result):
         pass

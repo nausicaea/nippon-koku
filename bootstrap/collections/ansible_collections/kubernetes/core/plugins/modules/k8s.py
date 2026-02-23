@@ -181,17 +181,18 @@ options:
     - This parameter can be used with C(label_selectors) to restrict the resources to be deleted.
     type: bool
     default: false
-    version_added: 2.5.0
+    version_added: 3.0.0
     aliases:
     - all
   hidden_fields:
     description:
       - Hide fields matching this option in the result
       - An example might be C(hidden_fields=[metadata.managedFields])
-      - Only field definitions that don't reference list items are supported (so V(spec.containers[0]) would not work)
+        or V(hidden_fields=[spec.containers[0].env[3].value])
+        or V(hidden_fields=[metadata.annotations[kubectl.kubernetes.io/last-applied-configuration]])
     type: list
     elements: str
-    version_added: 2.5.0
+    version_added: 3.0.0
 
 requirements:
   - "python >= 3.9"

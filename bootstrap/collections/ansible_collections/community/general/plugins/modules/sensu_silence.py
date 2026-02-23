@@ -1,12 +1,10 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2017, Steven Bambling <smbambling@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
 DOCUMENTATION = r"""
@@ -14,7 +12,11 @@ module: sensu_silence
 author: Steven Bambling (@smbambling)
 short_description: Manage Sensu silence entries
 description:
-  - Create and clear (delete) a silence entries via the Sensu API for subscriptions and checks.
+  - Create and clear (delete) a silence entries using the Sensu API for subscriptions and checks.
+deprecated:
+  removed_in: 13.0.0
+  why: Sensu Core and Sensu Enterprise products have been End of Life since 2019/20.
+  alternative: Use Sensu Go and its accompanying collection C(sensu.sensu_go).
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -34,19 +36,20 @@ options:
   expire:
     type: int
     description:
-      - If specified, the silence entry will be automatically cleared after this number of seconds.
+      - If specified, the silence entry is automatically cleared after this number of seconds.
   expire_on_resolve:
     description:
-      - If specified as true, the silence entry will be automatically cleared once the condition it is silencing is resolved.
+      - If specified as true, the silence entry is automatically cleared once the condition it is silencing is resolved.
     type: bool
   reason:
     type: str
     description:
-      - If specified, this free-form string is used to provide context or rationale for the reason this silence entry was created.
+      - If specified, this free-form string is used to provide context or rationale for the reason this silence entry was
+        created.
   state:
     type: str
     description:
-      - Specifies to create or clear (delete) a silence entry via the Sensu API.
+      - Specifies to create or clear (delete) a silence entry using the Sensu API.
     default: present
     choices: ['present', 'absent']
   subscription:
@@ -59,7 +62,6 @@ options:
     type: str
     description:
       - Specifies the URL of the Sensu monitoring host server.
-    required: false
     default: http://127.0.01:4567
 """
 
@@ -106,14 +108,14 @@ from ansible.module_utils.urls import fetch_url
 
 def query(module, url, check, subscription):
     headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     }
 
-    url = url + '/silenced'
+    url = url + "/silenced"
 
     request_data = {
-        'check': check,
-        'subscription': subscription,
+        "check": check,
+        "subscription": subscription,
     }
 
     # Remove keys with None value
@@ -121,15 +123,10 @@ def query(module, url, check, subscription):
         if v is None:
             del request_data[k]
 
-    response, info = fetch_url(
-        module, url, method='GET',
-        headers=headers, data=json.dumps(request_data)
-    )
+    response, info = fetch_url(module, url, method="GET", headers=headers, data=json.dumps(request_data))
 
-    if info['status'] == 500:
-        module.fail_json(
-            msg="Failed to query silence %s. Reason: %s" % (subscription, info)
-        )
+    if info["status"] == 500:
+        module.fail_json(msg="Failed to query silence %s. Reason: %s" % (subscription, info))
 
     try:
         json_out = json.loads(to_native(response.read()))
@@ -143,10 +140,10 @@ def clear(module, url, check, subscription):
     # Test if silence exists before clearing
     (rc, out, changed) = query(module, url, check, subscription)
 
-    d = {i['subscription']: i['check'] for i in out}
+    d = {i["subscription"]: i["check"] for i in out}
     subscription_exists = subscription in d
     if check and subscription_exists:
-        exists = (check == d[subscription])
+        exists = check == d[subscription]
     else:
         exists = subscription_exists
 
@@ -158,14 +155,14 @@ def clear(module, url, check, subscription):
     # module.check_mode is inherited from the AnsibleMOdule class
     if not module.check_mode:
         headers = {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         }
 
-        url = url + '/silenced/clear'
+        url = url + "/silenced/clear"
 
         request_data = {
-            'check': check,
-            'subscription': subscription,
+            "check": check,
+            "subscription": subscription,
         }
 
         # Remove keys with None value
@@ -173,15 +170,10 @@ def clear(module, url, check, subscription):
             if v is None:
                 del request_data[k]
 
-        response, info = fetch_url(
-            module, url, method='POST',
-            headers=headers, data=json.dumps(request_data)
-        )
+        response, info = fetch_url(module, url, method="POST", headers=headers, data=json.dumps(request_data))
 
-        if info['status'] != 204:
-            module.fail_json(
-                msg="Failed to silence %s. Reason: %s" % (subscription, info)
-            )
+        if info["status"] != 204:
+            module.fail_json(msg="Failed to silence %s. Reason: %s" % (subscription, info))
 
         try:
             json_out = json.loads(to_native(response.read()))
@@ -192,44 +184,34 @@ def clear(module, url, check, subscription):
     return False, out, True
 
 
-def create(
-        module, url, check, creator, expire,
-        expire_on_resolve, reason, subscription):
+def create(module, url, check, creator, expire, expire_on_resolve, reason, subscription):
     (rc, out, changed) = query(module, url, check, subscription)
     for i in out:
-        if (i['subscription'] == subscription):
+        if i["subscription"] == subscription:
             if (
-                    (check is None or check == i['check']) and
-                    (
-                        creator == '' or
-                        creator == i['creator']) and
-                    (
-                        reason == '' or
-                        reason == i['reason']) and
-                    (
-                        expire is None or expire == i['expire']) and
-                    (
-                        expire_on_resolve is None or
-                        expire_on_resolve == i['expire_on_resolve']
-                    )
+                (check is None or check == i["check"])
+                and (creator == "" or creator == i["creator"])
+                and (reason == "" or reason == i["reason"])
+                and (expire is None or expire == i["expire"])
+                and (expire_on_resolve is None or expire_on_resolve == i["expire_on_resolve"])
             ):
                 return False, out, False
 
     # module.check_mode is inherited from the AnsibleMOdule class
     if not module.check_mode:
         headers = {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         }
 
-        url = url + '/silenced'
+        url = url + "/silenced"
 
         request_data = {
-            'check': check,
-            'creator': creator,
-            'expire': expire,
-            'expire_on_resolve': expire_on_resolve,
-            'reason': reason,
-            'subscription': subscription,
+            "check": check,
+            "creator": creator,
+            "expire": expire,
+            "expire_on_resolve": expire_on_resolve,
+            "reason": reason,
+            "subscription": subscription,
         }
 
         # Remove keys with None value
@@ -237,16 +219,10 @@ def create(
             if v is None:
                 del request_data[k]
 
-        response, info = fetch_url(
-            module, url, method='POST',
-            headers=headers, data=json.dumps(request_data)
-        )
+        response, info = fetch_url(module, url, method="POST", headers=headers, data=json.dumps(request_data))
 
-        if info['status'] != 201:
-            module.fail_json(
-                msg="Failed to silence %s. Reason: %s" %
-                (subscription, info['msg'])
-            )
+        if info["status"] != 201:
+            module.fail_json(msg="Failed to silence %s. Reason: %s" % (subscription, info["msg"]))
 
         try:
             json_out = json.loads(to_native(response.read()))
@@ -260,34 +236,31 @@ def create(
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            check=dict(required=False),
-            creator=dict(required=False),
-            expire=dict(type='int', required=False),
-            expire_on_resolve=dict(type='bool', required=False),
-            reason=dict(required=False),
-            state=dict(default='present', choices=['present', 'absent']),
+            check=dict(),
+            creator=dict(),
+            expire=dict(type="int"),
+            expire_on_resolve=dict(type="bool"),
+            reason=dict(),
+            state=dict(default="present", choices=["present", "absent"]),
             subscription=dict(required=True),
-            url=dict(required=False, default='http://127.0.01:4567'),
+            url=dict(default="http://127.0.01:4567"),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
     )
 
-    url = module.params['url']
-    check = module.params['check']
-    creator = module.params['creator']
-    expire = module.params['expire']
-    expire_on_resolve = module.params['expire_on_resolve']
-    reason = module.params['reason']
-    subscription = module.params['subscription']
-    state = module.params['state']
+    url = module.params["url"]
+    check = module.params["check"]
+    creator = module.params["creator"]
+    expire = module.params["expire"]
+    expire_on_resolve = module.params["expire_on_resolve"]
+    reason = module.params["reason"]
+    subscription = module.params["subscription"]
+    state = module.params["state"]
 
-    if state == 'present':
-        (rc, out, changed) = create(
-            module, url, check, creator,
-            expire, expire_on_resolve, reason, subscription
-        )
+    if state == "present":
+        (rc, out, changed) = create(module, url, check, creator, expire, expire_on_resolve, reason, subscription)
 
-    if state == 'absent':
+    if state == "absent":
         (rc, out, changed) = clear(module, url, check, subscription)
 
     if rc != 0:
@@ -295,5 +268,5 @@ def main():
     module.exit_json(msg="success", result=out, changed=changed)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

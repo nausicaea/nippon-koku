@@ -1,19 +1,19 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) Ansible Project
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: oneandone_load_balancer
 short_description: Configure 1&1 load balancer
 description:
-  - Create, remove, update load balancers.
-    This module has a dependency on 1and1 >= 1.0.
+  - Create, remove, update load balancers. This module has a dependency on 1and1 >= 1.0.
+deprecated:
+  removed_in: 13.0.0
+  why: DNS fails to resolve the API endpoint used by the module.
+  alternative: There is none.
 extends_documentation_fragment:
   - community.general.attributes
 attributes:
@@ -26,9 +26,8 @@ options:
     description:
       - Define a load balancer state to create, remove, or update.
     type: str
-    required: false
     default: 'present'
-    choices: [ "present", "absent", "update" ]
+    choices: ["present", "absent", "update"]
   auth_token:
     description:
       - Authenticating API token provided by 1&1.
@@ -39,122 +38,109 @@ options:
     type: str
   api_url:
     description:
-      - Custom API URL. Overrides the
-        E(ONEANDONE_API_URL) environment variable.
+      - Custom API URL. Overrides the E(ONEANDONE_API_URL) environment variable.
     type: str
-    required: false
   name:
     description:
-      - Load balancer name used with present state. Used as identifier (id or name) when used with absent state.
-        maxLength=128
+      - Load balancer name used with present state. Used as identifier (ID or name) when used with absent state. maxLength=128.
     type: str
   health_check_test:
     description:
       - Type of the health check. At the moment, HTTP is not allowed.
     type: str
-    choices: [ "NONE", "TCP", "HTTP", "ICMP" ]
+    choices: ["NONE", "TCP", "HTTP", "ICMP"]
   health_check_interval:
     description:
-      - Health check period in seconds. minimum=5, maximum=300, multipleOf=1
+      - Health check period in seconds. minimum=5, maximum=300, multipleOf=1.
     type: str
   health_check_path:
     description:
-      - Url to call for checking. Required for HTTP health check. maxLength=1000
+      - URL to call for checking. Required for HTTP health check. maxLength=1000.
     type: str
-    required: false
   health_check_parse:
     description:
-      - Regular expression to check. Required for HTTP health check. maxLength=64
+      - Regular expression to check. Required for HTTP health check. maxLength=64.
     type: str
-    required: false
   persistence:
     description:
       - Persistence.
     type: bool
   persistence_time:
     description:
-      - Persistence time in seconds. Required if persistence is enabled. minimum=30, maximum=1200, multipleOf=1
+      - Persistence time in seconds. Required if persistence is enabled. minimum=30, maximum=1200, multipleOf=1.
     type: str
   method:
     description:
       - Balancing procedure.
     type: str
-    choices: [ "ROUND_ROBIN", "LEAST_CONNECTIONS" ]
+    choices: ["ROUND_ROBIN", "LEAST_CONNECTIONS"]
   datacenter:
     description:
-      - ID or country code of the datacenter where the load balancer will be created.
+      - ID or country code of the datacenter where the load balancer is created.
       - If not specified, it defaults to V(US).
     type: str
-    choices: [ "US", "ES", "DE", "GB" ]
-    required: false
+    choices: ["US", "ES", "DE", "GB"]
   rules:
     description:
-      - A list of rule objects that will be set for the load balancer. Each rule must contain protocol,
-        port_balancer, and port_server parameters, in addition to source parameter, which is optional.
+      - A list of rule objects that are set for the load balancer. Each rule must contain protocol, port_balancer, and port_server
+        parameters, in addition to source parameter, which is optional.
     type: list
     elements: dict
     default: []
   description:
     description:
-      - Description of the load balancer. maxLength=256
+      - Description of the load balancer. maxLength=256.
     type: str
-    required: false
   add_server_ips:
     description:
-      - A list of server identifiers (id or name) to be assigned to a load balancer.
-        Used in combination with update state.
+      - A list of server identifiers (id or name) to be assigned to a load balancer. Used in combination with O(state=update).
     type: list
     elements: str
-    required: false
     default: []
   remove_server_ips:
     description:
-      - A list of server IP ids to be unassigned from a load balancer. Used in combination with update state.
+      - A list of server IP IDs to be unassigned from a load balancer. Used in combination with O(state=update).
     type: list
     elements: str
-    required: false
     default: []
   add_rules:
     description:
-      - A list of rules that will be added to an existing load balancer.
-        It is syntax is the same as the one used for rules parameter. Used in combination with update state.
+      - A list of rules that are added to an existing load balancer. It is syntax is the same as the one used for rules parameter.
+        Used in combination with O(state=update).
     type: list
     elements: dict
-    required: false
     default: []
   remove_rules:
     description:
-      - A list of rule ids that will be removed from an existing load balancer. Used in combination with update state.
+      - A list of rule IDs that are removed from an existing load balancer. Used in combination with O(state=update).
     type: list
     elements: str
-    required: false
     default: []
   wait:
     description:
-      - wait for the instance to be in state 'running' before returning
-    required: false
+      - Wait for the instance to be in state 'running' before returning.
     default: true
     type: bool
   wait_timeout:
     description:
-      - how long before wait gives up, in seconds
+      - How long before wait gives up, in seconds.
     type: int
     default: 600
   wait_interval:
     description:
-      - Defines the number of seconds to wait when using the _wait_for methods
+      - Defines the number of seconds to wait when using the _wait_for methods.
     type: int
     default: 5
 
 requirements:
-     - "1and1"
+  - "1and1"
 
 author:
   - Amel Ajdinovic (@aajdinov)
   - Ethan Devenport (@edevenport)
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Create a load balancer
   community.general.oneandone_load_balancer:
     auth_token: oneandone_private_api_key
@@ -167,11 +153,10 @@ EXAMPLES = '''
     method: ROUND_ROBIN
     datacenter: US
     rules:
-     -
-       protocol: TCP
-       port_balancer: 80
-       port_server: 80
-       source: 0.0.0.0
+      - protocol: TCP
+        port_balancer: 80
+        port_server: 80
+        source: 0.0.0.0
     wait: true
     wait_timeout: 500
 
@@ -199,7 +184,7 @@ EXAMPLES = '''
     load_balancer: ansible load balancer updated
     description: Adding server to a load balancer with ansible
     add_server_ips:
-     - server identifier (id or name)
+      - server identifier (id or name)
     wait: true
     wait_timeout: 500
     state: update
@@ -210,7 +195,7 @@ EXAMPLES = '''
     load_balancer: ansible load balancer updated
     description: Removing server from a load balancer with ansible
     remove_server_ips:
-     - B2504878540DBC5F7634EB00A07C1EBD (server's ip id)
+      - B2504878540DBC5F7634EB00A07C1EBD (server's ip id)
     wait: true
     wait_timeout: 500
     state: update
@@ -221,16 +206,14 @@ EXAMPLES = '''
     load_balancer: ansible load balancer updated
     description: Adding rules to a load balancer with ansible
     add_rules:
-     -
-       protocol: TCP
-       port_balancer: 70
-       port_server: 70
-       source: 0.0.0.0
-     -
-       protocol: TCP
-       port_balancer: 60
-       port_server: 60
-       source: 0.0.0.0
+      - protocol: TCP
+        port_balancer: 70
+        port_server: 70
+        source: 0.0.0.0
+      - protocol: TCP
+        port_balancer: 60
+        port_server: 60
+        source: 0.0.0.0
     wait: true
     wait_timeout: 500
     state: update
@@ -241,21 +224,21 @@ EXAMPLES = '''
     load_balancer: ansible load balancer updated
     description: Adding rules to a load balancer with ansible
     remove_rules:
-     - rule_id #1
-     - rule_id #2
-     - ...
+      - "rule_id #1"
+      - "rule_id #2"
+      - '...'
     wait: true
     wait_timeout: 500
     state: update
-'''
+"""
 
-RETURN = '''
+RETURN = r"""
 load_balancer:
-    description: Information about the load balancer that was processed
-    type: dict
-    sample: '{"id": "92B74394A397ECC3359825C1656D67A6", "name": "Default Balancer"}'
-    returned: always
-'''
+  description: Information about the load balancer that was processed.
+  type: dict
+  sample: {"id": "92B74394A397ECC3359825C1656D67A6", "name": "Default Balancer"}
+  returned: always
+"""
 
 import os
 from ansible.module_utils.basic import AnsibleModule
@@ -264,7 +247,7 @@ from ansible_collections.community.general.plugins.module_utils.oneandone import
     get_server,
     get_datacenter,
     OneAndOneResources,
-    wait_for_resource_creation_completion
+    wait_for_resource_creation_completion,
 )
 
 HAS_ONEANDONE_SDK = True
@@ -274,16 +257,14 @@ try:
 except ImportError:
     HAS_ONEANDONE_SDK = False
 
-DATACENTERS = ['US', 'ES', 'DE', 'GB']
-HEALTH_CHECK_TESTS = ['NONE', 'TCP', 'HTTP', 'ICMP']
-METHODS = ['ROUND_ROBIN', 'LEAST_CONNECTIONS']
+DATACENTERS = ["US", "ES", "DE", "GB"]
+HEALTH_CHECK_TESTS = ["NONE", "TCP", "HTTP", "ICMP"]
+METHODS = ["ROUND_ROBIN", "LEAST_CONNECTIONS"]
 
 
 def _check_mode(module, result):
     if module.check_mode:
-        module.exit_json(
-            changed=result
-        )
+        module.exit_json(changed=result)
 
 
 def _add_server_ips(module, oneandone_conn, load_balancer_id, server_ids):
@@ -296,8 +277,7 @@ def _add_server_ips(module, oneandone_conn, load_balancer_id, server_ids):
         for server_id in server_ids:
             server = get_server(oneandone_conn, server_id, True)
             attach_server = oneandone.client.AttachServer(
-                server_id=server['id'],
-                server_ip_id=next(iter(server['ips'] or []), None)['id']
+                server_id=server["id"], server_ip_id=next(iter(server["ips"] or []), None)["id"]
             )
             attach_servers.append(attach_server)
 
@@ -307,8 +287,8 @@ def _add_server_ips(module, oneandone_conn, load_balancer_id, server_ids):
             return False
 
         load_balancer = oneandone_conn.attach_load_balancer_server(
-            load_balancer_id=load_balancer_id,
-            server_ips=attach_servers)
+            load_balancer_id=load_balancer_id, server_ips=attach_servers
+        )
         return load_balancer
     except Exception as ex:
         module.fail_json(msg=str(ex))
@@ -321,15 +301,15 @@ def _remove_load_balancer_server(module, oneandone_conn, load_balancer_id, serve
     try:
         if module.check_mode:
             lb_server = oneandone_conn.get_load_balancer_server(
-                load_balancer_id=load_balancer_id,
-                server_ip_id=server_ip_id)
+                load_balancer_id=load_balancer_id, server_ip_id=server_ip_id
+            )
             if lb_server:
                 return True
             return False
 
         load_balancer = oneandone_conn.remove_load_balancer_server(
-            load_balancer_id=load_balancer_id,
-            server_ip_id=server_ip_id)
+            load_balancer_id=load_balancer_id, server_ip_id=server_ip_id
+        )
         return load_balancer
     except Exception as ex:
         module.fail_json(msg=str(ex))
@@ -344,21 +324,21 @@ def _add_load_balancer_rules(module, oneandone_conn, load_balancer_id, rules):
 
         for rule in rules:
             load_balancer_rule = oneandone.client.LoadBalancerRule(
-                protocol=rule['protocol'],
-                port_balancer=rule['port_balancer'],
-                port_server=rule['port_server'],
-                source=rule['source'])
+                protocol=rule["protocol"],
+                port_balancer=rule["port_balancer"],
+                port_server=rule["port_server"],
+                source=rule["source"],
+            )
             load_balancer_rules.append(load_balancer_rule)
 
         if module.check_mode:
             lb_id = get_load_balancer(oneandone_conn, load_balancer_id)
-            if (load_balancer_rules and lb_id):
+            if load_balancer_rules and lb_id:
                 return True
             return False
 
         load_balancer = oneandone_conn.add_load_balancer_rule(
-            load_balancer_id=load_balancer_id,
-            load_balancer_rules=load_balancer_rules
+            load_balancer_id=load_balancer_id, load_balancer_rules=load_balancer_rules
         )
 
         return load_balancer
@@ -372,17 +352,12 @@ def _remove_load_balancer_rule(module, oneandone_conn, load_balancer_id, rule_id
     """
     try:
         if module.check_mode:
-            rule = oneandone_conn.get_load_balancer_rule(
-                load_balancer_id=load_balancer_id,
-                rule_id=rule_id)
+            rule = oneandone_conn.get_load_balancer_rule(load_balancer_id=load_balancer_id, rule_id=rule_id)
             if rule:
                 return True
             return False
 
-        load_balancer = oneandone_conn.remove_load_balancer_rule(
-            load_balancer_id=load_balancer_id,
-            rule_id=rule_id
-        )
+        load_balancer = oneandone_conn.remove_load_balancer_rule(load_balancer_id=load_balancer_id, rule_id=rule_id)
         return load_balancer
     except Exception as ex:
         module.fail_json(msg=str(ex))
@@ -399,20 +374,20 @@ def update_load_balancer(module, oneandone_conn):
     module : AnsibleModule object
     oneandone_conn: authenticated oneandone object
     """
-    load_balancer_id = module.params.get('load_balancer')
-    name = module.params.get('name')
-    description = module.params.get('description')
-    health_check_test = module.params.get('health_check_test')
-    health_check_interval = module.params.get('health_check_interval')
-    health_check_path = module.params.get('health_check_path')
-    health_check_parse = module.params.get('health_check_parse')
-    persistence = module.params.get('persistence')
-    persistence_time = module.params.get('persistence_time')
-    method = module.params.get('method')
-    add_server_ips = module.params.get('add_server_ips')
-    remove_server_ips = module.params.get('remove_server_ips')
-    add_rules = module.params.get('add_rules')
-    remove_rules = module.params.get('remove_rules')
+    load_balancer_id = module.params.get("load_balancer")
+    name = module.params.get("name")
+    description = module.params.get("description")
+    health_check_test = module.params.get("health_check_test")
+    health_check_interval = module.params.get("health_check_interval")
+    health_check_path = module.params.get("health_check_path")
+    health_check_parse = module.params.get("health_check_parse")
+    persistence = module.params.get("persistence")
+    persistence_time = module.params.get("persistence_time")
+    method = module.params.get("method")
+    add_server_ips = module.params.get("add_server_ips")
+    remove_server_ips = module.params.get("remove_server_ips")
+    add_rules = module.params.get("add_rules")
+    remove_rules = module.params.get("remove_rules")
 
     changed = False
 
@@ -420,11 +395,20 @@ def update_load_balancer(module, oneandone_conn):
     if load_balancer is None:
         _check_mode(module, False)
 
-    if (name or description or health_check_test or health_check_interval or health_check_path or
-            health_check_parse or persistence or persistence_time or method):
+    if (
+        name
+        or description
+        or health_check_test
+        or health_check_interval
+        or health_check_path
+        or health_check_parse
+        or persistence
+        or persistence_time
+        or method
+    ):
         _check_mode(module, True)
         load_balancer = oneandone_conn.modify_load_balancer(
-            load_balancer_id=load_balancer['id'],
+            load_balancer_id=load_balancer["id"],
             name=name,
             description=description,
             health_check_test=health_check_test,
@@ -433,41 +417,30 @@ def update_load_balancer(module, oneandone_conn):
             health_check_parse=health_check_parse,
             persistence=persistence,
             persistence_time=persistence_time,
-            method=method)
+            method=method,
+        )
         changed = True
 
     if add_server_ips:
         if module.check_mode:
-            _check_mode(module, _add_server_ips(module,
-                                                oneandone_conn,
-                                                load_balancer['id'],
-                                                add_server_ips))
+            _check_mode(module, _add_server_ips(module, oneandone_conn, load_balancer["id"], add_server_ips))
 
-        load_balancer = _add_server_ips(module, oneandone_conn, load_balancer['id'], add_server_ips)
+        load_balancer = _add_server_ips(module, oneandone_conn, load_balancer["id"], add_server_ips)
         changed = True
 
     if remove_server_ips:
         chk_changed = False
         for server_ip_id in remove_server_ips:
             if module.check_mode:
-                chk_changed |= _remove_load_balancer_server(module,
-                                                            oneandone_conn,
-                                                            load_balancer['id'],
-                                                            server_ip_id)
+                chk_changed |= _remove_load_balancer_server(module, oneandone_conn, load_balancer["id"], server_ip_id)
 
-            _remove_load_balancer_server(module,
-                                         oneandone_conn,
-                                         load_balancer['id'],
-                                         server_ip_id)
+            _remove_load_balancer_server(module, oneandone_conn, load_balancer["id"], server_ip_id)
         _check_mode(module, chk_changed)
-        load_balancer = get_load_balancer(oneandone_conn, load_balancer['id'], True)
+        load_balancer = get_load_balancer(oneandone_conn, load_balancer["id"], True)
         changed = True
 
     if add_rules:
-        load_balancer = _add_load_balancer_rules(module,
-                                                 oneandone_conn,
-                                                 load_balancer['id'],
-                                                 add_rules)
+        load_balancer = _add_load_balancer_rules(module, oneandone_conn, load_balancer["id"], add_rules)
         _check_mode(module, load_balancer)
         changed = True
 
@@ -475,17 +448,11 @@ def update_load_balancer(module, oneandone_conn):
         chk_changed = False
         for rule_id in remove_rules:
             if module.check_mode:
-                chk_changed |= _remove_load_balancer_rule(module,
-                                                          oneandone_conn,
-                                                          load_balancer['id'],
-                                                          rule_id)
+                chk_changed |= _remove_load_balancer_rule(module, oneandone_conn, load_balancer["id"], rule_id)
 
-            _remove_load_balancer_rule(module,
-                                       oneandone_conn,
-                                       load_balancer['id'],
-                                       rule_id)
+            _remove_load_balancer_rule(module, oneandone_conn, load_balancer["id"], rule_id)
         _check_mode(module, chk_changed)
-        load_balancer = get_load_balancer(oneandone_conn, load_balancer['id'], True)
+        load_balancer = get_load_balancer(oneandone_conn, load_balancer["id"], True)
         changed = True
 
     try:
@@ -502,20 +469,20 @@ def create_load_balancer(module, oneandone_conn):
     oneandone_conn: authenticated oneandone object
     """
     try:
-        name = module.params.get('name')
-        description = module.params.get('description')
-        health_check_test = module.params.get('health_check_test')
-        health_check_interval = module.params.get('health_check_interval')
-        health_check_path = module.params.get('health_check_path')
-        health_check_parse = module.params.get('health_check_parse')
-        persistence = module.params.get('persistence')
-        persistence_time = module.params.get('persistence_time')
-        method = module.params.get('method')
-        datacenter = module.params.get('datacenter')
-        rules = module.params.get('rules')
-        wait = module.params.get('wait')
-        wait_timeout = module.params.get('wait_timeout')
-        wait_interval = module.params.get('wait_interval')
+        name = module.params.get("name")
+        description = module.params.get("description")
+        health_check_test = module.params.get("health_check_test")
+        health_check_interval = module.params.get("health_check_interval")
+        health_check_path = module.params.get("health_check_path")
+        health_check_parse = module.params.get("health_check_parse")
+        persistence = module.params.get("persistence")
+        persistence_time = module.params.get("persistence_time")
+        method = module.params.get("method")
+        datacenter = module.params.get("datacenter")
+        rules = module.params.get("rules")
+        wait = module.params.get("wait")
+        wait_timeout = module.params.get("wait_timeout")
+        wait_interval = module.params.get("wait_interval")
 
         load_balancer_rules = []
 
@@ -523,15 +490,15 @@ def create_load_balancer(module, oneandone_conn):
         if datacenter is not None:
             datacenter_id = get_datacenter(oneandone_conn, datacenter)
             if datacenter_id is None:
-                module.fail_json(
-                    msg='datacenter %s not found.' % datacenter)
+                module.fail_json(msg=f"datacenter {datacenter} not found.")
 
         for rule in rules:
             load_balancer_rule = oneandone.client.LoadBalancerRule(
-                protocol=rule['protocol'],
-                port_balancer=rule['port_balancer'],
-                port_server=rule['port_server'],
-                source=rule['source'])
+                protocol=rule["protocol"],
+                port_balancer=rule["port_balancer"],
+                port_server=rule["port_server"],
+                source=rule["source"],
+            )
             load_balancer_rules.append(load_balancer_rule)
 
         _check_mode(module, True)
@@ -545,22 +512,19 @@ def create_load_balancer(module, oneandone_conn):
             persistence=persistence,
             persistence_time=persistence_time,
             method=method,
-            datacenter_id=datacenter_id
+            datacenter_id=datacenter_id,
         )
 
         load_balancer = oneandone_conn.create_load_balancer(
-            load_balancer=load_balancer_obj,
-            load_balancer_rules=load_balancer_rules
+            load_balancer=load_balancer_obj, load_balancer_rules=load_balancer_rules
         )
 
         if wait:
-            wait_for_resource_creation_completion(oneandone_conn,
-                                                  OneAndOneResources.load_balancer,
-                                                  load_balancer['id'],
-                                                  wait_timeout,
-                                                  wait_interval)
+            wait_for_resource_creation_completion(
+                oneandone_conn, OneAndOneResources.load_balancer, load_balancer["id"], wait_timeout, wait_interval
+            )
 
-        load_balancer = get_load_balancer(oneandone_conn, load_balancer['id'], True)  # refresh
+        load_balancer = get_load_balancer(oneandone_conn, load_balancer["id"], True)  # refresh
         changed = True if load_balancer else False
 
         _check_mode(module, False)
@@ -578,7 +542,7 @@ def remove_load_balancer(module, oneandone_conn):
     oneandone_conn: authenticated oneandone object
     """
     try:
-        lb_id = module.params.get('name')
+        lb_id = module.params.get("name")
         load_balancer_id = get_load_balancer(oneandone_conn, lb_id)
         if module.check_mode:
             if load_balancer_id is None:
@@ -588,10 +552,7 @@ def remove_load_balancer(module, oneandone_conn):
 
         changed = True if load_balancer else False
 
-        return (changed, {
-            'id': load_balancer['id'],
-            'name': load_balancer['name']
-        })
+        return (changed, {"id": load_balancer["id"], "name": load_balancer["name"]})
     except Exception as ex:
         module.fail_json(msg=str(ex))
 
@@ -599,78 +560,74 @@ def remove_load_balancer(module, oneandone_conn):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            auth_token=dict(
-                type='str', no_log=True,
-                default=os.environ.get('ONEANDONE_AUTH_TOKEN')),
-            api_url=dict(
-                type='str',
-                default=os.environ.get('ONEANDONE_API_URL')),
-            load_balancer=dict(type='str'),
-            name=dict(type='str'),
-            description=dict(type='str'),
-            health_check_test=dict(
-                choices=HEALTH_CHECK_TESTS),
-            health_check_interval=dict(type='str'),
-            health_check_path=dict(type='str'),
-            health_check_parse=dict(type='str'),
-            persistence=dict(type='bool'),
-            persistence_time=dict(type='str'),
-            method=dict(
-                choices=METHODS),
-            datacenter=dict(
-                choices=DATACENTERS),
-            rules=dict(type='list', elements="dict", default=[]),
-            add_server_ips=dict(type='list', elements="str", default=[]),
-            remove_server_ips=dict(type='list', elements="str", default=[]),
-            add_rules=dict(type='list', elements="dict", default=[]),
-            remove_rules=dict(type='list', elements="str", default=[]),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            wait_interval=dict(type='int', default=5),
-            state=dict(type='str', default='present', choices=['present', 'absent', 'update']),
+            auth_token=dict(type="str", no_log=True, default=os.environ.get("ONEANDONE_AUTH_TOKEN")),
+            api_url=dict(type="str", default=os.environ.get("ONEANDONE_API_URL")),
+            load_balancer=dict(type="str"),
+            name=dict(type="str"),
+            description=dict(type="str"),
+            health_check_test=dict(choices=HEALTH_CHECK_TESTS),
+            health_check_interval=dict(type="str"),
+            health_check_path=dict(type="str"),
+            health_check_parse=dict(type="str"),
+            persistence=dict(type="bool"),
+            persistence_time=dict(type="str"),
+            method=dict(choices=METHODS),
+            datacenter=dict(choices=DATACENTERS),
+            rules=dict(type="list", elements="dict", default=[]),
+            add_server_ips=dict(type="list", elements="str", default=[]),
+            remove_server_ips=dict(type="list", elements="str", default=[]),
+            add_rules=dict(type="list", elements="dict", default=[]),
+            remove_rules=dict(type="list", elements="str", default=[]),
+            wait=dict(type="bool", default=True),
+            wait_timeout=dict(type="int", default=600),
+            wait_interval=dict(type="int", default=5),
+            state=dict(type="str", default="present", choices=["present", "absent", "update"]),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
     )
 
     if not HAS_ONEANDONE_SDK:
-        module.fail_json(msg='1and1 required for this module')
+        module.fail_json(msg="1and1 required for this module")
 
-    if not module.params.get('auth_token'):
-        module.fail_json(
-            msg='auth_token parameter is required.')
+    if not module.params.get("auth_token"):
+        module.fail_json(msg="auth_token parameter is required.")
 
-    if not module.params.get('api_url'):
-        oneandone_conn = oneandone.client.OneAndOneService(
-            api_token=module.params.get('auth_token'))
+    if not module.params.get("api_url"):
+        oneandone_conn = oneandone.client.OneAndOneService(api_token=module.params.get("auth_token"))
     else:
         oneandone_conn = oneandone.client.OneAndOneService(
-            api_token=module.params.get('auth_token'), api_url=module.params.get('api_url'))
+            api_token=module.params.get("auth_token"), api_url=module.params.get("api_url")
+        )
 
-    state = module.params.get('state')
+    state = module.params.get("state")
 
-    if state == 'absent':
-        if not module.params.get('name'):
-            module.fail_json(
-                msg="'name' parameter is required for deleting a load balancer.")
+    if state == "absent":
+        if not module.params.get("name"):
+            module.fail_json(msg="'name' parameter is required for deleting a load balancer.")
         try:
             (changed, load_balancer) = remove_load_balancer(module, oneandone_conn)
         except Exception as ex:
             module.fail_json(msg=str(ex))
-    elif state == 'update':
-        if not module.params.get('load_balancer'):
-            module.fail_json(
-                msg="'load_balancer' parameter is required for updating a load balancer.")
+    elif state == "update":
+        if not module.params.get("load_balancer"):
+            module.fail_json(msg="'load_balancer' parameter is required for updating a load balancer.")
         try:
             (changed, load_balancer) = update_load_balancer(module, oneandone_conn)
         except Exception as ex:
             module.fail_json(msg=str(ex))
 
-    elif state == 'present':
-        for param in ('name', 'health_check_test', 'health_check_interval', 'persistence',
-                      'persistence_time', 'method', 'rules'):
+    elif state == "present":
+        for param in (
+            "name",
+            "health_check_test",
+            "health_check_interval",
+            "persistence",
+            "persistence_time",
+            "method",
+            "rules",
+        ):
             if not module.params.get(param):
-                module.fail_json(
-                    msg="%s parameter is required for new load balancers." % param)
+                module.fail_json(msg=f"{param} parameter is required for new load balancers.")
         try:
             (changed, load_balancer) = create_load_balancer(module, oneandone_conn)
         except Exception as ex:
@@ -679,5 +636,5 @@ def main():
     module.exit_json(changed=changed, load_balancer=load_balancer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

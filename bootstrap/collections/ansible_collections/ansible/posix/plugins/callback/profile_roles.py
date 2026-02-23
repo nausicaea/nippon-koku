@@ -124,11 +124,11 @@ class CallbackModule(CallbackBase):
     def v2_playbook_on_handler_task_start(self, task):
         self._record_task(task)
 
-    def playbook_on_setup(self):
-        self._display_tasktime()
+    def v2_playbook_on_stats(self, stats):
+        # Align summary report header with other callback plugin summary
+        self._display.banner("ROLES RECAP")
 
-    def playbook_on_stats(self, stats):
-        self._display_tasktime()
+        self._display.display(tasktime())
         self._display.display(filled("", fchar="="))
 
         timestamp(self)

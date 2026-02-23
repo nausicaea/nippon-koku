@@ -1,25 +1,28 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018, Yanis Guenane <yanis+ansible@guenane.org>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
 DOCUMENTATION = r"""
 module: scaleway_ip_info
-short_description: Gather information about the Scaleway ips available
+short_description: Gather information about the Scaleway IPs available
 description:
-  - Gather information about the Scaleway ips available.
+  - Gather information about the Scaleway IPs available.
 author:
   - "Yanis Guenane (@Spredzy)"
   - "Remy Leone (@remyleone)"
 extends_documentation_fragment:
   - community.general.scaleway
   - community.general.attributes
+  - community.general.scaleway.actiongroup_scaleway
   - community.general.attributes.info_module
+
+attributes:
+  action_group:
+    version_added: 11.3.0
 
 options:
   region:
@@ -30,16 +33,21 @@ options:
     choices:
       - ams1
       - EMEA-NL-EVS
+      - ams2
+      - ams3
       - par1
       - EMEA-FR-PAR1
       - par2
       - EMEA-FR-PAR2
+      - par3
       - waw1
       - EMEA-PL-WAW1
+      - waw2
+      - waw3
 """
 
 EXAMPLES = r"""
-- name: Gather Scaleway ips information
+- name: Gather Scaleway IPs information
   community.general.scaleway_ip_info:
     region: par1
   register: result
@@ -52,22 +60,22 @@ RETURN = r"""
 scaleway_ip_info:
   description:
     - Response from Scaleway API.
-    - 'For more details please refer to: U(https://developers.scaleway.com/en/products/instance/api/)'
+    - For more details please refer to U(https://developers.scaleway.com/en/products/instance/api/).
   returned: success
   type: list
   elements: dict
   sample:
-    "scaleway_ip_info": [
-        {
-            "address": "163.172.170.243",
-            "id": "ea081794-a581-8899-8451-386ddaf0a451",
-            "organization": "3f709602-5e6c-4619-b80c-e324324324af",
-            "reverse": null,
-            "server": {
-                "id": "12f19bc7-109c-4517-954c-e6b3d0311363",
-                "name": "scw-e0d158"
-            }
+    [
+      {
+        "address": "163.172.170.243",
+        "id": "ea081794-a581-8899-8451-386ddaf0a451",
+        "organization": "3f709602-5e6c-4619-b80c-e324324324af",
+        "reverse": null,
+        "server": {
+          "id": "12f19bc7-109c-4517-954c-e6b3d0311363",
+          "name": "scw-e0d158"
         }
+      }
     ]
 """
 
@@ -81,32 +89,31 @@ from ansible_collections.community.general.plugins.module_utils.scaleway import 
 
 
 class ScalewayIpInfo(Scaleway):
-
     def __init__(self, module):
-        super(ScalewayIpInfo, self).__init__(module)
-        self.name = 'ips'
+        super().__init__(module)
+        self.name = "ips"
 
         region = module.params["region"]
-        self.module.params['api_url'] = SCALEWAY_LOCATION[region]["api_endpoint"]
+        self.module.params["api_url"] = SCALEWAY_LOCATION[region]["api_endpoint"]
 
 
 def main():
     argument_spec = scaleway_argument_spec()
-    argument_spec.update(dict(
-        region=dict(required=True, choices=list(SCALEWAY_LOCATION.keys())),
-    ))
+    argument_spec.update(
+        dict(
+            region=dict(required=True, choices=list(SCALEWAY_LOCATION.keys())),
+        )
+    )
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
     )
 
     try:
-        module.exit_json(
-            scaleway_ip_info=ScalewayIpInfo(module).get_resources()
-        )
+        module.exit_json(scaleway_ip_info=ScalewayIpInfo(module).get_resources())
     except ScalewayException as exc:
         module.fail_json(msg=exc.message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

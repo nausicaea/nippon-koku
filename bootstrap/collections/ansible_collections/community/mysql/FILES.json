@@ -25,7 +25,7 @@
    "name": ".github/workflows/ansible-test-plugins.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "10d4c3c733f08ed709c5f1b68f0ec97b819c5d1ee15f90e04fbafc353335d991",
+   "chksum_sha256": "4c25f7ebec0cbb0a47386e43b7c70306c221ce65f270b4ab2dd9f660dcff6ab6",
    "format": 1
   },
   {
@@ -33,6 +33,13 @@
    "ftype": "file",
    "chksum_type": "sha256",
    "chksum_sha256": "b4dcde588b15e37bd00ee1b948fe2f245916f9d5b48d2d23ad4e94d55037c021",
+   "format": 1
+  },
+  {
+   "name": ".github/dependabot.yml",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "97bbf02f049442305adfda1ebf0f8193df60cad9a639b614bcc69aca8ab56e79",
    "format": 1
   },
   {
@@ -67,7 +74,7 @@
    "name": "changelogs/changelog.yaml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "e1c67cf6e3b1a950b17c89168495cce1c93ed70f039ebbccb25c96fab587e0e1",
+   "chksum_sha256": "7c602e92a917172fd6779c883045ee0e72a174b62691c6c98711388408af259d",
    "format": 1
   },
   {
@@ -109,7 +116,7 @@
    "name": "plugins/doc_fragments/mysql.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "e72717196af0eb7f1ebc94152ac9771bd8b0e693b3df7de7f5571b4fce3a92fd",
+   "chksum_sha256": "edeb8aae406aef61b3cf31e950111ddfe7cdca7a37adc37aac04693038cbf134",
    "format": 1
   },
   {
@@ -221,7 +228,7 @@
    "name": "plugins/module_utils/user.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "d18131df72e56c01b7ca41dcee836afe64948cfec781e685744dbd739907843e",
+   "chksum_sha256": "ca0bf9f3af1b5e8ead7907e813dac44c4a4c3db6b9279fb25dafe8bb8424e0ba",
    "format": 1
   },
   {
@@ -242,49 +249,49 @@
    "name": "plugins/modules/mysql_db.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "4db9c25f432554d0d9aa9939fc57cf08a25ee75cec59cfa46bd787f10de79657",
+   "chksum_sha256": "dd05088962fc99aea3f71cf15b4e956341891a5ddb2c913a86dc69a96bce7371",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_info.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "b9ed01e38d1dfaf77a338d796f31a3d66e1c8d24e342296779c9cea6dfb96bbc",
+   "chksum_sha256": "c4287925fbb5ca0e9d0bc15790cc6b870bb50b26fe5bb390fc435d8ac90e7850",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_query.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "2c475e7874d8be434601fd07adc6e32e1c2ca8cdeaa39e634b03134b2c97315e",
+   "chksum_sha256": "78ba6ec7b5cf201bd912156b9ad7f23a18e71deecc9bca5eb973f9c6bd8df533",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_replication.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "4bfc1f6c4d14738123a2a06c4070bb25552bf80a73a8124a3dc53ee559aeea81",
+   "chksum_sha256": "59fa5e7682a9041a695e165bcf49b3ffe65661e8754fa4a1311c89047a0dc535",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_role.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "b27781c36ffa592c6498820949b9e66d18e78c32e639700740ad9632113a08bd",
+   "chksum_sha256": "b3aeaf23c97a26cbf79084dd0c47503b4c5cd4bff709c1468648191ae3431d15",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_user.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "b7aef0d345e4028b44c23786e68ccdeaaaf6b034e639a941c99f06876b533ef3",
+   "chksum_sha256": "b84e2346caea36c42e74e7fbebb524cc09f464f059387b3ca537ea57c760deeb",
    "format": 1
   },
   {
    "name": "plugins/modules/mysql_variables.py",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "9bbe4d0915051dde34d270f3f36dcb7e8ecc55324d22809280d39cc28d3184b5",
+   "chksum_sha256": "a12f8c2e8f420f9b3adffa1bfc29c4f00d385f537d2c593f65b574d003ae6154",
    "format": 1
   },
   {
@@ -407,10 +414,10 @@
    "format": 1
   },
   {
-   "name": "tests/integration/targets/setup_controller/files/mysql.gpg",
+   "name": "tests/integration/targets/setup_controller/files/mysql_pubkey.asc",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "a5708c9895fc3e9945832b43225395dcbc944ee4807ef881778c080d98bc26bc",
+   "chksum_sha256": "a4bcd9f16a53cc763f87b9955dbcdced33c7aa90296b157eb6ceef0f156f4327",
    "format": 1
   },
   {
@@ -438,7 +445,7 @@
    "name": "tests/integration/targets/setup_controller/tasks/requirements.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "1135cf1f129bef4156aaf3631d526c57efa9f17bb123e17382d1a0eea1416735",
+   "chksum_sha256": "4b09809280e47bd0d783047ebafcec1be15dee6198cbe34b1e7b9bd62ed70e8a",
    "format": 1
   },
   {
@@ -620,7 +627,7 @@
    "name": "tests/integration/targets/test_mysql_info/defaults/main.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "06ecaaa970b9fe6a6edb4cf1edd370c78b7402c67a96d3c6fd9130498c692863",
+   "chksum_sha256": "5e2ec20a1436411453578432397869e56f69dfead60c9eac575e2ab3a3262f9a",
    "format": 1
   },
   {
@@ -687,10 +694,17 @@
    "format": 1
   },
   {
+   "name": "tests/integration/targets/test_mysql_info/tasks/issue-682.yml",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "fa58ed58e199eed798ad53452ef4248f044e07db42a79d386e7a9e7ac7e7909d",
+   "format": 1
+  },
+  {
    "name": "tests/integration/targets/test_mysql_info/tasks/main.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "4e0ac6e166146a8a9651c9f2ebc29a3cca33cf27543ce9ece917556439ffdbe5",
+   "chksum_sha256": "81af57ddd6853ec63961ca4d788584e12f2cc859a0dd13dc6047efd77084c43e",
    "format": 1
   },
   {
@@ -928,7 +942,7 @@
    "name": "tests/integration/targets/test_mysql_role/tasks/main.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "d3131bfb97ad6c009c06926341249f28c8009b841992a06e244df018e4b9d6fb",
+   "chksum_sha256": "77fb664f3eaa239a3235602eb3b7e47402c439f96db9eebc8d54278f85742c5d",
    "format": 1
   },
   {
@@ -950,6 +964,13 @@
    "ftype": "file",
    "chksum_type": "sha256",
    "chksum_sha256": "214f1ec054d98bc194e92d8480a2bf5c28f5b246443a0243116209f085188ddd",
+   "format": 1
+  },
+  {
+   "name": "tests/integration/targets/test_mysql_role/tasks/test_sql_log_bin.yml",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "51652d41a41b3fb36aac270f2eb7835d5f172c48dd353178bf7009779f5de905",
    "format": 1
   },
   {
@@ -1121,10 +1142,17 @@
    "format": 1
   },
   {
+   "name": "tests/integration/targets/test_mysql_user/tasks/issue-744.yml",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "34bd9750b47d5297f35f65394970019ca0c18065ec13edb949f5eb1c25260391",
+   "format": 1
+  },
+  {
    "name": "tests/integration/targets/test_mysql_user/tasks/main.yml",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "62bc9eea1f68a64bd30bc99aa6002ad591c3cb990b59a383df52a09fa0c5fd8f",
+   "chksum_sha256": "34117ed0c19f8acf00f5a0777c55b5a94deb3708b5978410c20b121438e789af",
    "format": 1
   },
   {
@@ -1387,6 +1415,13 @@
    "format": 1
   },
   {
+   "name": "tests/sanity/ignore-2.21.txt",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "e1e3f2620ee90d0e4cb8102459cd96d36e61a6cb8aa775a076c2e2af188e4961",
+   "format": 1
+  },
+  {
    "name": "tests/unit",
    "ftype": "dir",
    "chksum_type": null,
@@ -1516,7 +1551,7 @@
    "name": "CHANGELOG.rst",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "3f7ab21bfdc1ae5d542fa4eb3d54350986f8e4034d1c085fb44f10ff264180ab",
+   "chksum_sha256": "f8bc4f0451d75ca82c444d1230dabf34838ee2cc3183b58ca87867468c7252da",
    "format": 1
   },
   {
@@ -1530,7 +1565,7 @@
    "name": "CONTRIBUTORS",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "a35a2c308f0afbbf520befce73fe19bf4152dd0647ec628be4f8b6e5020cc536",
+   "chksum_sha256": "6daa65b1eebf1dac16ddcfd51a2228102c387a3a1ef822f90e7463da137d171d",
    "format": 1
   },
   {
@@ -1572,7 +1607,7 @@
    "name": "README.md",
    "ftype": "file",
    "chksum_type": "sha256",
-   "chksum_sha256": "167d2ee5aec47ea330d062985fe1ebb57b8633fcf897195a79f28c4b9c6b6689",
+   "chksum_sha256": "30097577ac127d462bab74167180bdb3affb32e9afaec4a713f45e529645762f",
    "format": 1
   },
   {

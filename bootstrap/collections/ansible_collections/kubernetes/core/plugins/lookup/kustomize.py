@@ -34,6 +34,13 @@ DOCUMENTATION = """
         description:
         - Enable the helm chart inflation generator
         default: "False"
+      environment:
+        description:
+        - The environment variables to pass to the kustomize or kubectl command.
+        - This can be a dictionary or a string in the format key=value, multiple pairs separated by space.
+        type: raw
+        default: {}
+        version_added: 6.2.0
 
     requirements:
       - "python >= 3.6"
@@ -55,6 +62,14 @@ EXAMPLES = """
 - name: Create kubernetes resources for lookup output with `--enable-helm` set
   kubernetes.core.k8s:
     definition: "{{ lookup('kubernetes.core.kustomize', dir='/path/to/kustomization', enable_helm=True) }}"
+
+- name: Create kubernetes resources for lookup output with environment variables in string format
+  kubernetes.core.k8s:
+    definition: "{{ lookup('kubernetes.core.kustomize', binary_path='/path/to/kubectl', environment='HTTP_PROXY=http://proxy.example.com:3128') }}"
+
+- name: Create kubernetes resources for lookup output with environment variables in dict format
+  kubernetes.core.k8s:
+    definition: "{{ lookup('kubernetes.core.kustomize', binary_path='/path/to/kubectl', environment={'HTTP_PROXY': 'http://proxy.example.com:3128'}) }}"
 """
 
 RETURN = """
@@ -72,6 +87,7 @@ RETURN = """
         key1: val1
 """
 
+import os
 import subprocess
 
 from ansible.errors import AnsibleLookupError
@@ -92,9 +108,12 @@ def get_binary_from_path(name, opt_dirs=None):
         return None
 
 
-def run_command(command):
-    cmd = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return cmd.communicate()
+def run_command(command, environ=None):
+    cmd = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environ
+    )
+    stdout, stderr = cmd.communicate()
+    return cmd.returncode, stdout, stderr
 
 
 class LookupModule(LookupBase):
@@ -106,6 +125,7 @@ class LookupModule(LookupBase):
         binary_path=None,
         opt_dirs=None,
         enable_helm=False,
+        environment=None,
         **kwargs
     ):
         executable_path = binary_path
@@ -140,9 +160,32 @@ class LookupModule(LookupBase):
         if enable_helm:
             command += ["--enable-helm"]
 
-        (out, err) = run_command(command)
-        if err:
-            raise AnsibleLookupError(
-                "kustomize command failed with: {0}".format(err.decode("utf-8"))
-            )
+        environ = None
+        if environment:
+            environ = os.environ.copy()
+            if isinstance(environment, str):
+                if not all(env.count("=") == 1 for env in environment.split(" ")):
+                    raise AnsibleLookupError(
+                        "environment should be dict or string in the format key=value, multiple pairs separated by space"
+                    )
+                for env in environment.split(" "):
+                    key, value = env.split("=")
+                    environ[key] = value
+            if isinstance(environment, dict):
+                environ.update(environment)
+
+        (ret, out, err) = run_command(command, environ=environ)
+        if ret != 0:
+            if err:
+                raise AnsibleLookupError(
+                    "kustomize command failed. exit code: {0}, error: {1}".format(
+                        ret, err.decode("utf-8")
+                    )
+                )
+            else:
+                raise AnsibleLookupError(
+                    "kustomize command failed with unknown error. exit code: {0}".format(
+                        ret
+                    )
+                )
         return [out.decode("utf-8")]

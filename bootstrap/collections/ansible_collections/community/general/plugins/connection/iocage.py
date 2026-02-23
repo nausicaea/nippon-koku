@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Based on jail.py
 # (c) 2013, Michael Scherer <misc@zarb.org>
 # (c) 2015, Toshio Kuratomi <tkuratomi@ansible.com>
@@ -7,8 +6,7 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
 DOCUMENTATION = r"""
 author: Stephan Lohse (!UNKNOWN) <dev-github@ploek.org>
@@ -44,30 +42,33 @@ display = Display()
 
 
 class Connection(Jail):
-    """ Local iocage based connections """
+    """Local iocage based connections"""
 
-    transport = 'community.general.iocage'
+    transport = "community.general.iocage"
 
     def __init__(self, play_context, new_stdin, *args, **kwargs):
         self.ioc_jail = play_context.remote_addr
 
-        self.iocage_cmd = Jail._search_executable('iocage')
+        self.iocage_cmd = Jail._search_executable("iocage")
 
         jail_uuid = self.get_jail_uuid()
 
-        kwargs[Jail.modified_jailname_key] = 'ioc-{0}'.format(jail_uuid)
+        kwargs[Jail.modified_jailname_key] = f"ioc-{jail_uuid}"
 
-        display.vvv(u"Jail {iocjail} has been translated to {rawjail}".format(
-            iocjail=self.ioc_jail, rawjail=kwargs[Jail.modified_jailname_key]),
-            host=kwargs[Jail.modified_jailname_key])
+        display.vvv(
+            f"Jail {self.ioc_jail} has been translated to {kwargs[Jail.modified_jailname_key]}",
+            host=kwargs[Jail.modified_jailname_key],
+        )
 
-        super(Connection, self).__init__(play_context, new_stdin, *args, **kwargs)
+        super().__init__(play_context, new_stdin, *args, **kwargs)
 
     def get_jail_uuid(self):
-        p = subprocess.Popen([self.iocage_cmd, 'get', 'host_hostuuid', self.ioc_jail],
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
+        p = subprocess.Popen(
+            [self.iocage_cmd, "get", "host_hostuuid", self.ioc_jail],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
 
         stdout, stderr = p.communicate()
 
@@ -81,6 +82,6 @@ class Connection(Jail):
         p.wait()
 
         if p.returncode != 0:
-            raise AnsibleError(u"iocage returned an error: {0}".format(stdout))
+            raise AnsibleError(f"iocage returned an error: {stdout}")
 
-        return stdout.strip('\n')
+        return stdout.strip("\n")

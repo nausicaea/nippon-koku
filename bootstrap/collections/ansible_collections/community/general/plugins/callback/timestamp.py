@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2024, kurokobo <kurokobo@protonmail.com>
 # Copyright (c) 2014, Michael DeHaan <michael.dehaan@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
-__metaclass__ = type
 
 DOCUMENTATION = r"""
 name: timestamp
@@ -84,7 +81,7 @@ def banner(self, msg, color=None, cows=True):
     msg = to_text(msg)
     if self.b_cowsay and cows:
         try:
-            self.banner_cowsay("%s @ %s" % (msg, timestamp))
+            self.banner_cowsay(f"{msg} @ {timestamp}")
             return
         except OSError:
             self.warning("somebody cleverly deleted cowsay or something during the PB run.  heh.")
@@ -97,7 +94,7 @@ def banner(self, msg, color=None, cows=True):
     if star_len <= 3:
         star_len = 3
     stars = "*" * star_len
-    self.display("\n%s %s %s" % (msg, stars, timestamp), color=color)
+    self.display(f"\n{msg} {stars} {timestamp}", color=color)
 
 
 class CallbackModule(Default):
@@ -106,13 +103,13 @@ class CallbackModule(Default):
     CALLBACK_NAME = "community.general.timestamp"
 
     def __init__(self):
-        super(CallbackModule, self).__init__()
+        super().__init__()
 
         # Replace the banner method of the display object with the custom one
         self._display.banner = types.MethodType(banner, self._display)
 
     def set_options(self, task_keys=None, var_options=None, direct=None):
-        super(CallbackModule, self).set_options(task_keys=task_keys, var_options=var_options, direct=direct)
+        super().set_options(task_keys=task_keys, var_options=var_options, direct=direct)
 
         # Store zoneinfo for specified timezone if available
         tzinfo = None
@@ -122,5 +119,5 @@ class CallbackModule(Default):
             tzinfo = ZoneInfo(self.get_option("timezone"))
 
         # Inject options into the display object
-        setattr(self._display, "timestamp_tzinfo", tzinfo)
-        setattr(self._display, "timestamp_format_string", self.get_option("format_string"))
+        self._display.timestamp_tzinfo = tzinfo
+        self._display.timestamp_format_string = self.get_option("format_string")

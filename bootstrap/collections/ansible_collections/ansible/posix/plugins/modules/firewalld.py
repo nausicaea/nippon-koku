@@ -74,7 +74,8 @@ options:
   icmp_block_inversion:
     description:
       - Enable/Disable inversion of ICMP blocks for a zone in firewalld.
-    type: str
+      - Note that the option type is changed to bool in ansible.posix version 2.0.0 and later.
+    type: bool
   zone:
     description:
       - The firewalld zone to add/remove to/from.
@@ -112,11 +113,13 @@ options:
     description:
       - The forward setting you would like to enable/disable to/from zones within firewalld.
       - This option only is supported by firewalld v0.9.0 or later.
-    type: str
+      - Note that the option type is changed to bool in ansible.posix version 2.0.0 and later.
+    type: bool
   masquerade:
     description:
       - The masquerade setting you would like to enable/disable to/from zones within firewalld.
-    type: str
+      - Note that the option type is changed to bool in ansible.posix version 2.0.0 and later.
+    type: bool
   offline:
     description:
       - Ignores O(immediate) if O(permanent=true) and firewalld is not running.
@@ -150,7 +153,7 @@ author:
 '''
 
 EXAMPLES = r'''
-- name: permanently enable https service, also enable it immediately if possible
+- name: Permanently enable https service, also enable it immediately if possible
   ansible.posix.firewalld:
     service: https
     state: enabled
@@ -158,81 +161,92 @@ EXAMPLES = r'''
     immediate: true
     offline: true
 
-- name: permit traffic in default zone for https service
+- name: Permit traffic in default zone for https service
   ansible.posix.firewalld:
     service: https
     permanent: true
     state: enabled
 
-- name: permit ospf traffic
+- name: Permit ospf traffic
   ansible.posix.firewalld:
     protocol: ospf
     permanent: true
     state: enabled
 
-- name: do not permit traffic in default zone on port 8081/tcp
+- name: Do not permit traffic in default zone on port 8081/tcp
   ansible.posix.firewalld:
     port: 8081/tcp
     permanent: true
     state: disabled
 
-- ansible.posix.firewalld:
+- name: Permit traffic in default zone on port 161-162/ucp
+  ansible.posix.firewalld:
     port: 161-162/udp
     permanent: true
     state: enabled
 
-- ansible.posix.firewalld:
+- name: Permit traffic in dmz zone on http service
+  ansible.posix.firewalld:
     zone: dmz
     service: http
     permanent: true
     state: enabled
 
-- ansible.posix.firewalld:
+- name: Enable FTP service with rate limiting using firewalld rich rule
+  ansible.posix.firewalld:
     rich_rule: rule service name="ftp" audit limit value="1/m" accept
     permanent: true
     state: enabled
 
-- ansible.posix.firewalld:
+- name: Allow traffic from 192.0.2.0/24 in internal zone
+  ansible.posix.firewalld:
     source: 192.0.2.0/24
     zone: internal
     state: enabled
 
-- ansible.posix.firewalld:
+- name: Assign eth2 interface to trusted zone
+  ansible.posix.firewalld:
     zone: trusted
     interface: eth2
     permanent: true
     state: enabled
 
-- ansible.posix.firewalld:
+- name: Enable forwarding in internal zone
+  ansible.posix.firewalld:
     forward: true
     state: enabled
     permanent: true
     zone: internal
 
-- ansible.posix.firewalld:
+- name: Enable masquerade in dmz zone
+  ansible.posix.firewalld:
     masquerade: true
     state: enabled
     permanent: true
     zone: dmz
 
-- ansible.posix.firewalld:
+- name: Create custom zone if not already present
+  ansible.posix.firewalld:
     zone: custom
     state: present
     permanent: true
 
-- ansible.posix.firewalld:
+- name: Enable ICMP block inversion in drop zone
+  ansible.posix.firewalld:
     zone: drop
     state: enabled
     permanent: true
     icmp_block_inversion: true
 
-- ansible.posix.firewalld:
+- name: Block ICMP echo requests in drop zone
+  ansible.posix.firewalld:
     zone: drop
     state: enabled
     permanent: true
     icmp_block: echo-request
 
-- ansible.posix.firewalld:
+- name: Set internal zone target to ACCEPT
+  ansible.posix.firewalld:
     zone: internal
     state: present
     permanent: true
@@ -248,7 +262,6 @@ EXAMPLES = r'''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.parsing.convert_bool import boolean
 from ansible_collections.ansible.posix.plugins.module_utils.firewalld import FirewallTransaction, fw_offline
 
 try:
@@ -862,7 +875,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             icmp_block=dict(type='str'),
-            icmp_block_inversion=dict(type='str'),
+            icmp_block_inversion=dict(type='bool'),
             service=dict(type='str'),
             protocol=dict(type='str'),
             port=dict(type='str'),
@@ -875,8 +888,8 @@ def main():
             state=dict(type='str', required=True, choices=['absent', 'disabled', 'enabled', 'present']),
             timeout=dict(type='int', default=0),
             interface=dict(type='str'),
-            forward=dict(type='str'),
-            masquerade=dict(type='str'),
+            forward=dict(type='bool'),
+            masquerade=dict(type='bool'),
             offline=dict(type='bool', default=False),
             target=dict(type='str', choices=['default', 'ACCEPT', 'DROP', '%%REJECT%%']),
         ),
@@ -985,16 +998,7 @@ def main():
             msgs.append("Changed icmp-block %s to %s" % (icmp_block, desired_state))
 
     if icmp_block_inversion is not None:
-        # Type of icmp_block_inversion will be changed to boolean in a future release.
-        icmp_block_inversion_status = True
-        try:
-            icmp_block_inversion_status = boolean(icmp_block_inversion, True)
-        except TypeError:
-            module.warn('The value of the icmp_block_inversion option is "%s". '
-                        'The type of the option will be changed from string to boolean in a future release. '
-                        'To avoid unexpected behavior, please change the value to boolean.' % icmp_block_inversion)
-        expected_state = 'enabled' if (desired_state == 'enabled') == icmp_block_inversion_status else 'disabled'
-
+        expected_state = 'enabled' if (desired_state == 'enabled') == icmp_block_inversion else 'disabled'
         transaction = IcmpBlockInversionTransaction(
             module,
             action_args=(),
@@ -1129,16 +1133,7 @@ def main():
         msgs = msgs + transaction_msgs
 
     if forward is not None:
-        # Type of forward will be changed to boolean in a future release.
-        forward_status = False
-        try:
-            forward_status = boolean(forward, False)
-        except TypeError:
-            module.warn('The value of the forward option is "%s". '
-                        'The type of the option will be changed from string to boolean in a future release. '
-                        'To avoid unexpected behavior, please change the value to boolean.' % forward)
-
-        expected_state = 'enabled' if (desired_state == 'enabled') == forward_status else 'disabled'
+        expected_state = 'enabled' if (desired_state == 'enabled') == forward else 'disabled'
         transaction = ForwardTransaction(
             module,
             action_args=(),
@@ -1152,16 +1147,7 @@ def main():
         msgs = msgs + transaction_msgs
 
     if masquerade is not None:
-        # Type of masquerade will be changed to boolean in a future release.
-        masquerade_status = True
-        try:
-            masquerade_status = boolean(masquerade, True)
-        except TypeError:
-            module.warn('The value of the masquerade option is "%s". '
-                        'The type of the option will be changed from string to boolean in a future release. '
-                        'To avoid unexpected behavior, please change the value to boolean.' % masquerade)
-
-        expected_state = 'enabled' if (desired_state == 'enabled') == masquerade_status else 'disabled'
+        expected_state = 'enabled' if (desired_state == 'enabled') == masquerade else 'disabled'
         transaction = MasqueradeTransaction(
             module,
             action_args=(),

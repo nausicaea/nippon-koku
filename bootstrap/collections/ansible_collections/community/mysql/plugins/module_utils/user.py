@@ -885,7 +885,7 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_ro
         cursor.execute(query, (user, host))
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
 
-    if priv_string != "":
+    if priv_string != "" and not (grant_option and priv_string == "USAGE"):
         query = ["REVOKE %s ON %s" % (priv_string, db_table)]
 
         if not maria_role:

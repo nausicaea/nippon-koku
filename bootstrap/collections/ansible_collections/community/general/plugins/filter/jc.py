@@ -1,48 +1,46 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2015, Filipe Niero Felisbino <filipenf@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # contributed by Kelly Brazil <kellyjonbrazil@gmail.com>
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = '''
-  name: jc
-  short_description: Convert output of many shell commands and file-types to JSON
-  version_added: 1.1.0
-  author: Kelly Brazil (@kellyjonbrazil)
-  description:
-    - Convert output of many shell commands and file-types to JSON.
-    - Uses the L(jc library,https://github.com/kellyjonbrazil/jc).
-  positional: parser
-  options:
-    _input:
-      description: The data to convert.
-      type: string
-      required: true
-    parser:
-      description:
-        - The correct parser for the input data.
-        - For example V(ifconfig).
-        - "Note: use underscores instead of dashes (if any) in the parser module name."
-        - See U(https://github.com/kellyjonbrazil/jc#parsers) for the latest list of parsers.
-      type: string
-      required: true
-    quiet:
-      description: Set to V(false) to not suppress warnings.
-      type: boolean
-      default: true
-    raw:
-      description: Set to V(true) to return pre-processed JSON.
-      type: boolean
-      default: false
-  requirements:
-    - jc installed as a Python library (U(https://pypi.org/project/jc/))
-'''
+DOCUMENTATION = r"""
+name: jc
+short_description: Convert output of many shell commands and file-types to JSON
+version_added: 1.1.0
+author: Kelly Brazil (@kellyjonbrazil)
+description:
+  - Convert output of many shell commands and file-types to JSON.
+  - Uses the L(jc library,https://github.com/kellyjonbrazil/jc).
+positional: parser
+options:
+  _input:
+    description: The data to convert.
+    type: string
+    required: true
+  parser:
+    description:
+      - The correct parser for the input data.
+      - For example V(ifconfig).
+      - 'Note: use underscores instead of dashes (if any) in the parser module name.'
+      - See U(https://github.com/kellyjonbrazil/jc#parsers) for the latest list of parsers.
+    type: string
+    required: true
+  quiet:
+    description: Set to V(false) to not suppress warnings.
+    type: boolean
+    default: true
+  raw:
+    description: Set to V(true) to return pre-processed JSON.
+    type: boolean
+    default: false
+requirements:
+  - jc installed as a Python library (U(https://pypi.org/project/jc/))
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Install the prereqs of the jc filter (jc Python package) on the Ansible controller
   delegate_to: localhost
   ansible.builtin.pip:
@@ -68,19 +66,20 @@ EXAMPLES = '''
   #   "operating_system": "GNU/Linux",
   #   "processor": "x86_64"
   # }
-'''
+"""
 
-RETURN = '''
-  _value:
-    description: The processed output.
-    type: any
-'''
+RETURN = r"""
+_value:
+  description: The processed output.
+  type: any
+"""
 
 from ansible.errors import AnsibleError, AnsibleFilterError
 import importlib
 
 try:
-    import jc  # noqa: F401, pylint: disable=unused-import
+    import jc
+
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -135,26 +134,28 @@ def jc_filter(data, parser, quiet=True, raw=False):
     """
 
     if not HAS_LIB:
-        raise AnsibleError('You need to install "jc" as a Python library on the Ansible controller prior to running jc filter')
+        raise AnsibleError(
+            'You need to install "jc" as a Python library on the Ansible controller prior to running jc filter'
+        )
 
     try:
         # new API (jc v1.18.0 and higher) allows use of plugin parsers
-        if hasattr(jc, 'parse'):
+        if hasattr(jc, "parse"):
             return jc.parse(parser, data, quiet=quiet, raw=raw)
 
         # old API (jc v1.17.7 and lower)
         else:
-            jc_parser = importlib.import_module('jc.parsers.' + parser)
+            jc_parser = importlib.import_module(f"jc.parsers.{parser}")
             return jc_parser.parse(data, quiet=quiet, raw=raw)
 
     except Exception as e:
-        raise AnsibleFilterError('Error in jc filter plugin:  %s' % e)
+        raise AnsibleFilterError(f"Error in jc filter plugin: {e}")
 
 
-class FilterModule(object):
-    ''' Query filter '''
+class FilterModule:
+    """Query filter"""
 
     def filters(self):
         return {
-            'jc': jc_filter,
+            "jc": jc_filter,
         }

@@ -169,7 +169,7 @@
         host_all: yes
         password: '{{ user_password_1 }}'
       register: result
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: check fail message
       assert:
@@ -313,3 +313,8 @@
       # Test that mysql_user still works with default role set
       # (https://github.com/ansible-collections/community.mysql/issues/710)
     - include_tasks: issue-710.yml
+
+    # Test for bug with revoking GRANT OPTION when user has only USAGE
+    # (https://github.com/ansible-collections/community.mysql/issues/664)
+    # (https://github.com/ansible-collections/community.mysql/pull/744)
+    - include_tasks: issue-744.yml

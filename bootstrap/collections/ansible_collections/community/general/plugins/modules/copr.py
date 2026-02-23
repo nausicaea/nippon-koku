@@ -1,69 +1,64 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2020, Silvie Chlupova <schlupov@redhat.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 DOCUMENTATION = r"""
----
 module: copr
 short_description: Manage one of the Copr repositories
 version_added: 2.0.0
 description: This module can enable, disable or remove the specified repository.
 author: Silvie Chlupova (@schlupov) <schlupov@redhat.com>
 requirements:
-    - dnf
-    - dnf-plugins-core
+  - dnf
+  - dnf-plugins-core
 notes:
-    - Supports C(check_mode).
+  - Supports C(check_mode).
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-    host:
-        description: The Copr host to work with.
-        default: copr.fedorainfracloud.org
-        type: str
-    protocol:
-        description: This indicate which protocol to use with the host.
-        default: https
-        type: str
-    name:
-        description: Copr directory name, for example C(@copr/copr-dev).
-        required: true
-        type: str
-    state:
-        description:
-            - Whether to set this project as V(enabled), V(disabled), or V(absent).
-        default: enabled
-        type: str
-        choices: [absent, enabled, disabled]
-    chroot:
-        description:
-            - The name of the chroot that you want to enable/disable/remove in the project,
-              for example V(epel-7-x86_64). Default chroot is determined by the operating system,
-              version of the operating system, and architecture on which the module is run.
-        type: str
-    includepkgs:
-        description: List of packages to include.
-        required: false
-        type: list
-        elements: str
-        version_added: 9.4.0
-    excludepkgs:
-        description: List of packages to exclude.
-        required: false
-        type: list
-        elements: str
-        version_added: 9.4.0
+  host:
+    description: The Copr host to work with.
+    default: copr.fedorainfracloud.org
+    type: str
+  protocol:
+    description: This indicate which protocol to use with the host.
+    default: https
+    type: str
+  name:
+    description: Copr directory name, for example C(@copr/copr-dev).
+    required: true
+    type: str
+  state:
+    description:
+      - Whether to set this project as V(enabled), V(disabled), or V(absent).
+    default: enabled
+    type: str
+    choices: [absent, enabled, disabled]
+  chroot:
+    description:
+      - The name of the chroot that you want to enable/disable/remove in the project, for example V(epel-7-x86_64). Default
+        chroot is determined by the operating system, version of the operating system, and architecture on which the module
+        is run.
+    type: str
+  includepkgs:
+    description: List of packages to include.
+    type: list
+    elements: str
+    version_added: 9.4.0
+  excludepkgs:
+    description: List of packages to exclude.
+    type: list
+    elements: str
+    version_added: 9.4.0
 """
 
 EXAMPLES = r"""
@@ -104,12 +99,14 @@ repo:
 import stat
 import os
 import traceback
+from urllib.error import HTTPError
 
 try:
     import dnf
     import dnf.cli
     import dnf.repodict
     from dnf.conf import Conf
+
     HAS_DNF_PACKAGES = True
     DNF_IMP_ERR = None
 except ImportError:
@@ -117,7 +114,6 @@ except ImportError:
     HAS_DNF_PACKAGES = False
 
 from ansible.module_utils.common import respawn
-from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.module_utils.basic import missing_required_lib
 from ansible.module_utils import distro
 from ansible.module_utils.basic import AnsibleModule
@@ -130,7 +126,6 @@ def _respawn_dnf():
     system_interpreters = (
         "/usr/libexec/platform-python",
         "/usr/bin/python3",
-        "/usr/bin/python2",
         "/usr/bin/python",
     )
     interpreter = respawn.probe_interpreters_for_module(system_interpreters, "dnf")
@@ -138,7 +133,7 @@ def _respawn_dnf():
         respawn.respawn_module(interpreter)
 
 
-class CoprModule(object):
+class CoprModule:
     """The class represents a copr module.
 
     The class contains methods that take care of the repository state of a project,
@@ -163,7 +158,7 @@ class CoprModule(object):
     @property
     def short_chroot(self):
         """str: Chroot (distribution-version-architecture) shorten to distribution-version."""
-        return self.chroot.rsplit('-', 1)[0]
+        return self.chroot.rsplit("-", 1)[0]
 
     @property
     def arch(self):
@@ -218,9 +213,7 @@ class CoprModule(object):
             Info about a repository and status code of the get request.
         """
         repo_info = None
-        url = "{0}://{1}/coprs/{2}/repo/{3}/dnf.repo?arch={4}".format(
-            self.protocol, self.host, self.name, chroot, self.arch
-        )
+        url = f"{self.protocol}://{self.host}/coprs/{self.name}/repo/{chroot}/dnf.repo?arch={self.arch}"
         try:
             r = open_url(url)
             status_code = r.getcode()
@@ -235,7 +228,7 @@ class CoprModule(object):
         Returns:
             Information about the repository.
         """
-        distribution, version = self.short_chroot.split('-', 1)
+        distribution, version = self.short_chroot.split("-", 1)
         chroot = self.short_chroot
         while True:
             repo_info, status_code = self._get(chroot)
@@ -249,17 +242,13 @@ class CoprModule(object):
                     version = "8"
                 elif version == "stream-9":
                     version = "9"
-                chroot = "epel-{0}".format(version)
+                chroot = f"epel-{version}"
                 distribution = "epel"
             else:
                 if str(status_code) != "404":
-                    self.raise_exception(
-                        "This repository does not have any builds yet so you cannot enable it now."
-                    )
+                    self.raise_exception("This repository does not have any builds yet so you cannot enable it now.")
                 else:
-                    self.raise_exception(
-                        "Chroot {0} does not exist in {1}".format(self.chroot, self.name)
-                    )
+                    self.raise_exception(f"Chroot {self.chroot} does not exist in {self.name}")
 
     def _enable_repo(self, repo_filename_path, repo_content=None):
         """Write information to a repo file.
@@ -275,24 +264,28 @@ class CoprModule(object):
         if not repo_content:
             repo_content = self._download_repo_info()
         if self.ansible_module.params["includepkgs"]:
-            includepkgs_value = ','.join(self.ansible_module.params['includepkgs'])
-            repo_content = repo_content.rstrip('\n') + '\nincludepkgs={0}\n'.format(includepkgs_value)
+            includepkgs_value = ",".join(self.ansible_module.params["includepkgs"])
+            repo_content_strip = repo_content.rstrip(
+                "\n"
+            )  # Python 3.11 does not allow backslash chars within f-string expressions
+            repo_content = f"{repo_content_strip}\nincludepkgs={includepkgs_value}\n"
         if self.ansible_module.params["excludepkgs"]:
-            excludepkgs_value = ','.join(self.ansible_module.params['excludepkgs'])
-            repo_content = repo_content.rstrip('\n') + '\nexcludepkgs={0}\n'.format(excludepkgs_value)
+            excludepkgs_value = ",".join(self.ansible_module.params["excludepkgs"])
+            repo_content_strip = repo_content.rstrip(
+                "\n"
+            )  # Python 3.11 does not allow backslash chars within f-string expressions
+            repo_content = f"{repo_content_strip}\nexcludepkgs={excludepkgs_value}\n"
         if self._compare_repo_content(repo_filename_path, repo_content):
             return False
         if not self.check_mode:
             with open(repo_filename_path, "w+") as file:
                 file.write(repo_content)
-            os.chmod(
-                repo_filename_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
-            )
+            os.chmod(repo_filename_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
         return True
 
     def _get_repo_with_old_id(self):
         """Try to get a repository with the old name."""
-        repo_id = "{0}-{1}".format(self.user, self.project)
+        repo_id = f"{self.user}-{self.project}"
         if repo_id in self.base.repos and "_copr" in self.base.repos[repo_id].repofile:
             file_name = self.base.repos[repo_id].repofile.split("/")[-1]
             try:
@@ -329,7 +322,7 @@ class CoprModule(object):
         Returns:
             The repository that a user wants to enable, disable, or remove.
         """
-        repo_id = "copr:{0}:{1}:{2}".format(self.host, self.user, self.project)
+        repo_id = f"copr:{self.host}:{self.user}:{self.project}"
         if repo_id not in self.base.repos:
             if self._get_repo_with_old_id() is None:
                 return None
@@ -351,20 +344,21 @@ class CoprModule(object):
             if self.check_mode:
                 return True
             self._enable_repo(repo_filename_path)
-            self._read_all_repos("copr:{0}:{1}:{2}".format(self.host, self.user, self.project))
+            self._read_all_repos(f"copr:{self.host}:{self.user}:{self.project}")
             repo = self._get_copr_repo()
         for repo_id in repo.cfg.sections():
             repo_content_api = self._download_repo_info()
             with open(repo_filename_path, "r") as file:
                 repo_content_file = file.read()
             if repo_content_file != repo_content_api:
-                if not self.resolve_differences(
-                    repo_content_file, repo_content_api, repo_filename_path
-                ):
+                if not self.resolve_differences(repo_content_file, repo_content_api, repo_filename_path):
                     return False
             if not self.check_mode:
                 self.base.conf.write_raw_configfile(
-                    repo.repofile, repo_id, self.base.conf.substitutions, {"enabled": "0"},
+                    repo.repofile,
+                    repo_id,
+                    self.base.conf.substitutions,
+                    {"enabled": "0"},
                 )
         return True
 
@@ -424,12 +418,10 @@ class CoprModule(object):
         """
         self.need_root()
         state = dict()
-        repo_filename = "_copr:{0}:{1}:{2}.repo".format(self.host, self.user, self.project)
-        state["repo"] = "{0}/{1}/{2}".format(self.host, self.user, self.project)
+        repo_filename = f"_copr:{self.host}:{self.user}:{self.project}.repo"
+        state["repo"] = f"{self.host}/{self.user}/{self.project}"
         state["repo_filename"] = repo_filename
-        repo_filename_path = "{0}/_copr:{1}:{2}:{3}.repo".format(
-            self.base.conf.get_reposdir, self.host, self.user, self.project
-        )
+        repo_filename_path = f"{self.base.conf.get_reposdir}/_copr:{self.host}:{self.user}:{self.project}.repo"
         if self.state == "enabled":
             enabled = self._enable_repo(repo_filename_path)
             state["msg"] = "enabled"
@@ -470,7 +462,7 @@ class CoprModule(object):
         """
         (distribution, version, codename) = distro.linux_distribution(full_distribution_name=False)
         base = CoprModule.get_base()
-        return "{0}-{1}-{2}".format(distribution, version, base.conf.arch)
+        return f"{distribution}-{version}-{base.conf.arch}"
 
     @staticmethod
     def _sanitize_username(user):
@@ -483,7 +475,7 @@ class CoprModule(object):
             Modified user name if it is a group name with @.
         """
         if user[0] == "@":
-            return "group_{0}".format(user[1:])
+            return f"group_{user[1:]}"
         return user
 
 
@@ -495,8 +487,8 @@ def run_module():
         name=dict(type="str", required=True),
         state=dict(type="str", choices=["enabled", "disabled", "absent"], default="enabled"),
         chroot=dict(type="str"),
-        includepkgs=dict(type='list', elements="str", required=False),
-        excludepkgs=dict(type='list', elements="str", required=False),
+        includepkgs=dict(type="list", elements="str"),
+        excludepkgs=dict(type="list", elements="str"),
     )
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
     params = module.params

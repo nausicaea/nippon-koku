@@ -1,123 +1,120 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2014, Dimitrios Tydeas Mengidis <tydeas.dr@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
----
+DOCUMENTATION = r"""
 module: composer
 author:
-    - "Dimitrios Tydeas Mengidis (@dmtrs)"
-    - "René Moser (@resmo)"
+  - "Dimitrios Tydeas Mengidis (@dmtrs)"
+  - "René Moser (@resmo)"
 short_description: Dependency Manager for PHP
 description:
-    - >
-      Composer is a tool for dependency management in PHP. It allows you to
-      declare the dependent libraries your project needs and it will install
-      them in your project for you.
+  - Composer is a tool for dependency management in PHP. It allows you to declare the dependent libraries your project needs
+    and it installs them in your project for you.
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
-    check_mode:
-        support: full
-    diff_mode:
-        support: none
+  check_mode:
+    support: full
+  diff_mode:
+    support: none
 options:
-    command:
-        type: str
-        description:
-            - Composer command like "install", "update" and so on.
-        default: install
-    arguments:
-        type: str
-        description:
-            - Composer arguments like required package, version and so on.
-        default: ''
-    executable:
-        type: path
-        description:
-            - Path to PHP Executable on the remote host, if PHP is not in PATH.
-        aliases: [ php_path ]
-    working_dir:
-        type: path
-        description:
-            - Directory of your project (see --working-dir). This is required when
-              the command is not run globally.
-            - Will be ignored if O(global_command=true).
-    global_command:
-        description:
-            - Runs the specified command globally.
-        type: bool
-        default: false
-    prefer_source:
-        description:
-            - Forces installation from package sources when possible (see --prefer-source).
-        default: false
-        type: bool
-    prefer_dist:
-        description:
-            - Forces installation from package dist even for dev versions (see --prefer-dist).
-        default: false
-        type: bool
-    no_dev:
-        description:
-            - Disables installation of require-dev packages (see --no-dev).
-        default: true
-        type: bool
-    no_scripts:
-        description:
-            - Skips the execution of all scripts defined in composer.json (see --no-scripts).
-        default: false
-        type: bool
-    no_plugins:
-        description:
-            - Disables all plugins (see --no-plugins).
-        default: false
-        type: bool
-    optimize_autoloader:
-        description:
-            - Optimize autoloader during autoloader dump (see --optimize-autoloader).
-            - Convert PSR-0/4 autoloading to classmap to get a faster autoloader.
-            - Recommended especially for production, but can take a bit of time to run.
-        default: true
-        type: bool
-    classmap_authoritative:
-        description:
-            - Autoload classes from classmap only.
-            - Implicitly enable optimize_autoloader.
-            - Recommended especially for production, but can take a bit of time to run.
-        default: false
-        type: bool
-    apcu_autoloader:
-        description:
-            - Uses APCu to cache found/not-found classes
-        default: false
-        type: bool
-    ignore_platform_reqs:
-        description:
-            - Ignore php, hhvm, lib-* and ext-* requirements and force the installation even if the local machine does not fulfill these.
-        default: false
-        type: bool
-    composer_executable:
-        type: path
-        description:
-            - Path to composer executable on the remote host, if composer is not in E(PATH) or a custom composer is needed.
-        version_added: 3.2.0
+  command:
+    type: str
+    description:
+      - Composer command like V(install), V(update) and so on.
+    default: install
+  arguments:
+    type: str
+    description:
+      - Composer arguments like required package, version and so on.
+    default: ''
+  executable:
+    type: path
+    description:
+      - Path to PHP executable on the remote host, if PHP is not in E(PATH).
+    aliases: [php_path]
+  working_dir:
+    type: path
+    description:
+      - Directory of your project (see C(--working-dir)). This is required when the command is not run globally.
+      - This is ignored if O(global_command=true).
+  global_command:
+    description:
+      - Runs the specified command globally.
+    type: bool
+    default: false
+  prefer_source:
+    description:
+      - Forces installation from package sources when possible (see C(--prefer-source)).
+    default: false
+    type: bool
+  prefer_dist:
+    description:
+      - Forces installation from package dist even for dev versions (see C(--prefer-dist)).
+    default: false
+    type: bool
+  no_dev:
+    description:
+      - Disables installation of require-dev packages (see C(--no-dev)).
+    default: true
+    type: bool
+  no_scripts:
+    description:
+      - Skips the execution of all scripts defined in composer.json (see C(--no-scripts)).
+    default: false
+    type: bool
+  no_plugins:
+    description:
+      - Disables all plugins (see C(--no-plugins)).
+    default: false
+    type: bool
+  optimize_autoloader:
+    description:
+      - Optimize autoloader during autoloader dump (see C(--optimize-autoloader)).
+      - Convert PSR-0/4 autoloading to classmap to get a faster autoloader.
+      - Recommended especially for production, but can take a bit of time to run.
+    default: true
+    type: bool
+  classmap_authoritative:
+    description:
+      - Autoload classes from classmap only.
+      - Implicitly enable optimize_autoloader.
+      - Recommended especially for production, but can take a bit of time to run.
+    default: false
+    type: bool
+  apcu_autoloader:
+    description:
+      - Uses APCu to cache found/not-found classes.
+    default: false
+    type: bool
+  ignore_platform_reqs:
+    description:
+      - Ignore C(php), C(hhvm), C(lib-*) and C(ext-*) requirements and force the installation even if the local machine does not fulfill
+        these.
+    default: false
+    type: bool
+  composer_executable:
+    type: path
+    description:
+      - Path to composer executable on the remote host, if composer is not in E(PATH) or a custom composer is needed.
+    version_added: 3.2.0
 requirements:
-    - php
-    - composer installed in bin path (recommended /usr/local/bin) or specified in O(composer_executable)
+  - php
+  - composer installed in bin path (recommended C(/usr/local/bin)) or specified in O(composer_executable)
 notes:
-    - Default options that are always appended in each execution are --no-ansi, --no-interaction and --no-progress if available.
-    - We received reports about issues on macOS if composer was installed by Homebrew. Please use the official install method to avoid issues.
-'''
+  - Default options that are always appended in each execution are C(--no-ansi), C(--no-interaction) and C(--no-progress)
+    if available.
+  - We received reports about issues on macOS if composer was installed by Homebrew. Please use the official install method
+    to avoid issues.
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: Download and installs all libs and dependencies outlined in the /path/to/project/composer.lock
   community.general.composer:
     command: install
@@ -141,9 +138,10 @@ EXAMPLES = '''
     command: require
     global_command: true
     arguments: my/package
-'''
+"""
 
 import re
+import shlex
 from ansible.module_utils.basic import AnsibleModule
 
 
@@ -159,37 +157,42 @@ def has_changed(string):
     return True
 
 
-def get_available_options(module, command='install'):
+def get_available_options(module, command="install"):
     # get all available options from a composer command using composer help to json
-    rc, out, err = composer_command(module, "help %s" % command, arguments="--no-interaction --format=json")
+    rc, out, err = composer_command(module, ["help", command], arguments=["--no-interaction", "--format=json"])
     if rc != 0:
         output = parse_out(err)
         module.fail_json(msg=output)
 
     command_help_json = module.from_json(out)
-    return command_help_json['definition']['options']
+    return command_help_json["definition"]["options"]
 
 
-def composer_command(module, command, arguments="", options=None):
+def composer_command(module, command, arguments=None, options=None):
     if options is None:
         options = []
+    if arguments is None:
+        arguments = []
 
-    global_command = module.params['global_command']
+    global_command = module.params["global_command"]
 
-    if not global_command:
-        options.extend(['--working-dir', "'%s'" % module.params['working_dir']])
+    if global_command:
+        global_arg = ["global"]
+    else:
+        global_arg = []
+        options.extend(["--working-dir", module.params["working_dir"]])
 
-    if module.params['executable'] is None:
+    if module.params["executable"] is None:
         php_path = module.get_bin_path("php", True, ["/usr/local/bin"])
     else:
-        php_path = module.params['executable']
+        php_path = module.params["executable"]
 
-    if module.params['composer_executable'] is None:
+    if module.params["composer_executable"] is None:
         composer_path = module.get_bin_path("composer", True, ["/usr/local/bin"])
     else:
-        composer_path = module.params['composer_executable']
+        composer_path = module.params["composer_executable"]
 
-    cmd = "%s %s %s %s %s %s" % (php_path, composer_path, "global" if global_command else "", command, " ".join(options), arguments)
+    cmd = [php_path, composer_path] + global_arg + command + options + arguments
     return module.run_command(cmd)
 
 
@@ -212,56 +215,56 @@ def main():
             ignore_platform_reqs=dict(default=False, type="bool"),
             composer_executable=dict(type="path"),
         ),
-        required_if=[('global_command', False, ['working_dir'])],
-        supports_check_mode=True
+        required_if=[("global_command", False, ["working_dir"])],
+        supports_check_mode=True,
     )
 
     # Get composer command with fallback to default
-    command = module.params['command']
+    command = module.params["command"]
     if re.search(r"\s", command):
         module.fail_json(msg="Use the 'arguments' param for passing arguments with the 'command'")
 
-    arguments = module.params['arguments']
+    arguments = shlex.split(module.params["arguments"])
     available_options = get_available_options(module=module, command=command)
 
     options = []
 
     # Default options
     default_options = [
-        'no-ansi',
-        'no-interaction',
-        'no-progress',
+        "no-ansi",
+        "no-interaction",
+        "no-progress",
     ]
 
     for option in default_options:
         if option in available_options:
-            option = "--%s" % option
+            option = f"--{option}"
             options.append(option)
 
     option_params = {
-        'prefer_source': 'prefer-source',
-        'prefer_dist': 'prefer-dist',
-        'no_dev': 'no-dev',
-        'no_scripts': 'no-scripts',
-        'no_plugins': 'no-plugins',
-        'apcu_autoloader': 'acpu-autoloader',
-        'optimize_autoloader': 'optimize-autoloader',
-        'classmap_authoritative': 'classmap-authoritative',
-        'ignore_platform_reqs': 'ignore-platform-reqs',
+        "prefer_source": "prefer-source",
+        "prefer_dist": "prefer-dist",
+        "no_dev": "no-dev",
+        "no_scripts": "no-scripts",
+        "no_plugins": "no-plugins",
+        "apcu_autoloader": "acpu-autoloader",
+        "optimize_autoloader": "optimize-autoloader",
+        "classmap_authoritative": "classmap-authoritative",
+        "ignore_platform_reqs": "ignore-platform-reqs",
     }
 
     for param, option in option_params.items():
         if module.params.get(param) and option in available_options:
-            option = "--%s" % option
+            option = f"--{option}"
             options.append(option)
 
     if module.check_mode:
-        if 'dry-run' in available_options:
-            options.append('--dry-run')
+        if "dry-run" in available_options:
+            options.append("--dry-run")
         else:
-            module.exit_json(skipped=True, msg="command '%s' does not support check mode, skipping" % command)
+            module.exit_json(skipped=True, msg=f"command '{command}' does not support check mode, skipping")
 
-    rc, out, err = composer_command(module, command, arguments, options)
+    rc, out, err = composer_command(module, [command], arguments, options)
 
     if rc != 0:
         output = parse_out(err)
@@ -272,5 +275,5 @@ def main():
         module.exit_json(changed=has_changed(output), msg=output, stdout=out + err)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -82,8 +82,9 @@ Here is the table for the support timeline:
 
 - 1.x.y: released 2020-08-17, EOL
 - 2.x.y: released 2021-04-15, EOL
-- 3.x.y: released 2021-12-01, current
-- 4.x.y: To be released
+- 3.x.y: released 2021-12-01, EOL 2027-09-30
+- 4.x.y: released 2025-09-15, current
+- 5.x.y: To be released
 
 
 ## Tested with
@@ -93,6 +94,7 @@ Here is the table for the support timeline:
 - stable-2.17
 - stable-2.18
 - stable-2.19
+- stable-2.20
 - current development version
 
 ### Python
@@ -114,8 +116,8 @@ For MariaDB, only Long Term releases are tested. When multiple LTS are available
 - mariadb:10.5.18 (collection version >= 3.5.2, < 3.10.0)
 - mariadb:10.5.25 (collection version >= 3.10.0, <3.13.0)
 - mariadb:10.6.11 (collection version >= 3.5.2, < 3.10.0)
-- mariadb:10.11.8 (collection version >= 3.10.0)
-- mariadb:11.4.5 (collection version >= 3.13.0)
+- mariadb:10.11 (collection version >= 3.10.0)
+- mariadb:11.8  (collection version >= 4.0.1)
 
 ### Database connectors
 

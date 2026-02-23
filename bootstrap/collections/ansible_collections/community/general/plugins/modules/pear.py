@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2012, Afterburn <https://github.com/afterburn>
 # Copyright (c) 2013, Aaron Bull Schaefer <aaron@elasticdog.com>
@@ -8,8 +7,7 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
 DOCUMENTATION = r"""
@@ -45,14 +43,16 @@ options:
       - Path to the pear executable.
   prompts:
     description:
-      - List of regular expressions that can be used to detect prompts during pear package installation to answer the expected question.
-      - Prompts will be processed in the same order as the packages list.
+      - List of regular expressions that can be used to detect prompts during pear package installation to answer the expected
+        question.
+      - Prompts are processed in the same order as the packages list.
       - You can optionally specify an answer to any question in the list.
-      - If no answer is provided, the list item will only contain the regular expression.
-      - "To specify an answer, the item will be a dict with the regular expression as key and the answer as value C(my_regular_expression: 'an_answer')."
+      - If no answer is provided, the list item must contain only the regular expression.
+      - "To specify an answer, the item must be a dictionary with the regular expression as key and the answer as value C(my_regular_expression:
+        'an_answer')."
       - You can provide a list containing items with or without answer.
-      - A prompt list can be shorter or longer than the packages list but will issue a warning.
-      - If you want to specify that a package will not need prompts in the middle of a list, V(null).
+      - A prompt list can be shorter or longer than the packages list but it issues a warning.
+      - If you want to specify that a package does not need prompts in the middle of a list, V(null).
     type: list
     elements: raw
     version_added: 0.2.0
@@ -83,9 +83,9 @@ EXAMPLES = r"""
     prompts:
       - (.*)Enable internal debugging in APCu \[no\]: "yes"
 
-- name: Install multiple pear/pecl packages at once with prompts. Prompts will be processed on the same order as the packages order. If there
-    is more prompts than packages, packages without prompts will be installed without any prompt expected. If there is more packages than prompts,
-    additional prompts will be ignored.
+- name: Install multiple pear/pecl packages at once with prompts. Prompts will be processed on the same order as the packages
+    order. If there is more prompts than packages, packages without prompts will be installed without any prompt expected.
+    If there is more packages than prompts, additional prompts will be ignored.
   community.general.pear:
     name: pecl/gnupg, pecl/apcu
     state: present
@@ -93,9 +93,9 @@ EXAMPLES = r"""
       - I am a test prompt because gnupg doesnt asks anything
       - (.*)Enable internal debugging in APCu \[no\]: "yes"
 
-- name: Install multiple pear/pecl packages at once skipping the first prompt. Prompts will be processed on the same order as the packages order.
-    If there is more prompts than packages, packages without prompts will be installed without any prompt expected. If there is more packages
-    than prompts, additional prompts will be ignored.
+- name: Install multiple pear/pecl packages at once skipping the first prompt. Prompts will be processed on the same order
+    as the packages order. If there is more prompts than packages, packages without prompts will be installed without any
+    prompt expected. If there is more packages than prompts, additional prompts will be ignored.
   community.general.pear:
     name: pecl/gnupg, pecl/apcu
     state: present
@@ -122,60 +122,59 @@ from ansible.module_utils.basic import AnsibleModule
 
 def get_local_version(pear_output):
     """Take pear remoteinfo output and get the installed version"""
-    lines = pear_output.split('\n')
+    lines = pear_output.split("\n")
     for line in lines:
-        if 'Installed ' in line:
+        if "Installed " in line:
             installed = line.rsplit(None, 1)[-1].strip()
-            if installed == '-':
+            if installed == "-":
                 continue
             return installed
     return None
 
 
 def _get_pear_path(module):
-    if module.params['executable'] and os.path.isfile(module.params['executable']):
-        result = module.params['executable']
+    if module.params["executable"] and os.path.isfile(module.params["executable"]):
+        result = module.params["executable"]
     else:
-        result = module.get_bin_path('pear', True, [module.params['executable']])
+        result = module.get_bin_path("pear", True, [module.params["executable"]])
     return result
 
 
 def get_repository_version(pear_output):
     """Take pear remote-info output and get the latest version"""
-    lines = pear_output.split('\n')
+    lines = pear_output.split("\n")
     for line in lines:
-        if 'Latest ' in line:
+        if "Latest " in line:
             return line.rsplit(None, 1)[-1].strip()
     return None
 
 
-def query_package(module, name, state="present"):
+def query_package(module, name):
     """Query the package status in both the local system and the repository.
     Returns a boolean to indicate if the package is installed,
     and a second boolean to indicate if the package is up-to-date."""
-    if state == "present":
-        lcmd = "%s info %s" % (_get_pear_path(module), name)
-        lrc, lstdout, lstderr = module.run_command(lcmd, check_rc=False)
-        if lrc != 0:
-            # package is not installed locally
-            return False, False
-
-        rcmd = "%s remote-info %s" % (_get_pear_path(module), name)
-        rrc, rstdout, rstderr = module.run_command(rcmd, check_rc=False)
-
-        # get the version installed locally (if any)
-        lversion = get_local_version(rstdout)
-
-        # get the version in the repository
-        rversion = get_repository_version(rstdout)
-
-        if rrc == 0:
-            # Return True to indicate that the package is installed locally,
-            # and the result of the version number comparison
-            # to determine if the package is up-to-date.
-            return True, (lversion == rversion)
-
+    lcmd = [_get_pear_path(module), "info", name]
+    lrc, lstdout, lstderr = module.run_command(lcmd, check_rc=False)
+    if lrc != 0:
+        # package is not installed locally
         return False, False
+
+    rcmd = [_get_pear_path(module), "remote-info", name]
+    rrc, rstdout, rstderr = module.run_command(rcmd, check_rc=False)
+
+    # get the version installed locally (if any)
+    lversion = get_local_version(rstdout)
+
+    # get the version in the repository
+    rversion = get_repository_version(rstdout)
+
+    if rrc == 0:
+        # Return True to indicate that the package is installed locally,
+        # and the result of the version number comparison
+        # to determine if the package is up-to-date.
+        return True, (lversion == rversion)
+
+    return False, False
 
 
 def remove_packages(module, packages):
@@ -187,17 +186,16 @@ def remove_packages(module, packages):
         if not installed:
             continue
 
-        cmd = "%s uninstall %s" % (_get_pear_path(module), package)
+        cmd = [_get_pear_path(module), "uninstall", package]
         rc, stdout, stderr = module.run_command(cmd, check_rc=False)
 
         if rc != 0:
-            module.fail_json(msg="failed to remove %s: %s" % (package, to_text(stdout + stderr)))
+            module.fail_json(msg=f"failed to remove {package}: {to_text(stdout + stderr)}")
 
         remove_c += 1
 
     if remove_c > 0:
-
-        module.exit_json(changed=True, msg="removed %s package(s)" % remove_c)
+        module.exit_json(changed=True, msg=f"removed {remove_c} package(s)")
 
     module.exit_json(changed=False, msg="package(s) already absent")
 
@@ -214,21 +212,23 @@ def install_packages(module, state, packages, prompts):
         if nb_prompts > 0 and (nb_prompts != nb_packages):
             if nb_prompts > nb_packages:
                 diff = nb_prompts - nb_packages
-                msg = "%s packages to install but %s prompts to expect. %s prompts will be ignored" % (to_text(nb_packages), to_text(nb_prompts), to_text(diff))
+                msg = f"{to_text(nb_packages)} packages to install but {to_text(nb_prompts)} prompts to expect. {to_text(diff)} prompts will be ignored"
             else:
                 diff = nb_packages - nb_prompts
-                msg = "%s packages to install but only %s prompts to expect. %s packages won't be expected to have a prompt" \
-                    % (to_text(nb_packages), to_text(nb_prompts), to_text(diff))
+                msg = (
+                    f"{to_text(nb_packages)} packages to install but only {to_text(nb_prompts)} prompts to expect. "
+                    f"{to_text(diff)} packages won't be expected to have a prompt"
+                )
             module.warn(msg)
 
         # Preparing prompts answer according to item type
         tmp_prompts = []
         for _item in prompts:
-            # If the current item is a dict then we expect it's key to be the prompt regex and it's value to be the answer
+            # If the current item is a dict then we expect its key to be the prompt regex and its value to be the answer
             # We also expect here that the dict only has ONE key and the first key will be taken
             if isinstance(_item, dict):
                 key = list(_item.keys())[0]
-                answer = _item[key] + "\n"
+                answer = f"{_item[key]}\n"
 
                 tmp_prompts.append((key, answer))
             elif not _item:
@@ -240,14 +240,14 @@ def install_packages(module, state, packages, prompts):
         # if the package is installed and state == present
         # or state == latest and is up-to-date then skip
         installed, updated = query_package(module, package)
-        if installed and (state == 'present' or (state == 'latest' and updated)):
+        if installed and (state == "present" or (state == "latest" and updated)):
             continue
 
-        if state == 'present':
-            command = 'install'
+        if state == "present":
+            command = "install"
 
-        if state == 'latest':
-            command = 'upgrade'
+        if state == "latest":
+            command = "upgrade"
 
         if has_prompt and i < len(prompts):
             prompt_regex = prompts[i][0]
@@ -256,15 +256,17 @@ def install_packages(module, state, packages, prompts):
             prompt_regex = None
             data = default_stdin
 
-        cmd = "%s %s %s" % (_get_pear_path(module), command, package)
-        rc, stdout, stderr = module.run_command(cmd, check_rc=False, prompt_regex=prompt_regex, data=data, binary_data=True)
+        cmd = [_get_pear_path(module), command, package]
+        rc, stdout, stderr = module.run_command(
+            cmd, check_rc=False, prompt_regex=prompt_regex, data=data, binary_data=True
+        )
         if rc != 0:
-            module.fail_json(msg="failed to install %s: %s" % (package, to_text(stdout + stderr)))
+            module.fail_json(msg=f"failed to install {package}: {to_text(stdout + stderr)}")
 
         install_c += 1
 
     if install_c > 0:
-        module.exit_json(changed=True, msg="installed %s package(s)" % (install_c))
+        module.exit_json(changed=True, msg=f"installed {install_c} package(s)")
 
     module.exit_json(changed=False, msg="package(s) already installed")
 
@@ -273,52 +275,54 @@ def check_packages(module, packages, state):
     would_be_changed = []
     for package in packages:
         installed, updated = query_package(module, package)
-        if ((state in ["present", "latest"] and not installed) or
-                (state == "absent" and installed) or
-                (state == "latest" and not updated)):
+        if (
+            (state in ["present", "latest"] and not installed)
+            or (state == "absent" and installed)
+            or (state == "latest" and not updated)
+        ):
             would_be_changed.append(package)
     if would_be_changed:
         if state == "absent":
             state = "removed"
-        module.exit_json(changed=True, msg="%s package(s) would be %s" % (
-            len(would_be_changed), state))
+        module.exit_json(changed=True, msg=f"{len(would_be_changed)} package(s) would be {state}")
     else:
-        module.exit_json(change=False, msg="package(s) already %s" % state)
+        module.exit_json(change=False, msg=f"package(s) already {state}")
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            name=dict(aliases=['pkg'], required=True),
-            state=dict(default='present', choices=['present', 'installed', "latest", 'absent', 'removed']),
-            executable=dict(default=None, required=False, type='path'),
-            prompts=dict(default=None, required=False, type='list', elements='raw'),
+            name=dict(aliases=["pkg"], required=True),
+            state=dict(default="present", choices=["present", "installed", "latest", "absent", "removed"]),
+            executable=dict(type="path"),
+            prompts=dict(type="list", elements="raw"),
         ),
-        supports_check_mode=True)
+        supports_check_mode=True,
+    )
 
     p = module.params
 
     # normalize the state parameter
-    if p['state'] in ['present', 'installed']:
-        p['state'] = 'present'
-    elif p['state'] in ['absent', 'removed']:
-        p['state'] = 'absent'
+    if p["state"] in ["present", "installed"]:
+        p["state"] = "present"
+    elif p["state"] in ["absent", "removed"]:
+        p["state"] = "absent"
 
-    if p['name']:
-        pkgs = p['name'].split(',')
+    if p["name"]:
+        pkgs = p["name"].split(",")
 
         pkg_files = []
         for i, pkg in enumerate(pkgs):
             pkg_files.append(None)
 
         if module.check_mode:
-            check_packages(module, pkgs, p['state'])
+            check_packages(module, pkgs, p["state"])
 
-        if p['state'] in ['present', 'latest']:
-            install_packages(module, p['state'], pkgs, p["prompts"])
-        elif p['state'] == 'absent':
+        if p["state"] in ["present", "latest"]:
+            install_packages(module, p["state"], pkgs, p["prompts"])
+        elif p["state"] == "absent":
             remove_packages(module, pkgs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -199,6 +199,10 @@ notes:
 attributes:
   check_mode:
     support: none
+  idempotent:
+    support: partial
+    details:
+      - The module is not idempotent for O(mode=resetprimary), O(mode=resetreplica), and O(mode=resetreplicaall).
 
 extends_documentation_fragment:
 - community.mysql.mysql

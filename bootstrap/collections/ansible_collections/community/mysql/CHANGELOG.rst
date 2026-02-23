@@ -6,6 +6,37 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v4.1.0
+======
+
+Release Summary
+---------------
+
+This is a minor release of the ``community.mysql`` collection.
+This changelog contains all breaking changes to the modules in this collection
+that have been added after the previous release.
+
+Minor Changes
+-------------
+
+- mysql_role - add ``sql_log_bin`` option to disable binary logging for the connection (https://github.com/ansible-collections/community.mysql/issues/742).
+
+v4.0.1
+======
+
+Release Summary
+---------------
+
+This is a patch release of the ``community.mysql`` collection.
+This changelog contains all breaking changes to the modules in this collection
+that have been added after the previous release.
+
+Bugfixes
+--------
+
+- mysql_info - Fix slave status for source terminology introduced in MySQL 8.0.23 (https://github.com/ansible-collections/community.mysql/issues/682).
+- mysql_user, mysql_role - fix not existent grant when revoking perms on user/role which do not have any other perms than grant option (https://github.com/ansible-collections/community.mysql/issues/664).
+
 v4.0.0
 ======
 

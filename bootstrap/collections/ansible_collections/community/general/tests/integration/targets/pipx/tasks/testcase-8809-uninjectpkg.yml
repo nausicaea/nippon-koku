@@ -7,7 +7,7 @@
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
   block:
-    - name: Uninstall pycowsay and black
+    - name: Uninstall pycowsay
       community.general.pipx:
         state: uninstall
         name: pycowsay
@@ -54,16 +54,12 @@
     - name: Uninstall pycowsay and black (again)
       community.general.pipx:
         state: uninstall
-        name: "{{ item }}"
-      loop:
-        - black
-        - pycowsay
-      register: uninstall_all_2
+        name: pycowsay
 
     - name: Assert uninstall-all
       ansible.builtin.assert:
         that:
           - pin_cow is changed
-          - cow_info_1 == "0.0.0.1"
+          - cow_info_1.application.0.version == "0.0.0.1"
           - unpin_cow is changed
-          - cow_info_2 != "0.0.0.1"
+          - cow_info_2.application.0.version != "0.0.0.1"

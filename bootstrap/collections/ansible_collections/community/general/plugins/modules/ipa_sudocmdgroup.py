@@ -1,19 +1,16 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright (c) 2017, Ansible Project
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = r'''
----
+DOCUMENTATION = r"""
 module: ipa_sudocmdgroup
 author: Thomas Krahn (@Nosmoht)
 short_description: Manage FreeIPA sudo command group
 description:
-- Add, modify or delete sudo command group within IPA server using IPA API.
+  - Add, modify or delete sudo command group within IPA server using IPA API.
 attributes:
   check_mode:
     support: full
@@ -22,13 +19,13 @@ attributes:
 options:
   cn:
     description:
-    - Sudo Command Group.
+      - Sudo Command Group.
     aliases: ['name']
     required: true
     type: str
   description:
     description:
-    - Group description.
+      - Group description.
     type: str
   state:
     description: State to ensure.
@@ -37,24 +34,24 @@ options:
     type: str
   sudocmd:
     description:
-    - List of sudo commands to assign to the group.
-    - If an empty list is passed all assigned commands will be removed from the group.
-    - If option is omitted sudo commands will not be checked or changed.
+      - List of sudo commands to assign to the group.
+      - If an empty list is passed all assigned commands are removed from the group.
+      - If option is omitted sudo commands are not checked nor changed.
     type: list
     elements: str
 extends_documentation_fragment:
   - community.general.ipa.documentation
+  - community.general.ipa.connection_notes
   - community.general.attributes
+"""
 
-'''
-
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Ensure sudo command group exists
   community.general.ipa_sudocmdgroup:
     name: group01
     description: Group of important commands
     sudocmd:
-    - su
+      - su
     ipa_host: ipa.example.com
     ipa_user: admin
     ipa_pass: topsecret
@@ -66,14 +63,14 @@ EXAMPLES = r'''
     ipa_host: ipa.example.com
     ipa_user: admin
     ipa_pass: topsecret
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 sudocmdgroup:
-  description: Sudo command group as returned by IPA API
+  description: Sudo command group as returned by IPA API.
   returned: always
   type: dict
-'''
+"""
 
 import traceback
 
@@ -84,37 +81,37 @@ from ansible.module_utils.common.text.converters import to_native
 
 class SudoCmdGroupIPAClient(IPAClient):
     def __init__(self, module, host, port, protocol):
-        super(SudoCmdGroupIPAClient, self).__init__(module, host, port, protocol)
+        super().__init__(module, host, port, protocol)
 
     def sudocmdgroup_find(self, name):
-        return self._post_json(method='sudocmdgroup_find', name=None, item={'all': True, 'cn': name})
+        return self._post_json(method="sudocmdgroup_find", name=None, item={"all": True, "cn": name})
 
     def sudocmdgroup_add(self, name, item):
-        return self._post_json(method='sudocmdgroup_add', name=name, item=item)
+        return self._post_json(method="sudocmdgroup_add", name=name, item=item)
 
     def sudocmdgroup_mod(self, name, item):
-        return self._post_json(method='sudocmdgroup_mod', name=name, item=item)
+        return self._post_json(method="sudocmdgroup_mod", name=name, item=item)
 
     def sudocmdgroup_del(self, name):
-        return self._post_json(method='sudocmdgroup_del', name=name)
+        return self._post_json(method="sudocmdgroup_del", name=name)
 
     def sudocmdgroup_add_member(self, name, item):
-        return self._post_json(method='sudocmdgroup_add_member', name=name, item=item)
+        return self._post_json(method="sudocmdgroup_add_member", name=name, item=item)
 
     def sudocmdgroup_add_member_sudocmd(self, name, item):
-        return self.sudocmdgroup_add_member(name=name, item={'sudocmd': item})
+        return self.sudocmdgroup_add_member(name=name, item={"sudocmd": item})
 
     def sudocmdgroup_remove_member(self, name, item):
-        return self._post_json(method='sudocmdgroup_remove_member', name=name, item=item)
+        return self._post_json(method="sudocmdgroup_remove_member", name=name, item=item)
 
     def sudocmdgroup_remove_member_sudocmd(self, name, item):
-        return self.sudocmdgroup_remove_member(name=name, item={'sudocmd': item})
+        return self.sudocmdgroup_remove_member(name=name, item={"sudocmd": item})
 
 
 def get_sudocmdgroup_dict(description=None):
     data = {}
     if description is not None:
-        data['description'] = description
+        data["description"] = description
     return data
 
 
@@ -123,15 +120,15 @@ def get_sudocmdgroup_diff(client, ipa_sudocmdgroup, module_sudocmdgroup):
 
 
 def ensure(module, client):
-    name = module.params['cn']
-    state = module.params['state']
-    sudocmd = module.params['sudocmd']
+    name = module.params["cn"]
+    state = module.params["state"]
+    sudocmd = module.params["sudocmd"]
 
-    module_sudocmdgroup = get_sudocmdgroup_dict(description=module.params['description'])
+    module_sudocmdgroup = get_sudocmdgroup_dict(description=module.params["description"])
     ipa_sudocmdgroup = client.sudocmdgroup_find(name=name)
 
     changed = False
-    if state == 'present':
+    if state == "present":
         if not ipa_sudocmdgroup:
             changed = True
             if not module.check_mode:
@@ -147,9 +144,13 @@ def ensure(module, client):
                     client.sudocmdgroup_mod(name=name, item=data)
 
         if sudocmd is not None:
-            changed = client.modify_if_diff(name, ipa_sudocmdgroup.get('member_sudocmd', []), sudocmd,
-                                            client.sudocmdgroup_add_member_sudocmd,
-                                            client.sudocmdgroup_remove_member_sudocmd)
+            changed = client.modify_if_diff(
+                name,
+                ipa_sudocmdgroup.get("member_sudocmd", []),
+                sudocmd,
+                client.sudocmdgroup_add_member_sudocmd,
+                client.sudocmdgroup_remove_member_sudocmd,
+            )
     else:
         if ipa_sudocmdgroup:
             changed = True
@@ -161,26 +162,28 @@ def ensure(module, client):
 
 def main():
     argument_spec = ipa_argument_spec()
-    argument_spec.update(cn=dict(type='str', required=True, aliases=['name']),
-                         description=dict(type='str'),
-                         state=dict(type='str', default='present', choices=['present', 'absent', 'enabled', 'disabled']),
-                         sudocmd=dict(type='list', elements='str'))
+    argument_spec.update(
+        cn=dict(type="str", required=True, aliases=["name"]),
+        description=dict(type="str"),
+        state=dict(type="str", default="present", choices=["present", "absent", "enabled", "disabled"]),
+        sudocmd=dict(type="list", elements="str"),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
-    client = SudoCmdGroupIPAClient(module=module,
-                                   host=module.params['ipa_host'],
-                                   port=module.params['ipa_port'],
-                                   protocol=module.params['ipa_prot'])
+    client = SudoCmdGroupIPAClient(
+        module=module,
+        host=module.params["ipa_host"],
+        port=module.params["ipa_port"],
+        protocol=module.params["ipa_prot"],
+    )
     try:
-        client.login(username=module.params['ipa_user'],
-                     password=module.params['ipa_pass'])
+        client.login(username=module.params["ipa_user"], password=module.params["ipa_pass"])
         changed, sudocmdgroup = ensure(module, client)
         module.exit_json(changed=changed, sudorule=sudocmdgroup)
     except Exception as e:
         module.fail_json(msg=to_native(e), exception=traceback.format_exc())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

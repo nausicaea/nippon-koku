@@ -1,53 +1,51 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2013, Jan-Piet Mens <jpmens(at)gmail.com>
 # (m) 2016, Mihai Moldovanu <mihaim@tfm.ro>
 # (m) 2017, Juan Manuel Parrilla <jparrill@redhat.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = '''
-    author:
-        - Jan-Piet Mens (@jpmens)
-    name: etcd
-    short_description: get info from an etcd server
+DOCUMENTATION = r"""
+author:
+  - Jan-Piet Mens (@jpmens)
+name: etcd
+short_description: Get info from an etcd server
+description:
+  - Retrieves data from an etcd server.
+options:
+  _terms:
     description:
-        - Retrieves data from an etcd server
-    options:
-        _terms:
-            description:
-                - the list of keys to lookup on the etcd server
-            type: list
-            elements: string
-            required: true
-        url:
-            description:
-                - Environment variable with the URL for the etcd server
-            type: string
-            default: 'http://127.0.0.1:4001'
-            env:
-              - name: ANSIBLE_ETCD_URL
-        version:
-            description:
-                - Environment variable with the etcd protocol version
-            type: string
-            default: 'v1'
-            env:
-              - name: ANSIBLE_ETCD_VERSION
-        validate_certs:
-            description:
-                - toggle checking that the ssl certificates are valid, you normally only want to turn this off with self-signed certs.
-            default: true
-            type: boolean
-    seealso:
-    - module: community.general.etcd3
-    - plugin: community.general.etcd3
-      plugin_type: lookup
-'''
+      - The list of keys to lookup on the etcd server.
+    type: list
+    elements: string
+    required: true
+  url:
+    description:
+      - Environment variable with the URL for the etcd server.
+    type: string
+    default: 'http://127.0.0.1:4001'
+    env:
+      - name: ANSIBLE_ETCD_URL
+  version:
+    description:
+      - Environment variable with the etcd protocol version.
+    type: string
+    default: 'v1'
+    env:
+      - name: ANSIBLE_ETCD_VERSION
+  validate_certs:
+    description:
+      - Toggle checking that the ssl certificates are valid, you normally only want to turn this off with self-signed certs.
+    default: true
+    type: boolean
+seealso:
+  - module: community.general.etcd3
+  - plugin: community.general.etcd3
+    plugin_type: lookup
+"""
 
-EXAMPLES = '''
+EXAMPLES = r"""
 - name: "a value from a locally running etcd"
   ansible.builtin.debug:
     msg: "{{ lookup('community.general.etcd', 'foo/bar') }}"
@@ -59,15 +57,15 @@ EXAMPLES = '''
 - name: "you can set server options inline"
   ansible.builtin.debug:
     msg: "{{ lookup('community.general.etcd', 'foo', version='v2', url='http://192.168.0.27:4001') }}"
-'''
+"""
 
-RETURN = '''
-    _raw:
-        description:
-            - List of values associated with input keys.
-        type: list
-        elements: string
-'''
+RETURN = r"""
+_raw:
+  description:
+    - List of values associated with input keys.
+  type: list
+  elements: string
+"""
 
 import json
 
@@ -104,7 +102,7 @@ class Etcd:
     def __init__(self, url, version, validate_certs):
         self.url = url
         self.version = version
-        self.baseurl = '%s/%s/keys' % (self.url, self.version)
+        self.baseurl = f"{self.url}/{self.version}/keys"
         self.validate_certs = validate_certs
 
     def _parse_node(self, node):
@@ -115,17 +113,17 @@ class Etcd:
         # the function will create a key-value at this level and
         # undoing the loop.
         path = {}
-        if node.get('dir', False):
-            for n in node.get('nodes', []):
-                path[n['key'].split('/')[-1]] = self._parse_node(n)
+        if node.get("dir", False):
+            for n in node.get("nodes", []):
+                path[n["key"].split("/")[-1]] = self._parse_node(n)
 
         else:
-            path = node['value']
+            path = node["value"]
 
         return path
 
     def get(self, key):
-        url = "%s/%s?recursive=true" % (self.baseurl, key)
+        url = f"{self.baseurl}/{key}?recursive=true"
         data = None
         value = {}
         try:
@@ -137,16 +135,16 @@ class Etcd:
         try:
             # I will not support Version 1 of etcd for folder parsing
             item = json.loads(data)
-            if self.version == 'v1':
+            if self.version == "v1":
                 # When ETCD are working with just v1
-                if 'value' in item:
-                    value = item['value']
+                if "value" in item:
+                    value = item["value"]
             else:
-                if 'node' in item:
+                if "node" in item:
                     # When a usual result from ETCD
-                    value = self._parse_node(item['node'])
+                    value = self._parse_node(item["node"])
 
-            if 'errorCode' in item:
+            if "errorCode" in item:
                 # Here return an error when an unknown entry responds
                 value = "ENOENT"
         except Exception:
@@ -156,14 +154,12 @@ class Etcd:
 
 
 class LookupModule(LookupBase):
-
     def run(self, terms, variables, **kwargs):
-
         self.set_options(var_options=variables, direct=kwargs)
 
-        validate_certs = self.get_option('validate_certs')
-        url = self.get_option('url')
-        version = self.get_option('version')
+        validate_certs = self.get_option("validate_certs")
+        url = self.get_option("url")
+        version = self.get_option("version")
 
         etcd = Etcd(url=url, version=version, validate_certs=validate_certs)
 

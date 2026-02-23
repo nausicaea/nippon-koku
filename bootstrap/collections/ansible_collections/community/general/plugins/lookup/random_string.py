@@ -1,103 +1,112 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2021, Abhijeet Kasurde <akasurde@redhat.com>
 # Copyright (c) 2018, Ansible Project
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
-__metaclass__ = type
 
 DOCUMENTATION = r"""
-    name: random_string
-    author:
-      - Abhijeet Kasurde (@Akasurde)
-    short_description: Generates random string
-    version_added: '3.2.0'
+name: random_string
+author:
+  - Abhijeet Kasurde (@Akasurde)
+short_description: Generates random string
+version_added: '3.2.0'
+description:
+  - Generates random string based upon the given constraints.
+  - Uses L(secrets.SystemRandom,https://docs.python.org/3/library/secrets.html#secrets.SystemRandom), so should be strong enough
+    for cryptographic purposes.
+options:
+  length:
+    description: The length of the string.
+    default: 8
+    type: int
+  upper:
     description:
-      - Generates random string based upon the given constraints.
-      - Uses L(random.SystemRandom,https://docs.python.org/3/library/random.html#random.SystemRandom),
-        so should be strong enough for cryptographic purposes.
-    options:
-      length:
-        description: The length of the string.
-        default: 8
-        type: int
-      upper:
-        description:
-        - Include uppercase letters in the string.
-        default: true
-        type: bool
-      lower:
-        description:
-        - Include lowercase letters in the string.
-        default: true
-        type: bool
-      numbers:
-        description:
-        - Include numbers in the string.
-        default: true
-        type: bool
-      special:
-        description:
-        - Include special characters in the string.
-        - Special characters are taken from Python standard library C(string).
-          See L(the documentation of string.punctuation,https://docs.python.org/3/library/string.html#string.punctuation)
-          for which characters will be used.
-        - The choice of special characters can be changed to setting O(override_special).
-        default: true
-        type: bool
-      min_numeric:
-        description:
-        - Minimum number of numeric characters in the string.
-        - If set, overrides O(numbers=false).
-        default: 0
-        type: int
-      min_upper:
-        description:
-        - Minimum number of uppercase alphabets in the string.
-        - If set, overrides O(upper=false).
-        default: 0
-        type: int
-      min_lower:
-        description:
-        - Minimum number of lowercase alphabets in the string.
-        - If set, overrides O(lower=false).
-        default: 0
-        type: int
-      min_special:
-        description:
-        - Minimum number of special character in the string.
-        default: 0
-        type: int
-      override_special:
-        description:
-        - Override a list of special characters to use in the string.
-        - If set O(min_special) should be set to a non-default value.
-        type: str
-      override_all:
-        description:
-        - Override all values of O(numbers), O(upper), O(lower), and O(special) with
-          the given list of characters.
-        type: str
-      ignore_similar_chars:
-        description:
-        - Ignore similar characters, such as V(l) and V(1), or V(O) and V(0).
-        - These characters can be configured in O(similar_chars).
-        default: false
-        type: bool
-        version_added: 7.5.0
-      similar_chars:
-        description:
-        - Override a list of characters not to be use in the string.
-        default: "il1LoO0"
-        type: str
-        version_added: 7.5.0
-      base64:
-        description:
-        - Returns base64 encoded string.
-        type: bool
-        default: false
+      - Possibly include uppercase letters in the string.
+      - To ensure atleast one uppercase letter, set O(min_upper) to V(1).
+    default: true
+    type: bool
+  lower:
+    description:
+      - Possibly include lowercase letters in the string.
+      - To ensure atleast one lowercase letter, set O(min_lower) to V(1).
+    default: true
+    type: bool
+  numbers:
+    description:
+      - Possibly include numbers in the string.
+      - To ensure atleast one numeric character, set O(min_numeric) to V(1).
+    default: true
+    type: bool
+  special:
+    description:
+      - Possibly include special characters in the string.
+      - Special characters are taken from Python standard library C(string). See L(the documentation of
+        string.punctuation,https://docs.python.org/3/library/string.html#string.punctuation)
+        for which characters are used.
+      - The choice of special characters can be changed to setting O(override_special).
+      - To ensure atleast one special character, set O(min_special) to V(1).
+    default: true
+    type: bool
+  min_numeric:
+    description:
+      - Minimum number of numeric characters in the string.
+      - If set, overrides O(numbers=false).
+    default: 0
+    type: int
+  min_upper:
+    description:
+      - Minimum number of uppercase alphabets in the string.
+      - If set, overrides O(upper=false).
+    default: 0
+    type: int
+  min_lower:
+    description:
+      - Minimum number of lowercase alphabets in the string.
+      - If set, overrides O(lower=false).
+    default: 0
+    type: int
+  min_special:
+    description:
+      - Minimum number of special character in the string.
+    default: 0
+    type: int
+  override_special:
+    description:
+      - Override a list of special characters to use in the string.
+      - If set O(min_special) should be set to a non-default value.
+    type: str
+  override_all:
+    description:
+      - Override all values of O(numbers), O(upper), O(lower), and O(special) with the given list of characters.
+    type: str
+  ignore_similar_chars:
+    description:
+      - Ignore similar characters, such as V(l) and V(1), or V(O) and V(0).
+      - These characters can be configured in O(similar_chars).
+    default: false
+    type: bool
+    version_added: 7.5.0
+  similar_chars:
+    description:
+      - Override a list of characters not to be use in the string.
+    default: "il1LoO0"
+    type: str
+    version_added: 7.5.0
+  base64:
+    description:
+      - Returns base64 encoded string.
+    type: bool
+    default: false
+  seed:
+    description:
+      - Seed for random string generator.
+      - B(Note) that this drastically reduces the security of this plugin. First, when O(seed) is provided, a non-cryptographic random number generator is used.
+        Second, if the seed does not contain enough entropy, the generated string is weak.
+        B(Do not use the generated string as a password or a secure token when using this option!)
+    type: str
+    version_added: 11.3.0
 """
 
 EXAMPLES = r"""
@@ -105,6 +114,14 @@ EXAMPLES = r"""
   ansible.builtin.debug:
     var: lookup('community.general.random_string')
   # Example result: 'DeadBeeF'
+
+- name: Generate random string with seed
+  ansible.builtin.debug:
+    var: lookup('community.general.random_string', seed=12345)
+  # Example result: '6[~(2q5O'
+  # NOTE: Do **not** use this string as a password or a secure token,
+  #       unless you know exactly what you are doing!
+  #       Specifying seed uses a non-secure random number generator.
 
 - name: Generate random string with length 12
   ansible.builtin.debug:
@@ -142,14 +159,15 @@ EXAMPLES = r"""
 """
 
 RETURN = r"""
-  _raw:
-    description: A one-element list containing a random string
-    type: list
-    elements: str
+_raw:
+  description: A one-element list containing a random string.
+  type: list
+  elements: str
 """
 
 import base64
 import random
+import secrets
 import string
 
 from ansible.errors import AnsibleLookupError
@@ -161,25 +179,18 @@ class LookupModule(LookupBase):
     @staticmethod
     def get_random(random_generator, chars, length):
         if not chars:
-            raise AnsibleLookupError(
-                "Available characters cannot be None, please change constraints"
-            )
+            raise AnsibleLookupError("Available characters cannot be None, please change constraints")
         return "".join(random_generator.choice(chars) for dummy in range(length))
 
     @staticmethod
     def b64encode(string_value, encoding="utf-8"):
-        return to_text(
-            base64.b64encode(
-                to_bytes(string_value, encoding=encoding, errors="surrogate_or_strict")
-            )
-        )
+        return to_text(base64.b64encode(to_bytes(string_value, encoding=encoding, errors="surrogate_or_strict")))
 
     def run(self, terms, variables=None, **kwargs):
         number_chars = string.digits
         lower_chars = string.ascii_lowercase
         upper_chars = string.ascii_uppercase
         special_chars = string.punctuation
-        random_generator = random.SystemRandom()
 
         self.set_options(var_options=variables, direct=kwargs)
 
@@ -188,6 +199,13 @@ class LookupModule(LookupBase):
         override_all = self.get_option("override_all")
         ignore_similar_chars = self.get_option("ignore_similar_chars")
         similar_chars = self.get_option("similar_chars")
+        seed = self.get_option("seed")
+
+        if seed is None:
+            random_generator = secrets.SystemRandom()
+        else:
+            random_generator = random.Random(seed)
+
         values = ""
         available_chars_set = ""
 
@@ -233,10 +251,11 @@ class LookupModule(LookupBase):
         remaining_pass_len = length - len(values)
         values += self.get_random(random_generator, available_chars_set, remaining_pass_len)
 
-        # Get pseudo randomization
         shuffled_values = list(values)
-        # Randomize the order
-        random.shuffle(shuffled_values)
+        if seed is None:
+            # Get pseudo randomization
+            # Randomize the order
+            random.shuffle(shuffled_values)
 
         if base64_flag:
             return [self.b64encode("".join(shuffled_values))]

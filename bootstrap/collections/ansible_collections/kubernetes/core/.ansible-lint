@@ -2,5 +2,8 @@
 profile: production
 
 exclude_paths:
+  - .ansible/
+  - .github/
   - tests/integration
+  - tests/unit
   - tests/sanity

@@ -1,13 +1,11 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2018, Johannes Brunswicker <johannes.brunswicker@gmail.com>
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
+from __future__ import annotations
 
-__metaclass__ = type
 
 DOCUMENTATION = r"""
 module: utm_proxy_frontend_info
@@ -29,7 +27,7 @@ options:
   name:
     type: str
     description:
-      - The name of the object. Will be used to identify the entry.
+      - The name of the object that identifies the entry.
     required: true
 
 extends_documentation_fragment:
@@ -90,10 +88,10 @@ result:
       description: List of associated proxy exceptions.
       type: list
     htmlrewrite:
-      description: State of html rewrite.
+      description: State of HTML rewrite.
       type: bool
     htmlrewrite_cookies:
-      description: Whether the html rewrite cookie will be set.
+      description: Whether the HTML rewrite cookie is set.
       type: bool
     implicitredirect:
       description: Whether to use implicit redirection.
@@ -133,7 +131,7 @@ def main():
     key_to_check_for_changes = []
     module = UTMModule(
         argument_spec=dict(
-            name=dict(type='str', required=True),
+            name=dict(type="str", required=True),
         ),
         supports_check_mode=True,
     )
@@ -143,5 +141,5 @@ def main():
         module.fail_json(msg=to_native(e))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

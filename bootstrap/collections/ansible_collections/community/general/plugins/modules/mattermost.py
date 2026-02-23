@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Copyright (c) Benjamin Jolivot <bjolivot@gmail.com>
 # Inspired by slack module :
@@ -11,18 +10,17 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
 
-DOCUMENTATION = '''
+DOCUMENTATION = r"""
 module: mattermost
 short_description: Send Mattermost notifications
 description:
-    - Sends notifications to U(http://your.mattermost.url) via the Incoming WebHook integration.
+  - Sends notifications to U(http://your.mattermost.url) using the Incoming WebHook integration.
 author: "Benjamin Jolivot (@bjolivot)"
 extends_documentation_fragment:
-    - community.general.attributes
+  - community.general.attributes
 attributes:
   check_mode:
     support: full
@@ -32,15 +30,13 @@ options:
   url:
     type: str
     description:
-      - Mattermost url (i.e. http://mattermost.yourcompany.com).
+      - Mattermost URL (for example V(http://mattermost.yourcompany.com)).
     required: true
   api_key:
     type: str
     description:
-      - Mattermost webhook api key. Log into your mattermost site, go to
-        Menu -> Integration -> Incoming Webhook -> Add Incoming Webhook.
-        This will give you full URL. O(api_key) is the last part.
-        http://mattermost.example.com/hooks/C(API_KEY)
+      - Mattermost webhook API key. Log into your Mattermost site, go to Menu -> Integration -> Incoming Webhook -> Add Incoming
+        Webhook. This gives you a full URL. O(api_key) is the last part. U(http://mattermost.example.com/hooks/API_KEY).
     required: true
   text:
     type: str
@@ -62,22 +58,28 @@ options:
   username:
     type: str
     description:
-      - This is the sender of the message (Username Override need to be enabled by mattermost admin, see mattermost doc.
+      - This is the sender of the message (Username Override need to be enabled by mattermost admin, see mattermost doc).
     default: Ansible
   icon_url:
     type: str
     description:
       - URL for the message sender's icon.
     default: https://docs.ansible.com/favicon.ico
+  priority:
+    type: str
+    description:
+      - Set a priority for the message.
+    choices: [important, urgent]
+    version_added: 10.0.0
   validate_certs:
     description:
-      - If V(false), SSL certificates will not be validated. This should only be used
-        on personally controlled sites using self-signed certificates.
+      - If V(false), SSL certificates are not validated. This should only be used on personally controlled sites using self-signed
+        certificates.
     default: true
     type: bool
-'''
+"""
 
-EXAMPLES = """
+EXAMPLES = r"""
 - name: Send notification message via Mattermost
   community.general.mattermost:
     url: http://mattermost.example.com
@@ -92,6 +94,7 @@ EXAMPLES = """
     channel: notifications
     username: 'Ansible on {{ inventory_hostname }}'
     icon_url: http://www.example.com/some-image-file.png
+    priority: important
 
 - name: Send attachments message via Mattermost
   community.general.mattermost:
@@ -110,16 +113,16 @@ EXAMPLES = """
             short: true
 """
 
-RETURN = '''
+RETURN = r"""
 payload:
-    description: Mattermost payload
-    returned: success
-    type: str
+  description: Mattermost payload.
+  returned: success
+  type: str
 webhook_url:
-    description: URL the webhook is sent to
-    returned: success
-    type: str
-'''
+  description: URL the webhook is sent to.
+  returned: success
+  type: str
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
@@ -129,39 +132,42 @@ def main():
     module = AnsibleModule(
         supports_check_mode=True,
         argument_spec=dict(
-            url=dict(type='str', required=True),
-            api_key=dict(type='str', required=True, no_log=True),
-            text=dict(type='str'),
-            channel=dict(type='str', default=None),
-            username=dict(type='str', default='Ansible'),
-            icon_url=dict(type='str', default='https://docs.ansible.com/favicon.ico'),
-            validate_certs=dict(default=True, type='bool'),
-            attachments=dict(type='list', elements='dict'),
+            url=dict(type="str", required=True),
+            api_key=dict(type="str", required=True, no_log=True),
+            text=dict(type="str"),
+            channel=dict(type="str"),
+            username=dict(type="str", default="Ansible"),
+            icon_url=dict(type="str", default="https://docs.ansible.com/favicon.ico"),
+            priority=dict(type="str", choices=["important", "urgent"]),
+            validate_certs=dict(default=True, type="bool"),
+            attachments=dict(type="list", elements="dict"),
         ),
         required_one_of=[
-            ('text', 'attachments'),
+            ("text", "attachments"),
         ],
     )
     # init return dict
     result = dict(changed=False, msg="OK")
 
     # define webhook
-    webhook_url = "{0}/hooks/{1}".format(module.params['url'], module.params['api_key'])
-    result['webhook_url'] = webhook_url
+    webhook_url = f"{module.params['url']}/hooks/{module.params['api_key']}"
+    result["webhook_url"] = webhook_url
 
     # define payload
     payload = {}
-    for param in ['text', 'channel', 'username', 'icon_url', 'attachments']:
+    for param in ["text", "channel", "username", "icon_url", "attachments"]:
         if module.params[param] is not None:
             payload[param] = module.params[param]
+    if module.params["priority"] is not None:
+        payload["priority"] = {"priority": module.params["priority"]}
 
     payload = module.jsonify(payload)
-    result['payload'] = payload
+    result["payload"] = payload
 
     # http headers
     headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        "Accept": "application/json",
     }
 
     # notes:
@@ -171,17 +177,17 @@ def main():
 
     # send request if not in test mode
     if module.check_mode is False:
-        response, info = fetch_url(module=module, url=webhook_url, headers=headers, method='POST', data=payload)
+        response, info = fetch_url(module=module, url=webhook_url, headers=headers, method="POST", data=payload)
 
         # something's wrong
-        if info['status'] != 200:
+        if info["status"] != 200:
             # some problem
-            result['msg'] = "Failed to send mattermost message, the error was: {0}".format(info['msg'])
+            result["msg"] = f"Failed to send mattermost message, the error was: {info['msg']}"
             module.fail_json(**result)
 
     # Looks good
     module.exit_json(**result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
