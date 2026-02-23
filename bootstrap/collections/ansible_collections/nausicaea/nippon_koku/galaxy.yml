@@ -1,6 +1,6 @@
 namespace: nausicaea
 name: nippon_koku
-version: 0.1.0
+version: 0.2.0
 readme: README.md
 authors:
 - Eleanor Young <developer@nausicaea.net>
@@ -9,11 +9,11 @@ license:
 - GPL-3.0-or-later
 tags: []
 dependencies:
-  ansible.posix: 1.6.1
-  community.crypto: 2.26.3
-  community.general: 9.5.10
-  devsec.hardening: 10.2.0
-  kubernetes.core: 4.0.0
+  ansible.posix: 2.1.0
+  community.crypto: 3.0.5
+  community.general: 12.0.1
+  devsec.hardening: 10.5.0
+  kubernetes.core: 6.2.0
 repository: https://app.radicle.xyz/nodes/seed.radicle.garden/rad%3AzoBPQV6X2FH296n9gQxJr6suvSSi
 homepage: https://app.radicle.xyz/nodes/seed.radicle.garden/rad%3AzoBPQV6X2FH296n9gQxJr6suvSSi
 issues: https://app.radicle.xyz/nodes/seed.radicle.garden/rad:zoBPQV6X2FH296n9gQxJr6suvSSi/issues
