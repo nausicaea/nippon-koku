@@ -69,7 +69,9 @@ def to_grub_arch(arch: str) -> str:
 
 
 # Download the Debian netinstall image
-def download_image(debian_version: str, arch: str, cache_dir: Path, verbose: bool) -> Path:
+def download_image(
+    debian_version: str, arch: str, cache_dir: Path, verbose: bool
+) -> Path:
     with cache_dir.joinpath("CACHEDIR.TAG").open("wt") as f:
         f.write("Signature: 8a477f597d28d172789f06886806bc55\n")
 
@@ -144,20 +146,42 @@ def template_preseed(spec: ImageSpec, preseed_staging_dir: Path) -> None:
 
 
 def bake_preseed(
-    spec: ImageSpec, prefix: Path, preseed_staging_dir: Path, verbose: bool, tmp_dir: Path | None = None
+    spec: ImageSpec,
+    prefix: Path,
+    preseed_staging_dir: Path,
+    verbose: bool,
+    tmp_dir: Path | None = None,
 ) -> None:
     cpio_path = which("cpio")
     grub_arch = to_grub_arch(spec.arch)
     initrd_dir = prefix.joinpath(f"install.{grub_arch}")
     initrd_path = initrd_dir.joinpath("initrd.gz")
-    with NamedTemporaryFile(mode="r+b", prefix="initrd", dir=tmp_dir, delete=(tmp_dir is None)) as initrd_decompressed:
+    with NamedTemporaryFile(
+        mode="r+b", prefix="initrd", dir=tmp_dir, delete=(tmp_dir is None)
+    ) as initrd_decompressed:
         with gzip.open(initrd_path, mode="rb") as initrd:
             shutil.copyfileobj(initrd, initrd_decompressed)
             initrd_decompressed.seek(0)
 
         initrd_decompressed_path = Path(initrd_decompressed.name)
-        cpio_args = [cpio_path, "-v", "-H", "newc", "-o", "-A", "--reproducible", "-F", initrd_decompressed_path]
-        run(cpio_args, cwd=preseed_staging_dir, input="preseed.cfg", text=True, check=True)
+        cpio_args = [
+            cpio_path,
+            "-v",
+            "-H",
+            "newc",
+            "-o",
+            "-A",
+            "--reproducible",
+            "-F",
+            initrd_decompressed_path,
+        ]
+        run(
+            cpio_args,
+            cwd=preseed_staging_dir,
+            input="preseed.cfg",
+            text=True,
+            check=True,
+        )
 
         with gzip.open(initrd_path, mode="wb") as initrd:
             shutil.copyfileobj(initrd_decompressed, initrd)
@@ -232,13 +256,20 @@ def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) ->
 
 
 def build_xorriso_image(
-    spec: ImageSpec, orig_image_path: Path, prefix: Path, dest: Path, verbose: bool, tmp_dir: Path | None = None
+    spec: ImageSpec,
+    orig_image_path: Path,
+    prefix: Path,
+    dest: Path,
+    verbose: bool,
+    tmp_dir: Path | None = None,
 ) -> None:
     volume_id = f"Debian_{spec.debian_version}_{spec.arch}_a".replace(".", "_")
     dest_file = dest.joinpath(
         f"{spec.host_name}-debian-{spec.debian_version}-{spec.arch}-auto.iso"
     )
-    with NamedTemporaryFile(mode="wb", prefix="efi", dir=tmp_dir, delete=(tmp_dir is None)) as efi_or_mbr_tempfile:
+    with NamedTemporaryFile(
+        mode="wb", prefix="efi", dir=tmp_dir, delete=(tmp_dir is None)
+    ) as efi_or_mbr_tempfile:
         efi_or_mbr = Path(efi_or_mbr_tempfile.name)
         match spec.arch:
             case "arm64":
@@ -294,15 +325,25 @@ def build_xorriso_image(
                 raise ValueError(f'Unsupported architecture "{spec.arch}"')
 
 
-def build_image(spec: ImageSpec, dest: Path, cache_dir: Path, verbose: bool, tmp_dir: Path | None = None) -> None:
+def build_image(
+    spec: ImageSpec,
+    dest: Path,
+    cache_dir: Path,
+    verbose: bool,
+    tmp_dir: Path | None = None,
+) -> None:
     grub_arch = to_grub_arch(spec.arch)
     orig_image_file = download_image(spec.debian_version, spec.arch, cache_dir, verbose)
-    with TemporaryDirectory(prefix="staging", dir=tmp_dir, delete=(tmp_dir is None)) as staging_tmpdir:
+    with TemporaryDirectory(
+        prefix="staging", dir=tmp_dir, delete=(tmp_dir is None)
+    ) as staging_tmpdir:
         staging_dir = Path(staging_tmpdir)
         unpack_image(orig_image_file, staging_dir, verbose)
         template_grub(spec, staging_dir)
         template_post_install(spec, staging_dir)
-        with TemporaryDirectory(prefix="preseed", dir=tmp_dir, delete=(tmp_dir is None)) as preseed_tmpdir:
+        with TemporaryDirectory(
+            prefix="preseed", dir=tmp_dir, delete=(tmp_dir is None)
+        ) as preseed_tmpdir:
             preseed_dir = Path(preseed_tmpdir)
             template_preseed(spec, preseed_dir)
             bake_preseed(spec, staging_dir, preseed_dir, verbose, tmp_dir)
@@ -334,16 +375,10 @@ def _main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Optionally enable verbose output"
+        "-v", "--verbose", action="store_true", help="Optionally enable verbose output"
     )
     parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Optionally enable debugging"
+        "-d", "--debug", action="store_true", help="Optionally enable debugging"
     )
     matches = parser.parse_args()
 

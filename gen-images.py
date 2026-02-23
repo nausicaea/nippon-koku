@@ -21,8 +21,10 @@ def sha512_crypt(password: str, salt: str = None, rounds: int = 5000) -> str:
     if salt is None:
         salt = secrets.token_hex(16)
     salt = salt[:16]
-    hash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt.encode('utf-8'), rounds)
-    hash_b64 = base64.b64encode(hash).decode('utf-8').replace('+', '.')
+    hash = hashlib.pbkdf2_hmac(
+        "sha512", password.encode("utf-8"), salt.encode("utf-8"), rounds
+    )
+    hash_b64 = base64.b64encode(hash).decode("utf-8").replace("+", ".")
     return f"${rounds}${salt}${hash_b64}"
 
 
@@ -33,7 +35,7 @@ def _main() -> None:
     parser = argparse.ArgumentParser(
         description="Generates Debian ISO images from environment variables",
         epilog="Project home page: https://app.radicle.xyz/nodes/iris.radicle.xyz/rad:zoBPQV6X2FH296n9gQxJr6suvSSi",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
         "-p",
@@ -50,16 +52,10 @@ def _main() -> None:
         help="Specify the directory for the Docker context",
     )
     parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Optionally enable verbose output"
+        "-v", "--verbose", action="store_true", help="Optionally enable verbose output"
     )
     parser.add_argument(
-        "-d",
-        "--debug",
-        action="store_true",
-        help="Optionally enable debugging"
+        "-d", "--debug", action="store_true", help="Optionally enable debugging"
     )
     matches = parser.parse_args()
 
@@ -77,7 +73,9 @@ def _main() -> None:
     elif podman_path is not None:
         docker_cli = podman_path
     else:
-        raise ValueError("Could not find a Docker-compatible CLI application (looked for 'docker' and 'podman')")
+        raise ValueError(
+            "Could not find a Docker-compatible CLI application (looked for 'docker' and 'podman')"
+        )
 
     prefix: Path = matches.prefix.resolve()
     docker_context_dir: Path = matches.context.resolve()
@@ -98,17 +96,25 @@ def _main() -> None:
     verbose: bool = matches.verbose
     debug: bool = matches.debug
 
-    docker_build_args = [docker_cli, "build", "-q", f"-t={docker_image_tag}", docker_context_dir]
+    docker_build_args = [
+        docker_cli,
+        "build",
+        "-q",
+        f"-t={docker_image_tag}",
+        docker_context_dir,
+    ]
     run(docker_build_args, stdout=DEVNULL, check=True)
 
-    root_password_crypted = sha512_crypt(op_client.op_read(op_root_pw_id, account=op_account_server))
+    root_password_crypted = sha512_crypt(
+        op_client.op_read(op_root_pw_id, account=op_account_server)
+    )
     ansible_vault_password = op_client.op_read(op_vault_id, account=op_account_server)
     host_data = op_client.op_read(op_host_data_id, account=op_account_server)
 
     docker_run_args = [
-        docker_cli, 
-        "run", 
-        "--rm", 
+        docker_cli,
+        "run",
+        "--rm",
         "-i",
         f"-e=ROOT_PASSWORD_CRYPTED={root_password_crypted}",
         f"-e=ANSIBLE_VAULT_PASSWORD={ansible_vault_password}",
@@ -123,12 +129,7 @@ def _main() -> None:
         docker_run_args.append("-v")
     if debug:
         docker_run_args.append("-d")
-    run(
-        docker_run_args,
-        input=host_data,
-        text=True,
-        check=True
-    )
+    run(docker_run_args, input=host_data, text=True, check=True)
 
 
 if __name__ == "__main__":

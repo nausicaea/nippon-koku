@@ -5,7 +5,7 @@ import os
 import subprocess
 
 
-def op_read(ref_url: str, account: str|None = None) -> str:
+def op_read(ref_url: str, account: str | None = None) -> str:
     args = ["op", "read", ref_url]
     if account is not None:
         args.append(f"--account={account}")
