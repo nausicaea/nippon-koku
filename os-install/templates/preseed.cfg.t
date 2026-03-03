@@ -44,9 +44,9 @@ d-i partman-auto-lvm/guided_size string max
 d-i partman-auto/choose_recipe select server
 
 # Force UEFI booting
-d-i partman-efi/non_efi_system boolean true
-d-i partman-partitioning/choose_label select gpt
-d-i partman-partitioning/default_label string gpt
+#d-i partman-efi/non_efi_system boolean true
+#d-i partman-partitioning/choose_label select gpt
+#d-i partman-partitioning/default_label string gpt
 
 # Enforce UUID-based partition mounting
 d-i partman/mount_style select uuid
@@ -85,7 +85,7 @@ d-i grub-installer/with_other_os boolean true
 d-i grub-installer/bootdev string ${boot_device}
 
 # Kernel options
-d-i debian-installer/add-kernel-opts string quiet audit=1
+d-i debian-installer/add-kernel-opts string audit=1
 
 # Avoid that last message about the install being complete.
 d-i finish-install/reboot_in_progress note
