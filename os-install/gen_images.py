@@ -354,7 +354,8 @@ def build_image(
 def parse_host_data(src: Iterable[str]) -> list[HostData]:
     host_data = list()
     csv_data = csv.DictReader(
-        src, dialect="unix", fieldnames=["host_name", "arch", "boot_device"]
+        filter(lambda row: not row.startswith("#"), src),
+        dialect="unix", fieldnames=["host_name", "arch", "boot_device"]
     )
     for row in csv_data:
         host_data.append(HostData(row["host_name"], row["arch"], row["boot_device"]))
