@@ -10,7 +10,7 @@ def op_read(ref_url: str, account: str | None = None) -> str:
     if account is not None:
         args.append(f"--account={account}")
     proc = subprocess.run(args, capture_output=True, text=True, check=True)
-    return proc.stdout
+    return proc.stdout.strip()
 
 
 def _main() -> None:
