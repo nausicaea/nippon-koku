@@ -1,5 +1,8 @@
 #_preseed_V1
 #### Contents of the preconfiguration file (for trixie)
+d-i auto-install/enable boolean true
+d-i debconf/frontend select Noninteractive
+
 ### Localization
 d-i debian-installer/language string en
 d-i debian-installer/country string CH
@@ -87,9 +90,6 @@ d-i grub-installer/bootdev string ${boot_device}
 # Kernel options
 d-i debian-installer/add-kernel-opts string audit=1
 
-# Avoid that last message about the install being complete.
-d-i finish-install/reboot_in_progress note
-
 ### Postinstall
 #   Shell command or commands to run in the d-i environment as late as possible
 # d-i preseed/late_command string <string>
@@ -99,3 +99,9 @@ d-i preseed/late_command string \
     cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
     chmod 0500 /target/tmp/post-install.sh; \
     in-target /bin/sh /tmp/post-install.sh
+
+# Avoid that last message about the install being complete.
+d-i finish-install/reboot_in_progress note
+
+# Power off the system instead of rebooting at the end of the installation
+d-i debian-installer/exit/poweroff boolean true
