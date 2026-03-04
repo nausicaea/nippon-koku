@@ -6,26 +6,14 @@ import os
 from pathlib import Path
 import shutil
 from subprocess import run, DEVNULL
-import hashlib
-import secrets
-import base64
+import sys
+from passlib.hash import sha512_crypt
 
 
 op_client = importlib.import_module("op-client")
 gen_images = importlib.import_module(".gen_images", package="os-install")
 docker_path = gen_images.which_optional("docker")
 podman_path = gen_images.which_optional("podman")
-
-
-def sha512_crypt(password: str, salt: str = None, rounds: int = 5000) -> str:
-    if salt is None:
-        salt = secrets.token_hex(16)
-    salt = salt[:16]
-    hash = hashlib.pbkdf2_hmac(
-        "sha512", password.encode("utf-8"), salt.encode("utf-8"), rounds
-    )
-    hash_b64 = base64.b64encode(hash).decode("utf-8").replace("+", ".")
-    return f"${rounds}${salt}${hash_b64}"
 
 
 def _main() -> None:
@@ -77,6 +65,8 @@ def _main() -> None:
             "Could not find a Docker-compatible CLI application (looked for 'docker' and 'podman')"
         )
 
+    verbose: bool = matches.verbose
+    debug: bool = matches.debug
     prefix: Path = matches.prefix.resolve()
     docker_context_dir: Path = matches.context.resolve()
     docker_image_tag = "nausicaea/debian-auto:latest"
@@ -90,11 +80,8 @@ def _main() -> None:
     if not artifacts_dir.exists():
         artifacts_dir.mkdir(parents=True)
 
-    if not temp_dir.exists():
+    if debug and not temp_dir.exists():
         temp_dir.mkdir(parents=True)
-
-    verbose: bool = matches.verbose
-    debug: bool = matches.debug
 
     docker_build_args = [
         docker_cli,
@@ -105,13 +92,13 @@ def _main() -> None:
     ]
     run(docker_build_args, stdout=DEVNULL, check=True)
 
-    root_password_crypted = sha512_crypt(
+    root_password_crypted = sha512_crypt.hash(
         op_client.op_read(op_root_pw_id, account=op_account_server)
     )
     ansible_vault_password = op_client.op_read(op_vault_id, account=op_account_server)
     host_data = op_client.op_read(op_host_data_id, account=op_account_server)
 
-    docker_run_args = [
+    docker_run_base_args = [
         docker_cli,
         "run",
         "--rm",
@@ -122,14 +109,17 @@ def _main() -> None:
         f"-e=GIT_AUTHOR_SSH_PUB={git_author_ssh_pub}",
         f"-v={cache_dir}:/cache",
         f"-v={artifacts_dir}:/artifacts",
-        f"-v={temp_dir}:/tmp",
-        docker_image_tag,
     ]
-    if verbose:
-        docker_run_args.append("-v")
     if debug:
-        docker_run_args.append("-d")
-    run(docker_run_args, input=host_data, text=True, check=True)
+        docker_run_base_args.append(f"-v={temp_dir}:/tmp")
+
+    gen_images_args = [*docker_run_base_args, docker_image_tag]
+    if verbose:
+        gen_images_args.append("-v")
+    if debug:
+        gen_images_args.append("-d")
+
+    run(gen_images_args, input=host_data, text=True, check=True)
 
 
 if __name__ == "__main__":
