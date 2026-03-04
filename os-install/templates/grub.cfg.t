@@ -1,7 +1,16 @@
 default=Install
 timeout=4
-menuentry 'Install' {
-    set background_color=black
-    linux    /install.${arch_short}/vmlinuz auto=true priority=critical DEBIAN_FRONTEND=noninteractive BOOT_DEBUG=1 console=ttyAMA0 ---
-    initrd   /install.${arch_short}/initrd.gz
+menuentry "Install" {
+    echo "System installing..."
+    linux /install.${arch_short}/vmlinuz
+    initrd /install.${arch_short}/initrd.gz
 }
+menuentry "System restart" {
+    echo "System rebooting..."
+    reboot
+}
+if [ $${grub_platform} == "efi" ]; then
+    menuentry "UEFI Firmware Settings" --id "uefi-firmware" {
+        fwsetup
+    }
+fi
