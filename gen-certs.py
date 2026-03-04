@@ -26,7 +26,7 @@ SCRIPT_URL: str = (
 )
 
 
-def download_cert_generation_script(script_dest: pathlib.Path):
+def download_cert_generation_script(script_dest: pathlib.Path) -> None:
     """
     Downloads and verifies the K3S helper script to a temporary directory.
     """
@@ -50,7 +50,7 @@ def create_k3s_cert_hierarchy(
     cert_temp_dir: pathlib.Path,
     cert_archive_dest: pathlib.Path,
     ansible_args: list[str],
-):
+) -> None:
     """
     Generate a custom certificate chain by calling the K3S helper script,
     archive all certificates, keys, and additional files into a TAR-GZIP
@@ -81,7 +81,7 @@ def create_k3s_cert_hierarchy(
 
 def create_k3s_secure_token(
     root_ca_pem: pathlib.Path, k3s_token_dest: pathlib.Path, ansible_args: list[str]
-):
+) -> None:
     """
     Calculate the SHA256 hash of the root CA certificate in DER format,
     generate 16 bits of secure random data, construct a K3S secure token, write
@@ -112,7 +112,7 @@ def create_k3s_secure_token(
     )
 
 
-def main():
+def main() -> None:
     script_dir = pathlib.Path(__file__).parent
     default_output_prefix = script_dir.joinpath(
         "bootstrap", "roles", "nausicaea.k3s", "files"
@@ -138,15 +138,15 @@ def main():
 
     ansible_args: list[str] = matches.ansible_arg
     output_prefix: pathlib.Path = matches.output_prefix.resolve(strict=False)
-    k3s_token_file = output_prefix.joinpath("k3s-token")
-    cert_archive = output_prefix.joinpath("k3s-server-tls.tgz")
+    k3s_token_file = output_prefix / "k3s-token"
+    cert_archive = output_prefix / "k3s-server-tls.tgz"
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir = pathlib.Path(temp_dir)
-        script_dest = temp_dir.joinpath("generate-custom-ca-certs.sh")
-        data_dir = temp_dir.joinpath("k3s")
+    with tempfile.TemporaryDirectory() as temp:
+        temp_dir = pathlib.Path(temp)
+        script_dest = temp_dir / "generate-custom-ca-certs.sh"
+        data_dir = temp_dir / "k3s"
         cert_dir = temp_dir.joinpath("k3s", "server", "tls")
-        root_ca_pem = cert_dir.joinpath("root-ca.pem")
+        root_ca_pem = cert_dir / "root-ca.pem"
 
         download_cert_generation_script(script_dest)
 

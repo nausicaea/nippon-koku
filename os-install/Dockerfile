@@ -20,7 +20,8 @@ RUN <<-EOM
     apt-get install -y \
         make curl libarchive-tools cpio genisoimage \
         coreutils util-linux xorriso syslinux-common \
-        syslinux-efi isolinux fdisk python3
+        syslinux-efi isolinux fdisk python3 \
+        python3-passlib
     apt-get clean
 EOM
 
@@ -29,7 +30,6 @@ COPY --link --chown=root:root --chmod=0400 ./templates/* ./
 
 WORKDIR /usr/local/lib/debian_auto
 COPY --link --chown=root:root --chmod=0755 ./gen_images.py ./
-COPY --link --chown=root:root --chmod=0755 ./test_gen_images.py ./
 
 WORKDIR /usr/local/bin
 RUN ln -s /usr/local/lib/debian_auto/gen_images.py /usr/local/bin/gen-images

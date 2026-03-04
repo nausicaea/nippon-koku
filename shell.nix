@@ -10,5 +10,8 @@ pkgs.mkShell {
         pkgs.ansible-lint
         pkgs.kubeseal
         pkgs.python313Packages.passlib
+        pkgs.python313Packages.jedi-language-server
+        pkgs.python313Packages.types-pyopenssl
+        pkgs.mypy
     ];
 }
