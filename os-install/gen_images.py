@@ -18,11 +18,20 @@ import urllib.request
 
 
 def which_optional(name: str) -> Path | None:
+    """
+    Perform an optional path lookup for a particular command or program.
+    """
+
     p = shutil.which(name)
     return Path(p) if p is not None else None
 
 
 def which(name: str) -> Path:
+    """
+    Perform a path lookup for a particular command or program.
+    Raise `ValueError` if the command or program was not found.
+    """
+
     p = shutil.which(name)
     if p is None:
         raise ValueError(f"Unknown command: {name}")
@@ -31,6 +40,10 @@ def which(name: str) -> Path:
 
 @dataclass(frozen=True)
 class ImageSpec:
+    """
+    Define all parameters for a particular Debian installer image.
+    """
+
     host_name: str
     arch: str
     boot_device: str
@@ -51,12 +64,20 @@ class ImageSpec:
 
 @dataclass(frozen=True)
 class HostData:
+    """
+    Define the structure of the data read from stdin as CSV rows.
+    """
+
     host_name: str
     arch: str
     boot_device: str
 
 
 def to_grub_arch(arch: str) -> str:
+    """
+    Convert the machine architecture name to a format that Grub understands.
+    """
+
     match arch:
         case "amd64":
             return "amd"
@@ -68,10 +89,12 @@ def to_grub_arch(arch: str) -> str:
             return arch
 
 
-# Download the Debian netinstall image
 def download_image(
     debian_version: str, arch: str, cache_dir: Path, verbose: bool
 ) -> Path:
+    """
+    Download the Debian netinstall ISO file to the local cache.
+    """
     with cache_dir.joinpath("CACHEDIR.TAG").open("wt") as f:
         f.write("Signature: 8a477f597d28d172789f06886806bc55\n")
 
@@ -87,13 +110,18 @@ def download_image(
     return orig_image_file
 
 
-# Unpack the Debian netinstall image
 def unpack_image(src: Path, dest: Path, verbose: bool) -> None:
+    """
+    Unpack the cached ISO image to a directory.
+    """
     bsdtar_path = which("bsdtar")
     run([bsdtar_path, "-xf", src], cwd=dest, check=True)
 
 
-def template_grub(spec: ImageSpec, prefix: Path) -> None:
+def template_grub(spec: ImageSpec, prefix: Path) -> Path:
+    """
+    Substitute parameters in the grub.cfg template for a particular installer image.
+    """
     with Path("/src/grub.cfg.t").open("rt") as f:
         template = Template(f.read())
 
@@ -101,11 +129,17 @@ def template_grub(spec: ImageSpec, prefix: Path) -> None:
 
     result = template.substitute(substitutions)
 
-    with prefix.joinpath("boot/grub/grub.cfg").open("wt") as f:
+    output = prefix.joinpath("boot/grub/grub.cfg")
+    with output.open("wt") as f:
         f.write(result)
 
+    return output
 
-def template_post_install(spec: ImageSpec, prefix: Path) -> None:
+
+def template_post_install(spec: ImageSpec, prefix: Path) -> Path:
+    """
+    Substitute parameters in the post-install.sh script template for a particular installer image.
+    """
     with Path("/src/post-install.sh.t").open("rt") as f:
         template = Template(f.read())
 
@@ -121,11 +155,17 @@ def template_post_install(spec: ImageSpec, prefix: Path) -> None:
 
     result = template.substitute(substitutions)
 
-    with prefix.joinpath("post-install.sh").open("wt") as f:
+    output = prefix.joinpath("post-install.sh")
+    with output.open("wt") as f:
         f.write(result)
 
+    return output
 
-def template_preseed(spec: ImageSpec, preseed_staging_dir: Path) -> None:
+
+def template_preseed(spec: ImageSpec, prefix: Path) -> Path:
+    """
+    Substitute parameters in the preseed.cfg template for a particular installer image.
+    """
     with Path("/src/preseed.cfg.t").open("rt") as f:
         template = Template(f.read())
 
@@ -141,8 +181,11 @@ def template_preseed(spec: ImageSpec, preseed_staging_dir: Path) -> None:
 
     result = template.substitute(substitutions)
 
-    with preseed_staging_dir.joinpath("preseed.cfg").open("wt") as f:
+    output = prefix.joinpath("preseed.cfg")
+    with output.open("wt") as f:
         f.write(result)
+
+    return output
 
 
 def bake_preseed(
@@ -151,7 +194,10 @@ def bake_preseed(
     preseed_staging_dir: Path,
     verbose: bool,
     tmp_dir: Path | None = None,
-) -> None:
+) -> Path:
+    """
+    Append the preseed.cfg to the initrd.gz archive in the installer image. This is an in-place operation that modifies the initrd.gz archive.
+    """
     cpio_path = which("cpio")
     grub_arch = to_grub_arch(spec.arch)
     initrd_dir = prefix.joinpath(f"install.{grub_arch}")
@@ -186,10 +232,16 @@ def bake_preseed(
         with gzip.open(initrd_path, mode="wb") as initrd:
             shutil.copyfileobj(initrd_decompressed, initrd)
 
+    return initrd_path
 
-def update_md5sum(prefix: Path, verbose: bool) -> None:
+
+def update_md5sum(prefix: Path, verbose: bool) -> Path:
+    """
+    Recalculate all files' MD5 hashes inside the installer image.
+    """
     find_path = which("find")
-    with prefix.joinpath("md5sum.txt").open("wb") as f:
+    output = prefix.joinpath("md5sum.txt")
+    with output.open("wb") as f:
         run(
             [find_path, ".", "-type", "f", "-exec", "md5sum", "{}", ";"],
             cwd=prefix,
@@ -197,8 +249,13 @@ def update_md5sum(prefix: Path, verbose: bool) -> None:
             check=True,
         )
 
+    return output
+
 
 def parse_efi_partition_info(fdisk_output: str) -> (int, int):
+    """
+    In the standard output of `fdisk -l <ISO-image>`, try to find the EFI partition. Return a tuple of `(start_block, block_count)`. Raise `ValueError` if the EFI partition cannot be found.
+    """
     lines = fdisk_output.splitlines()
     candidates = (line for line in lines if ".iso2" in line and "EFI" in line)
     efi_row = next(candidates, None)
@@ -209,6 +266,9 @@ def parse_efi_partition_info(fdisk_output: str) -> (int, int):
 
 
 def efi_partition_info(image: Path) -> (int, int):
+    """
+    Retrieve the EFI partition boundary as a tuple of `(start_block, block_count)`.
+    """
     fdisk_path = which("fdisk")
     fdisk_info_proc = run(
         [fdisk_path, "-l", image], capture_output=True, text=True, check=True
@@ -219,7 +279,10 @@ def efi_partition_info(image: Path) -> (int, int):
 
 def dd(
     src: Path, dest: Path, start_block: int, block_size: int, block_count: int
-) -> None:
+) -> Path:
+    """
+    Copy the contents of a partition, delimited by start_block and block_count, to the destination.
+    """
     dd_path = which("dd")
     run(
         [
@@ -233,8 +296,13 @@ def dd(
         check=True,
     )
 
+    return dest
 
-def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) -> None:
+
+def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) -> Path:
+    """
+    Create an ISO image from arguments using xorriso.
+    """
     xorrisofs_path = which("xorrisofs")
     base_args = [
         "-r",
@@ -253,6 +321,7 @@ def xorriso(dest: Path, volume_id: str, extra_args: list[Any], verbose: bool) ->
         [xorrisofs_path, *base_args, *extra_args],
         check=True,
     )
+    return dest
 
 
 def build_xorriso_image(
@@ -263,6 +332,9 @@ def build_xorriso_image(
     verbose: bool,
     tmp_dir: Path | None = None,
 ) -> None:
+    """
+    Rebuild the Debian ISO installer image from an image spec and staging directory.
+    """
     volume_id = f"Debian_{spec.debian_version}_{spec.arch}_a".replace(".", "_")
     dest_file = dest.joinpath(
         f"{spec.host_name}-debian-{spec.debian_version}-{spec.arch}-auto.iso"
@@ -332,6 +404,9 @@ def build_image(
     verbose: bool,
     tmp_dir: Path | None = None,
 ) -> None:
+    """
+    Download, extract, modify, and rebuild a Debian installer image.
+    """
     grub_arch = to_grub_arch(spec.arch)
     orig_image_file = download_image(spec.debian_version, spec.arch, cache_dir, verbose)
     with TemporaryDirectory(
@@ -352,6 +427,9 @@ def build_image(
 
 
 def parse_host_data(src: Iterable[str]) -> list[HostData]:
+    """
+    Parse data from the input as rows of CSV of `HostData`.
+    """
     host_data = list()
     csv_data = csv.DictReader(
         filter(lambda row: not row.startswith("#"), src),
@@ -363,6 +441,9 @@ def parse_host_data(src: Iterable[str]) -> list[HostData]:
 
 
 def require_env(name: str) -> str:
+    """
+    Retrieve the value of an environment variable or fail with `ValueError`.
+    """
     env_value = os.environ.get(name)
     if env_value is None or len(env_value) == 0:
         raise ValueError(f'Missing required environment variable "{name}"')
