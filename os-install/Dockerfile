@@ -1,18 +1,13 @@
-FROM docker.io/library/debian:13.3-slim@sha256:f6e2cfac5cf956ea044b4bd75e6397b4372ad88fe00908045e9a0d21712ae3ba
+FROM docker.io/library/debian:13.3-slim@sha256:1d3c811171a08a5adaa4a163fbafd96b61b87aa871bbc7aa15431ac275d3d430
 
 LABEL org.opencontainers.image.title="Debian Automated Install Builder"
 LABEL org.opencontainers.image.description="Builds Debian ISO installers with a preseed configuration"
 LABEL org.opencontainers.image.authors="developer@nausicaea.net"
 LABEL org.opencontainers.image.source="https://iris.radicle.xyz/zoBPQV6X2FH296n9gQxJr6suvSSi.git"
-LABEL org.opencontainers.image.version="0.2.0"
+LABEL org.opencontainers.image.version="0.3.0"
 LABEL org.opencontainers.image.licenses="GPLv3"
 
 VOLUME ["/cache", "/artifacts"]
-
-ENV ROOT_PASSWORD_CRYPTED=
-ENV ANSIBLE_VAULT_PASSWORD=
-ENV GIT_AUTHOR_EMAIL=
-ENV GIT_AUTHOR_SSH_PUB=
 
 RUN <<-EOM
     set -e
