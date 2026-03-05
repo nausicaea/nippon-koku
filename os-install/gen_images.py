@@ -380,10 +380,10 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Optionally enable verbose output"
+        "-v", "--verbose", action="store_true", help="Enable verbose output"
     )
     parser.add_argument(
-        "-d", "--debug", action="store_true", help="Optionally enable debugging"
+        "-d", "--debug", action="store_true", help="Enable debugging"
     )
     return parser.parse_args()
 
