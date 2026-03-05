@@ -57,6 +57,11 @@ def parse_args() -> argparse.Namespace:
         default=script_dir / "os-install",
         help="Docker build-context directory",
     )
+    parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="Disable image generation, just build the docker image",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("-d", "--debug", action="store_true")
     return parser.parse_args()
@@ -99,6 +104,7 @@ def main() -> None:
 
     verbose: bool = args.verbose
     debug: bool = args.debug
+    build_only: bool = args.build_only
     prefix: Path = args.prefix.resolve()
     docker_context_dir: Path = args.context.resolve()
     docker_image_tag = "nausicaea/debian-auto:latest"
@@ -130,6 +136,9 @@ def main() -> None:
         stdout=DEVNULL,
         check=True,
     )
+
+    if build_only:
+        sys.exit(0)
 
     payload = json.dumps(
         {
