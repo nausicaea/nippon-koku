@@ -18,6 +18,7 @@ RUN <<-EOM
         syslinux-efi isolinux fdisk python3 \
         python3-passlib
     apt-get clean
+    rm -rf /var/lib/apt/lists/*
 EOM
 
 WORKDIR /src
