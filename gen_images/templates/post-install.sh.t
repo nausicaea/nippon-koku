@@ -55,10 +55,11 @@ EOF
 echo "PI: Stage 2"
 export BOOTSTRAP_BRANCH
 ansible-pull -U "$$BOOTSTRAP_REPO" -C "$$BOOTSTRAP_BRANCH" --clean \
+    --verbose \
     --verify-commit \
     -d "$$BOOTSTRAP_DEST" -i bootstrap/inventory.yml \
     --vault-password-file "$$ANSIBLE_VAULT_PW_FILE" \
-    bootstrap/playbook.yml \
-    || printf 'ERROR: Ansible run failed with status code %s\n' "$$?"
+    bootstrap/playbook.yml 2>&1 \
+    | tee /var/log/installer/ansible-pull.log
 
 echo "END POST INSTALL"
