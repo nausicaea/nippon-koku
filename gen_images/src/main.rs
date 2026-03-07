@@ -42,7 +42,7 @@ fn main() -> anyhow::Result<()> {
 
     let stdin = std::io::stdin();
     let payload: Payload =
-        serde_json::from_reader(BufReader::new(stdin.lock())).map_err(|e| Error::Payload(e))?;
+        serde_json::from_reader(BufReader::new(stdin.lock())).map_err(Error::Payload)?;
     for spec in payload.iter_specs() {
         build_image(&spec, output_dir, cache_dir, tmp_dir, args.verbose)?;
     }
@@ -270,7 +270,7 @@ fn build_image(
         .map(|tp| TempDir::with_prefix_in("staging", tp))
         .unwrap_or_else(|| TempDir::with_prefix("staging"))
         .map_err(|e| Error::Tempdir("staging", e))?;
-    let orig_image = download_image(cache, &spec.debian_version, spec.arch, verbose)?;
+    let orig_image = download_image(cache, spec.debian_version, spec.arch, verbose)?;
     unpack_image(&orig_image, image_staging_dir.path())?;
     template_grub(image_staging_dir.path(), spec)?;
     template_post_install(image_staging_dir.path(), spec)?;
@@ -338,13 +338,13 @@ fn bake_preseed(
             &mut GzDecoder::new(BufReader::new(initrd)),
             &mut initrd_decompressed,
         )
-        .map_err(|e| Error::CopyFileContents(e))?;
+        .map_err(Error::CopyFileContents)?;
     }
 
     // Append the preseed.cfg file into the initrd archive.
     {
         let mut proc = Command::new("cpio")
-            .args(&[
+            .args([
                 "-H",
                 "newc",
                 "-o",
@@ -377,8 +377,8 @@ fn bake_preseed(
         let initrd = File::create(&initrd_path)
             .map_err(|e| Error::FileCreate(initrd_path.to_path_buf(), e))?;
         let mut encoder = GzEncoder::new(initrd, Compression::default());
-        copy(&mut initrd_decompressed, &mut encoder).map_err(|e| Error::CopyFileContents(e))?;
-        encoder.finish().map_err(|e| Error::GzEncoding(e))?;
+        copy(&mut initrd_decompressed, &mut encoder).map_err(Error::CopyFileContents)?;
+        encoder.finish().map_err(Error::GzEncoding)?;
     }
 
     if temp.is_some() {
@@ -538,7 +538,7 @@ fn dd(
 /// `(start_block, block_count)`. Raise `ValueError` if the EFI partition cannot be found.
 fn efi_partition(orig_image: &Path) -> Result<(usize, usize), Error> {
     let output = Command::new("fdisk")
-        .args(&["-l", &orig_image.to_string_lossy()])
+        .args(["-l", &orig_image.to_string_lossy()])
         .output()
         .map_err(|e| Error::ExecuteProcess("fdisk", e))?;
 
@@ -673,7 +673,7 @@ fn download_image(dest: &Path, version: &str, arch: Arch, verbose: bool) -> Resu
 /// Unpack the cached ISO image to a directory.
 fn unpack_image(src: &Path, dest: &Path) -> Result<PathBuf, Error> {
     let status = Command::new("bsdtar")
-        .args(&["-xf", &src.to_string_lossy()])
+        .args(["-xf", &src.to_string_lossy()])
         .current_dir(dest)
         .status()
         .map_err(|e| Error::ExecuteProcess("bsdtar", e))?;
