@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build ./os-install --tag nausicaea/debian-auto:$(date +%s)
+        run: docker build ./gen_images --tag nausicaea/debian-auto:$(date +%s)
