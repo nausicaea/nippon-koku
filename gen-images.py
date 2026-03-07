@@ -54,8 +54,15 @@ def parse_args() -> argparse.Namespace:
         "-c",
         "--context",
         type=Path,
-        default=script_dir / "os-install",
+        default=script_dir / "gen_images",
         help="Docker build-context directory",
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=Path,
+        default=None,
+        help="Docker file path",
     )
     parser.add_argument(
         "--build-only",
@@ -107,6 +114,7 @@ def main() -> None:
     build_only: bool = args.build_only
     prefix: Path = args.prefix.resolve()
     docker_context_dir: Path = args.context.resolve()
+    docker_file_path: Path | None = args.file.resolve() if args.file is not None else None
     docker_image_tag = "nausicaea/debian-auto:latest"
 
     cache_dir = prefix / "cache"
@@ -131,8 +139,11 @@ def main() -> None:
     docker_cli = find_docker_cli()
     if docker_cli.name == "docker":
         os.environ["DOCKER_CLI_HINTS"] = "false"
+    docker_build_args = [docker_cli, "build", "-q", f"-t={docker_image_tag}", docker_context_dir]
+    if docker_file_path is not None:
+        docker_build_args.insert(len(docker_build_args) - 1, f"-f={docker_file_path}")
     run(
-        [docker_cli, "build", "-q", f"-t={docker_image_tag}", docker_context_dir],
+        docker_build_args,
         stdout=DEVNULL,
         check=True,
     )

@@ -4,6 +4,7 @@ sec*.yaml
 .direnv/
 .ansible/
 build/
+target/
 ansible-facts.json
 __pycache__
 

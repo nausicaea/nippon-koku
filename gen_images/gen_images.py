@@ -223,6 +223,7 @@ def _efi_partition(image: Path) -> tuple[int, int]:
     for line in fdisk_list.stdout.splitlines():
         if ".iso2" in line and "EFI" in line:
             parts = line.split()
+            print(repr(parts))
             return int(parts[1]), int(parts[3])
     raise ValueError("Cannot find the EFI partition in the disk image")
 

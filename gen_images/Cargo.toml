@@ -1,0 +1,17 @@
+[package]
+name = "gen-images"
+version = "0.1.0"
+edition = "2024"
+description = "Generates Debian ISO images with a preseed configuration"
+
+[dependencies]
+anyhow = "1.0.102"
+clap = { version = "^4", default-features = false, features = ["derive", "help", "std", "usage"] }
+flate2 = "1.1.9"
+regex = "1.12.3"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+sha-crypt = "0.5.0"
+tempfile = "3.26.0"
+thiserror = "2.0.18"
+ureq = "3.2.0"
