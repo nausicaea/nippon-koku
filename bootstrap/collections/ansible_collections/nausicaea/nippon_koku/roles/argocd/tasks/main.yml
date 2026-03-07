@@ -11,7 +11,7 @@
     wait: true
     values:
       global:
-        domain: "argocd.{{ tailscale_domain }}"
+        domain: "argocd.{{ ansible_local.tailscale.domain }}"
       configs:
         params:
           server.insecure: true

@@ -1,12 +1,12 @@
 ---
 - name: Set some utility facts
   ansible.builtin.set_fact:
-    device: "/dev/{{ lvm_first_vg }}/{{ item.name }}"
+    device: "/dev/{{ ansible_local.lvm.first_vg }}/{{ item.name }}"
     mount_dir: "/var/lib/rancher/k3s/{{ item.mount_dir }}"
 
 - name: "Create the volume {{ item.name }}"
   community.general.lvol:
-    vg: "{{ lvm_first_vg }}"
+    vg: "{{ ansible_local.lvm.first_vg }}"
     lv: "{{ item.name }}"
     size: "{{ item.size }}"
     shrink: false

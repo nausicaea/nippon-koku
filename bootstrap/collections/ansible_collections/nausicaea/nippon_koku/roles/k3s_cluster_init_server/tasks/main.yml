@@ -41,7 +41,7 @@
       - server
       - "--cluster-init"
       - "--token-file=/var/lib/rancher/k3s/server/token"
-      - "--node-ip={{ default_network_address }}"
+      - "--node-ip={{ ansible_local.network.default_address }}"
       - "--tls-san={{ k3s_tls_san }}"
       - "--flannel-backend=none"
       - "--disable-network-policy"

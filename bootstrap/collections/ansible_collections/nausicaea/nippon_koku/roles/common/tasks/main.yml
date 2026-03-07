@@ -1,12 +1,23 @@
 ---
-- name: Gather facts about LVM
-  ansible.builtin.import_tasks:
-    file: gather_lvm_facts.yml
+- name: Ensure the custom fact directory exists
+  ansible.builtin.file:
+    path: "/etc/ansible/facts.d"
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
 
-- name: Gather facts about networking
-  ansible.builtin.import_tasks:
-    file: gather_network_facts.yml
-
-- name: Gather facts about Tailscale
-  ansible.builtin.import_tasks:
-    file: gather_tailscale_facts.yml
+- name: Install custom fact modules
+  ansible.builtin.copy:
+    src: "{item}"
+    dest: "/etc/ansible/facts.d/"
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  loop:
+    - "lvm.fact"
+    - "network.fact"
+    - "tailscale.fact"

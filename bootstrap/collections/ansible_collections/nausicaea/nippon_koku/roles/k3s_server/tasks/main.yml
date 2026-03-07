@@ -32,7 +32,7 @@
       - server
       - "--server={{ k3s_apiserver_url }}"
       - "--token-file=/var/lib/rancher/k3s/server/token"
-      - "--node-ip={{ default_network_address }}"
+      - "--node-ip={{ ansible_local.network.default_address }}"
       - "--tls-san={{ k3s_tls_san }}"
       - "--flannel-backend=none"
       - "--disable-network-policy"
@@ -77,7 +77,7 @@
 - name: Wait for the secondary server node to be ready
   kubernetes.core.k8s_info:
     kind: Node
-    name: "{{ tailscale_host_fqdn }}"
+    name: "{{ ansible_local.tailscale.host_fqdn }}"
     label_selectors:
       - node-role.kubernetes.io/control-plane=true
       - node-role.kubernetes.io/etcd=true

@@ -123,19 +123,19 @@
 
     - name: Determine the host's tailnet FQDN and the short hostname
       ansible.builtin.set_fact:
-        tailscale_domain: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
-        tailscale_host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
+        ansible_local.tailscale.domain: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
+        ansible_local.tailscale.host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
 
 - name: Update the host name
   ansible.builtin.hostname:
-    name: "{{ tailscale_host_fqdn }}"
+    name: "{{ ansible_local.tailscale.host_fqdn }}"
   become: true
 
 - name: Update the hosts file
   ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: "^127\\.0\\.1\\.1"
-    line: "127.0.1.1 {{ tailscale_host_fqdn }} {{ inventory_hostname_short }}"
+    line: "127.0.1.1 {{ ansible_local.tailscale.host_fqdn }} {{ inventory_hostname_short }}"
     owner: root
     group: root
     mode: "0644"
