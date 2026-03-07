@@ -1,6 +1,5 @@
 use clap::Parser;
 use flate2::{Compression, bufread::GzDecoder, write::GzEncoder};
-use regex::Regex;
 use serde::Deserialize;
 use sha_crypt::{Sha512Params, sha512_simple};
 use std::{
@@ -9,7 +8,6 @@ use std::{
     io::{BufReader, BufWriter, Seek, SeekFrom, Write, copy},
     path::{Path, PathBuf},
     process::{Command, ExitStatus, Stdio},
-    sync::LazyLock,
 };
 use tempfile::{NamedTempFile, TempDir};
 
@@ -88,6 +86,10 @@ enum Error {
     EfiPartition,
     #[error(transparent)]
     HttpGetRequest(#[from] ureq::Error),
+    #[error("Expanding parameters in template at {}", .0.display())]
+    TemplateExpand(PathBuf, #[source] subst::error::ExpandError),
+    #[error("Parsing the template at {}", .0.display())]
+    TemplateParse(PathBuf, #[source] subst::error::ParseError),
 }
 
 /// Define all parameters for a particular Debian installer image.
@@ -601,39 +603,21 @@ fn template_preseed(preseed_staging_dir: &Path, spec: &ImageSpec<'_>) -> Result<
     Ok(output)
 }
 
-static SUBSTITUTION: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r#"\$?(\$\{[a-zA-Z][_a-zA-Z0-9]*\}|\$\(.*?\)|\$[a-zA-Z][_a-zA-Z0-9]*)"#).unwrap()
-});
-
 fn render_template(src: &Path, params: &[(&str, &str)]) -> Result<String, Error> {
     let params: HashMap<_, _> = params.iter().copied().collect();
-    let text = std::fs::read_to_string(src).map_err(Error::FileRead)?;
-    let result = SUBSTITUTION.replace_all(&text, |caps: &regex::Captures| {
-        let full = caps.get(0).unwrap().as_str();
-        let inner = caps.get(1).unwrap().as_str();
-
-        // `$$` escape: drop one `$` and emit the placeholder literally. The same applies to bash
-        // command substitution strings that look like string substitution but we are not interested
-        // in those.
-        if full.starts_with("$$") || full.starts_with("$(") {
-            return inner.to_string();
-        }
-
-        // Extract the key name (strip `${` ... `}` or `$`).
-        let key = if inner.starts_with("${") {
-            &inner[2..inner.len() - 1]
-        } else {
-            &inner[1..]
-        };
-
-        // Substitute the placeholder ${key} with the lookup value.
-        params
-            .get(key)
-            .map(|v| v.to_string())
-            .unwrap_or_else(|| panic!("Unknown placeholder key '{key}'"))
-    });
-
-    Ok(result.into_owned())
+    let text = std::fs::read_to_string(src)
+        .map_err(Error::FileRead)?
+        // Double-escape backslashes.
+        .replace(r#"\"#, r#"\\"#)
+        // Replace the Python string.Template escape sequence with one the `subst` crate
+        // understands.
+        .replace("$$", r#"\$"#);
+    let template = subst::TemplateBuf::from_string(text)
+        .map_err(|e| Error::TemplateParse(src.to_path_buf(), e))?;
+    let result = template
+        .expand(&params)
+        .map_err(|e| Error::TemplateExpand(src.to_path_buf(), e))?;
+    Ok(result)
 }
 
 fn template_post_install(image_staging_dir: &Path, spec: &ImageSpec<'_>) -> Result<PathBuf, Error> {
