@@ -1,0 +1,13 @@
+---
+- name: Testing Play
+  hosts: localhost
+  tags: always
+  gather_facts: true
+  tasks:
+    - name: Show all local facts
+      ansible.builtin.debug:
+        var: ansible_local
+
+    - name: Show all ansible facts
+      ansible.builtin.debug:
+        var: ansible_facts

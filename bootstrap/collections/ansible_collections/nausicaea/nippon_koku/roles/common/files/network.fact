@@ -1,8 +1,22 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import json
 import subprocess
 import sys
+import shutil
+from dataclasses import dataclass, asdict
+from typing import Any, IO
+
+
+@dataclass
+class Facts:
+    success: bool
+    error: str | None = None
+    default_address: str | None = None
+
+    def to_json(self, f: IO[str]) -> None:
+        data = {key: value for key, value in asdict(self).items() if value is not None}
+        json.dump(data, f)
 
 
 def get_default_route(family):
@@ -42,14 +56,21 @@ def get_address(family):
     return None
 
 
+def gather_facts() -> Facts:
+    inet_address = get_address("inet")
+    inet6_address = get_address("inet6")
+
+    match (inet_address, inet6_address):
+        case None, None:
+            return Facts(success=False, error="No default IPv4 or IPv6 route found")
+        case s, None:
+            return Facts(success=True, default_address=s)
+        case None, s:
+            return Facts(success=True, default_address=s)
+
+
 def main():
-    address = get_address("inet") or get_address("inet6")
-
-    if not address:
-        json.dump({"error": "No default IPv4 or IPv6 route found", "default_address": ""}, sys.stdout)
-        sys.exit(0)
-
-    json.dump({"default_address": address}, sys.stdout)
+    gather_facts().to_json(sys.stdout)
 
 
 if __name__ == "__main__":

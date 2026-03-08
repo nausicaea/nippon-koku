@@ -8,6 +8,7 @@ pkgs.mkShell {
         pkgs.openssl
         pkgs.ansible
         pkgs.ansible-lint
+        pkgs.python313Packages.jedi-language-server
         pkgs.kubeseal
         pkgs.pre-commit
         pkgs.cargo

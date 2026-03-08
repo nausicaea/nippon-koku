@@ -1,29 +1,55 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import json
 import subprocess
 import sys
+import shutil
+import pathlib
+from dataclasses import dataclass, asdict
+from typing import Any, IO
+
+
+@dataclass
+class Facts:
+    success: bool
+    error: str | None = None
+    first_vg: str | None = None
+    vgs_report: dict[str, Any] | None = None
+
+    def to_json(self, f: IO[str]) -> None:
+        data = {key: value for key, value in asdict(self).items() if value is not None}
+        json.dump(data, f)
+
+
+def gather_facts() -> Facts:
+    vgs = shutil.which("vgs")
+    if vgs is None:
+        return Facts(success=False, error="vgs command not found")
+
+    output = subprocess.run(
+        [pathlib.Path(vgs), "--reportformat=json"],
+        capture_output=True,
+        text=True,
+    )
+
+    if output.returncode != 0:
+        return Facts(success=False, error=f"vgs command failed: {output.stderr.strip()}")
+
+    try:
+        vgs_report = json.loads(output.stdout)
+    except json.JSONDecodeError as e:
+        return Facts(success=False, error=f"failed to parse vgs output: {e}, {output.stdout}")
+
+    try:
+        first_volume_group = vgs_report["report"][0]["vg"][0]
+    except (KeyError, IndexError) as e:
+        return Facts(success=False, error=f"could not find any volume groups: {e}, {vgs_report}")
+
+    return Facts(success=True, first_vg=first_volume_group["vg_name"], vgs_report=vgs_report)
 
 
 def main():
-    try:
-        result = subprocess.run(
-            ["/usr/sbin/vgs", "--reportformat=json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        vgs = json.loads(result.stdout)["report"][0]["vg"]
-    except subprocess.CalledProcessError as e:
-        json.dump({"error": f"vgs command failed: {e.stderr.strip()}", "vgs": [], "first_vg": ""}, sys.stdout)
-        sys.exit(0)
-    except (json.JSONDecodeError, KeyError, IndexError) as e:
-        json.dump({"error": f"Failed to parse vgs output: {e}", "vgs": [], "first_vg": ""}, sys.stdout)
-        sys.exit(0)
-
-    first_vg = vgs[0]["vg_name"] if vgs else ""
-
-    json.dump({"vgs": vgs, "first_vg": first_vg}, sys.stdout)
+    gather_facts().to_json(sys.stdout)
 
 
 if __name__ == "__main__":
