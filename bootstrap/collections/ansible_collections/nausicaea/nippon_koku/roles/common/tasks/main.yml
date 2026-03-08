@@ -11,7 +11,7 @@
 
 - name: Install custom fact modules
   ansible.builtin.copy:
-    src: "{item}"
+    src: "{{ item }}"
     dest: "/etc/ansible/facts.d/"
     owner: root
     group: root
