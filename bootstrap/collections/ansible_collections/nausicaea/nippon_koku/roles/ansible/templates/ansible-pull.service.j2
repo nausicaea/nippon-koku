@@ -9,14 +9,15 @@ User={{ nausicaea.common.ansible_user }}
 Group={{ nausicaea.common.ansible_group }}
 EnvironmentFile=-/etc/default/ansible-pull
 ExecStart=/usr/bin/ansible-pull \
-    -U "{{ nausicaea.common.repo }}" \
-    -C "$BOOTSTRAP_BRANCH" \
+    --url="{{ nausicaea.common.repo }}" \
+    --checkout="$BOOTSTRAP_BRANCH" \
+    --directory="{{ nausicaea.common.checkout_dir }}" \
+    --inventory="bootstrap/inventory.yml" \
+    --connection="local" \
+    --vault-password-file="{{ nausicaea.common.ansible_vault_password_file }}" \
     --clean \
-    -d "{{ nausicaea.common.checkout_dir }}" \
-    -c local \
-    -i bootstrap/inventory.yml \
-    --vault-password-file "{{ nausicaea.common.ansible_vault_password_file }}" \
-    bootstrap/playbook.yml
+    --verify-commit \
+    "bootstrap/playbook.yml"
 
 [Install]
 WantedBy=multi-user.target
