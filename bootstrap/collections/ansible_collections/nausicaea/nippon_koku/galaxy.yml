@@ -3,11 +3,12 @@ name: nippon_koku
 version: 0.2.0
 readme: README.md
 authors:
-- Eleanor Young <developer@nausicaea.net>
+  - Eleanor Young <developer@nausicaea.net>
 description: your collection description
 license:
-- GPL-3.0-or-later
-tags: []
+  - GPL-3.0-or-later
+tags:
+  - infrastructure
 dependencies:
   ansible.posix: 2.1.0
   community.crypto: 3.0.5
