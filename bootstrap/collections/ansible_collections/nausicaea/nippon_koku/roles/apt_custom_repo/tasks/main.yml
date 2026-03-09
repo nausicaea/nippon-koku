@@ -1,4 +1,10 @@
 ---
+- name: Install GPG
+  ansible.builtin.package:
+    name: gpg
+    state: present
+  become: true
+
 - name: Ensure the keyrings directory exists
   ansible.builtin.file:
     path: "{{ nausicaea.apt_custom_repo.vars.operator_keyrings }}"
