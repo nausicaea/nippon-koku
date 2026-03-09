@@ -22,12 +22,12 @@ class Facts:
 
 
 def gather_facts() -> Facts:
-    vgs = shutil.which("vgs")
-    if vgs is None:
-        return Facts(success=False, error="vgs command not found")
+    sudo = shutil.which("sudo")
+    if sudo is None:
+        return Facts(success=False, error="sudo command not found")
 
     output = subprocess.run(
-        [pathlib.Path(vgs), "--reportformat=json"],
+        [pathlib.Path(sudo), "-n", "--", "vgs", "--reportformat=json"],
         capture_output=True,
         text=True,
     )
