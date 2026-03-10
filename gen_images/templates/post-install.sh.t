@@ -63,6 +63,8 @@ ansible-pull \
     --connection="local" \
     --vault-password-file="$$ANSIBLE_VAULT_PW_FILE" \
     --clean \
+    --full \
+    --only-if-changed \
     "bootstrap/playbook.yml" 2>&1 \
     | tee /var/log/installer/ansible \
     || printf 'ERROR: Ansible run failed with status code %s\n' "$$?"

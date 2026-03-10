@@ -16,6 +16,8 @@ ExecStart=/usr/bin/ansible-pull \
     --connection="local" \
     --vault-password-file="{{ nausicaea.common.ansible_vault_password_file }}" \
     --clean \
+    --full \
+    --only-if-changed \
     "bootstrap/playbook.yml"
 
 [Install]
