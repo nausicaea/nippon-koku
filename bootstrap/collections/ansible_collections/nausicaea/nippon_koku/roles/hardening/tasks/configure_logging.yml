@@ -17,7 +17,12 @@
     resizefs: true
     state: present
   become: true
+  register: cgf_output
   when: ansible_local.lvm.first_vg is defined
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: cgf_output
 
 - name: Create the logging mount directory
   ansible.builtin.file:
@@ -27,6 +32,41 @@
     group: root
     mode: "u=rwx,go=rx"
   become: true
+
+- name: Check if the logging volume is already mounted
+  ansible.builtin.set_fact:
+    log_volume_mounted: >-
+      {{
+        ansible_mounts | selectattr('mount', 'equalto', '/var/log') | list | length > 0
+      }}
+
+- name: Mount the logging volume temporarily for data migration
+  ansible.posix.mount:
+    path: /mnt/log_migration
+    src: "/dev/{{ ansible_local.lvm.first_vg }}/log"
+    fstype: ext4
+    state: ephemeral
+  become: true
+  when:
+    - ansible_local.lvm.first_vg is defined
+    - not log_volume_mounted
+
+- name: Copy existing /var/log contents to the new volume
+  ansible.builtin.command:
+    cmd: cp -a /var/log/. /mnt/log_migration/
+  become: true
+  when:
+    - ansible_local.lvm.first_vg is defined
+    - not log_volume_mounted
+
+- name: Unmount the temporary migration mount
+  ansible.posix.mount:
+    path: /mnt/log_migration
+    state: absent
+  become: true
+  when:
+    - ansible_local.lvm.first_vg is defined
+    - not log_volume_mounted
 
 - name: Mount the logging volume
   ansible.posix.mount:
