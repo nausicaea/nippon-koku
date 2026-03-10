@@ -3,10 +3,15 @@
   hosts: localhost
   tags: always
   gather_facts: true
+  become: true
   tasks:
     - name: Show all local facts
       ansible.builtin.debug:
         var: ansible_local
+
+    - name: Show all LVM facts
+      ansible.builtin.debug:
+        var: ansible_lvm
 
     - name: Show all ansible facts
       ansible.builtin.debug:

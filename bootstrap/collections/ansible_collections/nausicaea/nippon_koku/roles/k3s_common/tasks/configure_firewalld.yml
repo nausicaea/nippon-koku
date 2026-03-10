@@ -9,9 +9,6 @@
   become: true
   notify: Reload Firewalld
 
-- name: Run the queued handlers
-  ansible.builtin.meta: flush_handlers
-
 - name: Create the K3s zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
@@ -19,6 +16,9 @@
     permanent: true
   become: true
   notify: Reload Firewalld
+
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Bind the K3s zone to the pod IP addresses
   ansible.posix.firewalld:
@@ -56,6 +56,7 @@
     target: ACCEPT
     state: enabled
     permanent: true
+    immediate: true
   become: true
   notify: Reload Firewalld
 
