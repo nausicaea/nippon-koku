@@ -17,12 +17,7 @@
     resizefs: true
     state: present
   become: true
-  register: cgf_output
   when: ansible_local.lvm.first_vg is defined
-
-- name: DEBUG
-  ansible.builtin.debug:
-    var: cgf_output
 
 - name: Create the logging mount directory
   ansible.builtin.file:
