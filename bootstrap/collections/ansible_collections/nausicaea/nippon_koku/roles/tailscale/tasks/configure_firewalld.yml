@@ -17,16 +17,12 @@
   become: true
   notify: Reload Firewalld
 
-- name: Run the queued handlers
-  ansible.builtin.meta: flush_handlers
-
 - name: Bind the Tailscale zone to the tailscale0 interface
   ansible.posix.firewalld:
     zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
     interface: tailscale0
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -36,7 +32,6 @@
     target: ACCEPT
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -46,7 +41,6 @@
     forward: true
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -56,7 +50,6 @@
     masquerade: true
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
 
@@ -91,6 +84,5 @@
     service: "{{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
     state: enabled
     permanent: true
-    immediate: true
   become: true
   notify: Reload Firewalld
