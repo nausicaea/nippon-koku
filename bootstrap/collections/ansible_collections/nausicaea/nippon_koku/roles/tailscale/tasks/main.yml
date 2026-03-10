@@ -115,16 +115,10 @@
   check_mode: false
   become: true
 
-- name: What is the MagicDNS suffix and the host's DNS name?
-  block:
-    - name: Parse the output of Tailscale status as JSON
-      ansible.builtin.set_fact:
-        tailscale_status: "{{ tailscale_status_raw.stdout | from_json }}"
-
-    - name: Determine the host's tailnet FQDN and the short hostname
-      ansible.builtin.set_fact:
-        ansible_local.tailscale.domain: "{{ tailscale_status | json_query('MagicDNSSuffix') }}"
-        ansible_local.tailscale.host_fqdn: "{{ (tailscale_status | json_query('Self.DNSName')).rstrip('.') }}"
+- name: Reload custom facts
+  ansible.builtin.setup:
+    filter: 
+      - ansible_local
 
 - name: Update the host name
   ansible.builtin.hostname:
