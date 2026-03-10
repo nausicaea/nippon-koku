@@ -1,4 +1,17 @@
 ---
+- name: Create the Tailscale service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--new-service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.tailscale.vars.firewalld_p2p_service }}.xml"
+  become: true
+  notify: Reload Firewalld
+
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
+
 - name: Create the Tailscale zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.tailscale.vars.firewalld_zone }}"
@@ -45,19 +58,6 @@
     immediate: true
   become: true
   notify: Reload Firewalld
-
-- name: Create the Tailscale service
-  ansible.builtin.command:
-    argv:
-      - firewall-cmd
-      - "--permanent"
-      - "--new-service={{ nausicaea.tailscale.vars.firewalld_p2p_service }}"
-    creates: "/etc/firewalld/services/{{ nausicaea.tailscale.vars.firewalld_p2p_service }}.xml"
-  become: true
-  notify: Reload Firewalld
-
-- name: Run the queued handlers
-  ansible.builtin.meta: flush_handlers
 
 - name: Was the UDP P2P port already assigned to the Tailscale service?
   ansible.builtin.command:

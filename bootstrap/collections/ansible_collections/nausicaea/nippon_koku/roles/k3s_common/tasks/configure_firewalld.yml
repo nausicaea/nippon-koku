@@ -1,4 +1,17 @@
 ---
+- name: Create the K3s service
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - "--permanent"
+      - "--new-service={{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
+    creates: "/etc/firewalld/services/{{ nausicaea.k3s_common.vars.firewalld_k3s_service }}.xml"
+  become: true
+  notify: Reload Firewalld
+
+- name: Run the queued handlers
+  ansible.builtin.meta: flush_handlers
+
 - name: Create the K3s zone
   ansible.posix.firewalld:
     zone: "{{ nausicaea.k3s_common.vars.firewalld_zone }}"
@@ -65,19 +78,6 @@
     immediate: true
   become: true
   notify: Reload Firewalld
-
-- name: Create the K3s service
-  ansible.builtin.command:
-    argv:
-      - firewall-cmd
-      - "--permanent"
-      - "--new-service={{ nausicaea.k3s_common.vars.firewalld_k3s_service }}"
-    creates: "/etc/firewalld/services/{{ nausicaea.k3s_common.vars.firewalld_k3s_service }}.xml"
-  become: true
-  notify: Reload Firewalld
-
-- name: Run the queued handlers
-  ansible.builtin.meta: flush_handlers
 
 - name: Assign ports to the K3s service
   ansible.builtin.include_tasks:
