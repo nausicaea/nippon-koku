@@ -1,5 +1,5 @@
 let
-    nixpkgs = fetchTarball { name = "nixpkgs-25.11"; url = "https://github.com/NixOS/nixpkgs/archive/nixos-25.11.tar.gz"; sha256 = "0rb04nkqgcglpjnm418qr59y0i6mjlvgn7j1hxhgl48dpavbs36b"; };
+    nixpkgs = fetchTarball { name = "nixpkgs-25.11"; url = "https://github.com/NixOS/nixpkgs/archive/nixos-25.11.tar.gz"; sha256 = "1v4f4p1v444r56m6n4jdjc6i1wg3gx724l0rnr45j6cvn5hf5zf9"; };
     pkgs = import nixpkgs { config = {}; overrides = []; };
 in
 pkgs.mkShell {
