@@ -26,6 +26,7 @@
         - tailscale
         - k3s_cluster_init_server
         - k3s_server
+        - applications
 
 - name: Show additional information on a host
   hosts: all
@@ -115,7 +116,7 @@
     - nausicaea.nippon_koku.k3s_server
 
 - name: Deploy applications
-  hosts: dyn_stage_live_and_k3s_cluster_init_server
+  hosts: dyn_stage_live_and_applications
   tags: applications
   module_defaults:
     kubernetes.core.k8s:
