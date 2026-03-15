@@ -69,6 +69,38 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable image generation, just build the docker image",
     )
+    parser.add_argument(
+        "-t",
+        "--tag",
+        default="nausicaea/debian-auto:latest",
+        help="Tag for the locally built Docker image",
+    )
+    parser.add_argument(
+        "--bootstrap-branch",
+        default="main",
+        help="Branch name to retrieve the Ansible playbook from for host provisioning",
+    )
+    parser.add_argument(
+        "--debian-mirror",
+        default="deb.debian.org",
+        help="FQDN of the Debian download mirror",
+    )
+    parser.add_argument(
+        "--debian-version",
+        default="13.4.0",
+        help="Debian version used to create the installer image",
+    )
+    parser.add_argument(
+        "-I",
+        "--install-nonfree-firmware",
+        action="store_true",
+        help="Also install nonfree firmware",
+    )
+    parser.add_argument(
+        "--timezone",
+        default="Europe/Zurich",
+        help="The primary timezone for the installer image",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("-d", "--debug", action="store_true")
     return parser.parse_args()
@@ -115,7 +147,12 @@ def main() -> None:
     prefix: Path = args.prefix.resolve()
     docker_context_dir: Path = args.context.resolve()
     docker_file_path: Path | None = args.file.resolve() if args.file is not None else None
-    docker_image_tag = "nausicaea/debian-auto:latest"
+    docker_image_tag: str = args.tag
+    bootstrap_branch: str = args.bootstrap_branch
+    debian_mirror: str = args.debian_mirror
+    debian_version: str = args.debian_version
+    install_nonfree_firmware: bool = args.install_nonfree_firmware
+    timezone: str = args.timezone
 
     cache_dir = prefix / "cache"
     artifacts_dir = prefix / "artifacts"
@@ -158,6 +195,13 @@ def main() -> None:
             "git_author_email": git_author_email,
             "git_author_ssh_pub": git_author_ssh_pub,
             "host_data": host_data,
+            "options": {
+                "bootstrap_branch": bootstrap_branch,
+                "debian_mirror": debian_mirror,
+                "debian_version": debian_version,
+                "install_nonfree_firmware": install_nonfree_firmware,
+                "timezone": timezone,
+            },
         }
     )
 

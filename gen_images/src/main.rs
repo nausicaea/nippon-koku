@@ -84,8 +84,8 @@ enum Error {
     ParseInt(String, #[source] std::num::ParseIntError),
     #[error("Cannot find the EFI partition in the disk image")]
     EfiPartition,
-    #[error(transparent)]
-    HttpGetRequest(#[from] ureq::Error),
+    #[error("Error with GET request to '{0}'")]
+    HttpGetRequest(String, #[source] ureq::Error),
     #[error("Expanding parameters in template at {}", .0.display())]
     TemplateExpand(PathBuf, #[source] subst::error::ExpandError),
     #[error("Parsing the template at {}", .0.display())]
@@ -149,6 +149,7 @@ struct HostData {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct Options {
     bootstrap_repo: String,
     bootstrap_branch: String,
@@ -167,8 +168,8 @@ impl Default for Options {
             bootstrap_repo: "https://iris.radicle.xyz/zoBPQV6X2FH296n9gQxJr6suvSSi.git".into(),
             bootstrap_branch: "main".into(),
             bootstrap_dest: "/var/lib/ansible/repo".into(),
-            debian_mirror: "debian.ethz.ch".into(),
-            debian_version: "13.3.0".into(),
+            debian_mirror: "deb.debian.org".into(),
+            debian_version: "13.4.0".into(),
             install_nonfree_firmware: false,
             timezone: "Europe/Zurich".into(),
             domain: None,
@@ -653,6 +654,9 @@ fn download_image(dest: &Path, version: &str, arch: Arch, verbose: bool) -> Resu
     let image_url = format!(
         "https://cdimage.debian.org/debian-cd/{version}/{arch}/iso-cd/debian-{version}-{arch}-netinst.iso"
     );
+    let image_archive_url = format!(
+        "https://cdimage.debian.org/cdimage/archive/{version}/{arch}/iso-cd/debian-{version}-{arch}-netinst.iso"
+    );
     let dest = dest.join(format!("debian-{version}-{arch}-netinst.iso"));
     if dest.is_file() {
         return Ok(dest);
@@ -660,7 +664,17 @@ fn download_image(dest: &Path, version: &str, arch: Arch, verbose: bool) -> Resu
     if verbose {
         eprintln!("Downloading '{image_url}' to '{}'", dest.display());
     }
-    let mut response = ureq::get(&image_url).call()?;
+    let mut response = ureq::get(&image_url)
+        .call()
+        .map_err(|e| Error::HttpGetRequest(image_url, e))
+        .or_else(|e| {
+            let Error::HttpGetRequest(_, ureq::Error::StatusCode(_)) = e else {
+                return Err(e);
+            };
+            ureq::get(&image_archive_url)
+                .call()
+                .map_err(|e| Error::HttpGetRequest(image_archive_url, e))
+        })?;
     let dest_file = File::create(&dest).map_err(|e| Error::FileCreate(dest.to_path_buf(), e))?;
     copy(
         &mut response.body_mut().as_reader(),
