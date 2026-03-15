@@ -192,10 +192,10 @@
       ansible.builtin.import_role:
         name: nausicaea.nippon_koku.traefik_config
 
-    - name: Install and configure Minecraft
-      tags: minecraft
-      ansible.builtin.import_role:
-        name: nausicaea.nippon_koku.minecraft
+    # - name: Install and configure Minecraft
+    #   tags: minecraft
+    #   ansible.builtin.import_role:
+    #     name: nausicaea.nippon_koku.minecraft
 
     - name: Install and configure Jellyfin
       tags: jellyfin
