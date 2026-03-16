@@ -43,8 +43,9 @@ d-i clock-setup/ntp boolean true
 # Thanks to @cavcrosby for the tip with the early command! https://github.com/cavcrosby/homelab-cm/blob/9339b9ed805f71064f81bc868d435503eb01e6f6/preseed.cfg.j2#L103C1-L103C126
 d-i partman/early_command string debconf-set partman-auto/disk "$$(readlink -f "${boot_device}")"
 d-i partman-auto/method string lvm
-d-i partman-auto-lvm/guided_size string max
 d-i partman-auto/choose_recipe select server
+d-i partman-auto-lvm/new_vg_name string vg00
+d-i partman-auto-lvm/guided_size string max
 
 # Force UEFI booting
 #d-i partman-efi/non_efi_system boolean true
@@ -94,7 +95,8 @@ d-i debian-installer/add-kernel-opts string audit=1
 #   Shell command or commands to run in the d-i environment as late as possible
 # d-i preseed/late_command string <string>
 d-i preseed/late_command string \
-    in-target sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config; \
+    lvscan; \
+    lvremove -f /dev/vg00/srv; \
     mkdir -p /target/tmp; \
     cp /cdrom/post-install.sh /target/tmp/post-install.sh; \
     chmod 0500 /target/tmp/post-install.sh; \
