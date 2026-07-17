@@ -11,7 +11,7 @@ WORKDIR /artifacts
 RUN --mount=type=cache,target=/src/target cp /src/target/release/gen-images /artifacts/gen-images
 
 
-FROM docker.io/library/alpine:3.21@sha256:c3f8e73fdb79deaebaa2037150150191b9dcbfba68b4a46d70103204c53f4709
+FROM docker.io/library/alpine:3.24@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
 
 LABEL org.opencontainers.image.title="Debian Automated Install Builder"
 LABEL org.opencontainers.image.description="Builds Debian ISO installers with a preseed configuration"
