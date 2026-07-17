@@ -13,7 +13,7 @@ dependencies:
   ansible.posix: 2.2.1
   community.crypto: 3.2.2
   community.general: 12.6.2
-  devsec.hardening: 10.5.0
+  devsec.hardening: 10.6.0
   kubernetes.core: 6.5.0
 repository: https://app.radicle.xyz/nodes/seed.radicle.garden/rad%3AzoBPQV6X2FH296n9gQxJr6suvSSi
 homepage: https://app.radicle.xyz/nodes/seed.radicle.garden/rad%3AzoBPQV6X2FH296n9gQxJr6suvSSi
