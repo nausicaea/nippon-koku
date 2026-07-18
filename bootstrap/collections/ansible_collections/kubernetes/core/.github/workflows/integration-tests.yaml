@@ -22,7 +22,7 @@ jobs:
       test_jobs: ${{ steps.splitter.outputs.test_jobs }}
     steps:
       - name: Checkout the collection repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: ${{ env.source_dir }}
           fetch-depth: "0"
@@ -81,7 +81,7 @@ jobs:
           echo "ansible_test_targets -> ${{ steps.read-targets.outputs.ansible_test_targets }}"
 
       - name: Checkout kubernetes.core repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: ${{ env.source }}
           ref: ${{ github.event.pull_request.head.sha }}
