@@ -10,7 +10,7 @@ license:
 tags:
   - infrastructure
 dependencies:
-  ansible.posix: 2.2.1
+  ansible.posix: 2.2.2
   community.crypto: 3.2.2
   community.general: 13.1.0
   devsec.hardening: 10.6.0
