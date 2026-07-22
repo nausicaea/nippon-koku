@@ -1,5 +1,5 @@
 kubernetes-validate
-coverage==7.15.1
+coverage==7.15.2
 mock
 pytest
 pytest-xdist
