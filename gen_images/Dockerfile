@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.97.1-alpine3.21@sha256:7bae7c67364dad5ebbd4060923b34d734fbed66d7c1cf3af72aa2f062af93eb6 AS builder
+FROM docker.io/library/rust:1.98.0-alpine3.21@sha256:be16a9d9cccef227ee15132389e0744e354dbedca527b0a048a1671853e3f354 AS builder
 
 RUN apk add --no-cache openssl-libs-static openssl-dev musl-dev
 WORKDIR /src
